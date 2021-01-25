@@ -1,3 +1,3 @@
-package rescue
+package main
 
 func main() {}
