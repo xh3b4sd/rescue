@@ -1,6 +1,10 @@
 package rescue
 
+import "github.com/xh3b4sd/rescue/pkg/task"
+
 type Interface interface {
-	Claim() (Task, error)
-	Purge(t Task) error
+	Create(t *task.Task) error
+	Delete(t *task.Task) error
+	Expire() error
+	Search() (*task.Task, error)
 }
