@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	loggerfake "github.com/xh3b4sd/logger/fake"
-	redigofake "github.com/xh3b4sd/redigo/fake"
+	redigofake "github.com/xh3b4sd/redigo/pkg/fake"
 
 	"github.com/xh3b4sd/rescue"
 )
