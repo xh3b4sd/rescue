@@ -10,7 +10,7 @@ import (
 
 	"github.com/xh3b4sd/logger/fake"
 	"github.com/xh3b4sd/redigo"
-	"github.com/xh3b4sd/redigo/client"
+	"github.com/xh3b4sd/redigo/pkg/client"
 	"github.com/xh3b4sd/tracer"
 
 	"github.com/xh3b4sd/rescue/pkg/task"
