@@ -383,7 +383,7 @@ func (e *Engine) searchAll() ([]*task.Task, error) {
 	{
 		k := key.Task
 
-		str, err = e.redigo.Sorted().Search().Index(k, 0, -1)
+		str, err = e.redigo.Sorted().Search().Order(k, 0, -1)
 		if err != nil {
 			return nil, tracer.Mask(err)
 		}
