@@ -73,8 +73,8 @@ github.com/stvp/tempredis v0.0.0-20181119212430-b82af8480203 h1:QVqDTf3h2WHt08Yu
 github.com/stvp/tempredis v0.0.0-20181119212430-b82af8480203/go.mod h1:oqN97ltKNihBbwlX8dLpwxCl3+HnXKV/R0e+sRLd9C8=
 github.com/xh3b4sd/budget v0.2.1 h1:wn1s+MpnJPfusLN28jH7cH2v4SeP0ldmmwU6H6FRARI=
 github.com/xh3b4sd/budget v0.2.1/go.mod h1:Qq5YihqFy2k1Q3TX+QhlPQYlLtA98ZxNwkWiX72mlAU=
-github.com/xh3b4sd/logger v0.1.2 h1:zEE3obzyrGofvTNbT+T2U654e9XwqmGbzyktdRB1BR8=
-github.com/xh3b4sd/logger v0.1.2/go.mod h1:/mTz2elyBeH3rPq5vEqAJRWYt/6huhY/b3Hrzych2GE=
+github.com/xh3b4sd/logger v0.2.0 h1:IAMhu5QB/HHucgX/tiNRl7/Of7Gq3bSZ4NBCtnFIh48=
+github.com/xh3b4sd/logger v0.2.0/go.mod h1:mVsr+vC1BnsU4v5ZjNYWfLM0SYVxNs9M9neRTOV9RJU=
 github.com/xh3b4sd/random v0.2.1 h1:Y7frHrlwd1h+vEEsZNAwYZZwORB/iE8ULKOECzTs2m8=
 github.com/xh3b4sd/random v0.2.1/go.mod h1:LIZv1tXabOPqDaYnHVlR1tfFdOwS7xd7eNfP0BvmeNM=
 github.com/xh3b4sd/redigo v0.16.0 h1:PojjFc1hDcgRQVX8ipjpl3x7XVh4fVlLgqaV0zMMwps=
