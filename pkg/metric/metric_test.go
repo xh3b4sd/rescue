@@ -49,13 +49,6 @@ func Test_Metric(t *testing.T) {
 	}
 
 	{
-		i := m.Engine.Metric.Cal.Get()
-		if i != 0 {
-			t.Fatal("i must be 0")
-		}
-	}
-
-	{
 		m.Engine.Create.Cal.Dec()
 		m.Engine.Create.Cal.Dec()
 		m.Engine.Create.Cal.Dec()
