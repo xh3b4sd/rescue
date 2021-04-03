@@ -59,6 +59,8 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(c.metric.Task.NotFound.Des() /*******/, prometheus.CounterValue /***/, c.metric.Task.NotFound.Get())
 	ch <- prometheus.MustNewConstMetric(c.metric.Task.Outdated.Des() /*******/, prometheus.CounterValue /***/, c.metric.Task.Outdated.Get())
 	ch <- prometheus.MustNewConstMetric(c.metric.Task.Queued.Des() /*********/, prometheus.CounterValue /***/, c.metric.Task.Queued.Get())
+
+	c.metric.Reset()
 }
 
 func (c *Collector) Describe(ch chan<- *prometheus.Desc) {

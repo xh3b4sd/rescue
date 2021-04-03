@@ -65,32 +65,34 @@ func New() *Collection {
 		},
 	}
 
+	m.Reset()
+
 	return m
 }
 
 func (m *Collection) Reset() {
-	m.Engine.Create.Cal.Set(0)
-	m.Engine.Create.Dur.Set(0)
-	m.Engine.Create.Err.Set(0)
+	m.Engine.Create.Cal.Res()
+	m.Engine.Create.Dur.Res()
+	m.Engine.Create.Err.Res()
 
-	m.Engine.Delete.Cal.Set(0)
-	m.Engine.Delete.Dur.Set(0)
-	m.Engine.Delete.Err.Set(0)
+	m.Engine.Delete.Cal.Res()
+	m.Engine.Delete.Dur.Res()
+	m.Engine.Delete.Err.Res()
 
-	m.Engine.Expire.Cal.Set(0)
-	m.Engine.Expire.Dur.Set(0)
-	m.Engine.Expire.Err.Set(0)
+	m.Engine.Expire.Cal.Res()
+	m.Engine.Expire.Dur.Res()
+	m.Engine.Expire.Err.Res()
 
-	m.Engine.Metric.Cal.Set(0)
-	m.Engine.Metric.Dur.Set(0)
-	m.Engine.Metric.Err.Set(0)
+	m.Engine.Metric.Cal.Res()
+	m.Engine.Metric.Dur.Res()
+	m.Engine.Metric.Err.Res()
 
-	m.Engine.Search.Cal.Set(0)
-	m.Engine.Search.Dur.Set(0)
-	m.Engine.Search.Err.Set(0)
+	m.Engine.Search.Cal.Res()
+	m.Engine.Search.Dur.Res()
+	m.Engine.Search.Err.Res()
 
-	m.Task.Expired.Set(0)
-	m.Task.NotFound.Set(0)
-	m.Task.Outdated.Set(0)
-	m.Task.Queued.Set(0)
+	m.Task.Expired.Res()
+	m.Task.NotFound.Res()
+	m.Task.Outdated.Res()
+	m.Task.Queued.Res()
 }

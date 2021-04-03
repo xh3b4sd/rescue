@@ -7,6 +7,7 @@ type Interface interface {
 	Des() *prometheus.Desc
 	Get() float64
 	Inc()
+	Res()
 	Set(i float64)
 	Sin(o func() error) error
 }
