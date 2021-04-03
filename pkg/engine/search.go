@@ -39,7 +39,7 @@ func (e *Engine) search() (*task.Task, error) {
 			return nil, tracer.Mask(err)
 		}
 
-		e.metric.Task.NotFound.Set(float64(len(tks)))
+		e.metric.Task.Queued.Set(float64(len(tks)))
 	}
 
 	var tsk *task.Task

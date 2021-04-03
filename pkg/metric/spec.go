@@ -1,9 +1,12 @@
 package metric
 
-type Collector interface {
+import "github.com/prometheus/client_golang/prometheus"
+
+type Interface interface {
 	Dec()
-	Dur(o func() error) error
+	Des() *prometheus.Desc
 	Get() float64
 	Inc()
 	Set(i float64)
+	Sin(o func() error) error
 }
