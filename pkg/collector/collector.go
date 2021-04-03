@@ -35,30 +35,30 @@ func New(config Config) (*Collector, error) {
 }
 
 func (c *Collector) Collect(ch chan<- prometheus.Metric) {
-	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Create.Cal.Des(), prometheus.CounterValue, c.metric.Engine.Create.Cal.Get())
-	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Create.Dur.Des(), prometheus.GaugeValue, c.metric.Engine.Create.Dur.Get())
-	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Create.Err.Des(), prometheus.CounterValue, c.metric.Engine.Create.Err.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Create.Cal.Des() /***/, prometheus.CounterValue /***/, c.metric.Engine.Create.Cal.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Create.Dur.Des() /***/, prometheus.GaugeValue /*****/, c.metric.Engine.Create.Dur.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Create.Err.Des() /***/, prometheus.CounterValue /***/, c.metric.Engine.Create.Err.Get())
 
-	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Delete.Cal.Des(), prometheus.CounterValue, c.metric.Engine.Delete.Cal.Get())
-	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Delete.Dur.Des(), prometheus.GaugeValue, c.metric.Engine.Delete.Dur.Get())
-	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Delete.Err.Des(), prometheus.CounterValue, c.metric.Engine.Delete.Err.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Delete.Cal.Des() /***/, prometheus.CounterValue /***/, c.metric.Engine.Delete.Cal.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Delete.Dur.Des() /***/, prometheus.GaugeValue /*****/, c.metric.Engine.Delete.Dur.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Delete.Err.Des() /***/, prometheus.CounterValue /***/, c.metric.Engine.Delete.Err.Get())
 
-	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Expire.Cal.Des(), prometheus.CounterValue, c.metric.Engine.Expire.Cal.Get())
-	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Expire.Dur.Des(), prometheus.GaugeValue, c.metric.Engine.Expire.Dur.Get())
-	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Expire.Err.Des(), prometheus.CounterValue, c.metric.Engine.Expire.Err.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Expire.Cal.Des() /***/, prometheus.CounterValue /***/, c.metric.Engine.Expire.Cal.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Expire.Dur.Des() /***/, prometheus.GaugeValue /*****/, c.metric.Engine.Expire.Dur.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Expire.Err.Des() /***/, prometheus.CounterValue /***/, c.metric.Engine.Expire.Err.Get())
 
-	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Metric.Cal.Des(), prometheus.CounterValue, c.metric.Engine.Metric.Cal.Get())
-	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Metric.Dur.Des(), prometheus.GaugeValue, c.metric.Engine.Metric.Dur.Get())
-	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Metric.Err.Des(), prometheus.CounterValue, c.metric.Engine.Metric.Err.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Metric.Cal.Des() /***/, prometheus.CounterValue /***/, c.metric.Engine.Metric.Cal.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Metric.Dur.Des() /***/, prometheus.GaugeValue /*****/, c.metric.Engine.Metric.Dur.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Metric.Err.Des() /***/, prometheus.CounterValue /***/, c.metric.Engine.Metric.Err.Get())
 
-	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Search.Cal.Des(), prometheus.CounterValue, c.metric.Engine.Search.Cal.Get())
-	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Search.Dur.Des(), prometheus.GaugeValue, c.metric.Engine.Search.Dur.Get())
-	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Search.Err.Des(), prometheus.CounterValue, c.metric.Engine.Search.Err.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Search.Cal.Des() /***/, prometheus.CounterValue /***/, c.metric.Engine.Search.Cal.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Search.Dur.Des() /***/, prometheus.GaugeValue /*****/, c.metric.Engine.Search.Dur.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Search.Err.Des() /***/, prometheus.CounterValue /***/, c.metric.Engine.Search.Err.Get())
 
-	ch <- prometheus.MustNewConstMetric(c.metric.Task.Expired.Des(), prometheus.CounterValue, c.metric.Task.Expired.Get())
-	ch <- prometheus.MustNewConstMetric(c.metric.Task.NotFound.Des(), prometheus.CounterValue, c.metric.Task.NotFound.Get())
-	ch <- prometheus.MustNewConstMetric(c.metric.Task.Outdated.Des(), prometheus.CounterValue, c.metric.Task.Outdated.Get())
-	ch <- prometheus.MustNewConstMetric(c.metric.Task.Queued.Des(), prometheus.CounterValue, c.metric.Task.Queued.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Task.Expired.Des() /********/, prometheus.CounterValue /***/, c.metric.Task.Expired.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Task.NotFound.Des() /*******/, prometheus.CounterValue /***/, c.metric.Task.NotFound.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Task.Outdated.Des() /*******/, prometheus.CounterValue /***/, c.metric.Task.Outdated.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Task.Queued.Des() /*********/, prometheus.CounterValue /***/, c.metric.Task.Queued.Get())
 }
 
 func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
