@@ -12,6 +12,7 @@ type Metric struct {
 	d *prometheus.Desc
 	i float64
 	m sync.Mutex
+	s []float64
 }
 
 func (m *Metric) Dec() {
@@ -39,6 +40,11 @@ func (m *Metric) Inc() {
 	m.i = m.i + 1
 }
 
+func (m *Metric) Res() {
+	m.i = 0
+	m.s = []float64{}
+}
+
 func (m *Metric) Set(i float64) {
 	m.m.Lock()
 	defer m.m.Unlock()
@@ -52,7 +58,8 @@ func (m *Metric) Sin(o func() error) error {
 
 	s := time.Now()
 	defer func() {
-		m.i = time.Since(s).Seconds()
+		m.s = append(m.s, time.Since(s).Seconds())
+		m.i = avg(m.s)
 	}()
 
 	err := o()
@@ -61,4 +68,13 @@ func (m *Metric) Sin(o func() error) error {
 	}
 
 	return nil
+}
+
+func avg(l []float64) float64 {
+	var s float64
+	for _, f := range l {
+		s += f
+	}
+
+	return s / float64(len(l))
 }
