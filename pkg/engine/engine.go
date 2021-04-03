@@ -14,7 +14,7 @@ import (
 
 type Config struct {
 	Logger logger.Interface
-	Metric *metric.Metric
+	Metric *metric.Collection
 	Redigo redigo.Interface
 
 	Owner string
@@ -23,7 +23,7 @@ type Config struct {
 
 type Engine struct {
 	logger logger.Interface
-	metric *metric.Metric
+	metric *metric.Collection
 	redigo redigo.Interface
 
 	owner string
@@ -63,7 +63,7 @@ func New(config Config) (*Engine, error) {
 func (e *Engine) Create(tsk *task.Task) error {
 	var err error
 
-	e.metric.Engine.Create.Action.Inc()
+	e.metric.Engine.Create.Cal.Inc()
 
 	o := func() error {
 		err = e.create(tsk)
@@ -74,9 +74,9 @@ func (e *Engine) Create(tsk *task.Task) error {
 		return nil
 	}
 
-	err = e.metric.Engine.Create.Action.Dur(o)
+	err = e.metric.Engine.Create.Dur.Sin(o)
 	if err != nil {
-		e.metric.Engine.Create.Error.Inc()
+		e.metric.Engine.Create.Err.Inc()
 		return tracer.Mask(err)
 	}
 
@@ -86,7 +86,7 @@ func (e *Engine) Create(tsk *task.Task) error {
 func (e *Engine) Delete(tsk *task.Task) error {
 	var err error
 
-	e.metric.Engine.Delete.Action.Inc()
+	e.metric.Engine.Delete.Cal.Inc()
 
 	o := func() error {
 		err = e.delete(tsk)
@@ -97,9 +97,9 @@ func (e *Engine) Delete(tsk *task.Task) error {
 		return nil
 	}
 
-	err = e.metric.Engine.Delete.Action.Dur(o)
+	err = e.metric.Engine.Delete.Dur.Sin(o)
 	if err != nil {
-		e.metric.Engine.Delete.Error.Inc()
+		e.metric.Engine.Delete.Err.Inc()
 		return tracer.Mask(err)
 	}
 
@@ -109,7 +109,7 @@ func (e *Engine) Delete(tsk *task.Task) error {
 func (e *Engine) Expire() error {
 	var err error
 
-	e.metric.Engine.Expire.Action.Inc()
+	e.metric.Engine.Expire.Cal.Inc()
 
 	o := func() error {
 		err = e.expire()
@@ -120,9 +120,9 @@ func (e *Engine) Expire() error {
 		return nil
 	}
 
-	err = e.metric.Engine.Expire.Action.Dur(o)
+	err = e.metric.Engine.Expire.Dur.Sin(o)
 	if err != nil {
-		e.metric.Engine.Expire.Error.Inc()
+		e.metric.Engine.Expire.Err.Inc()
 		return tracer.Mask(err)
 	}
 
@@ -130,7 +130,7 @@ func (e *Engine) Expire() error {
 }
 
 func (e *Engine) Metric() metric.Metric {
-	e.metric.Engine.Metric.Action.Inc()
+	e.metric.Engine.Metric.Cal.Inc()
 
 	return metric.Metric{}
 }
@@ -139,7 +139,7 @@ func (e *Engine) Search() (*task.Task, error) {
 	var err error
 	var tsk *task.Task
 
-	e.metric.Engine.Search.Action.Inc()
+	e.metric.Engine.Search.Cal.Inc()
 
 	o := func() error {
 		tsk, err = e.search()
@@ -150,9 +150,9 @@ func (e *Engine) Search() (*task.Task, error) {
 		return nil
 	}
 
-	err = e.metric.Engine.Search.Action.Dur(o)
+	err = e.metric.Engine.Search.Dur.Sin(o)
 	if err != nil {
-		e.metric.Engine.Search.Error.Inc()
+		e.metric.Engine.Search.Err.Inc()
 		return nil, tracer.Mask(err)
 	}
 

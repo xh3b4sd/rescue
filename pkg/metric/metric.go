@@ -1,80 +1,64 @@
 package metric
 
+import (
+	"sync"
+	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/xh3b4sd/tracer"
+)
+
 type Metric struct {
-	Engine *MetricEngine
-	Task   *MetricTask
+	d *prometheus.Desc
+	i float64
+	m sync.Mutex
 }
 
-type MetricEngine struct {
-	Create *MetricEngineCollector
-	Delete *MetricEngineCollector
-	Expire *MetricEngineCollector
-	Metric *MetricEngineCollector
-	Search *MetricEngineCollector
+func (m *Metric) Dec() {
+	m.m.Lock()
+	defer m.m.Unlock()
+
+	m.i = m.i - 1
 }
 
-type MetricEngineCollector struct {
-	Action Collector
-	Error  Collector
+func (m *Metric) Des() *prometheus.Desc {
+	return m.d
 }
 
-type MetricTask struct {
-	Expired  Collector
-	NotFound Collector
-	Outdated Collector
+func (m *Metric) Get() float64 {
+	m.m.Lock()
+	defer m.m.Unlock()
+
+	return m.i
 }
 
-func New() *Metric {
-	m := &Metric{
-		Engine: &MetricEngine{
-			Create: &MetricEngineCollector{
-				Action: &collector{},
-				Error:  &collector{},
-			},
-			Delete: &MetricEngineCollector{
-				Action: &collector{},
-				Error:  &collector{},
-			},
-			Expire: &MetricEngineCollector{
-				Action: &collector{},
-				Error:  &collector{},
-			},
-			Metric: &MetricEngineCollector{
-				Action: &collector{},
-				Error:  &collector{},
-			},
-			Search: &MetricEngineCollector{
-				Action: &collector{},
-				Error:  &collector{},
-			},
-		},
-		Task: &MetricTask{
-			Expired:  &collector{},
-			NotFound: &collector{},
-			Outdated: &collector{},
-		},
+func (m *Metric) Inc() {
+	m.m.Lock()
+	defer m.m.Unlock()
+
+	m.i = m.i + 1
+}
+
+func (m *Metric) Set(i float64) {
+	m.m.Lock()
+	defer m.m.Unlock()
+
+	m.i = i
+}
+
+func (m *Metric) Sin(o func() error) error {
+	m.m.Lock()
+	defer m.m.Unlock()
+
+	s := time.Now()
+	defer func() {
+		m.i = time.Since(s).Seconds()
+	}()
+
+	err := o()
+	if err != nil {
+		return tracer.Mask(err)
 	}
 
-	return m
-}
-
-func (m *Metric) Reset() {
-	m.Engine.Create.Action.Set(0)
-	m.Engine.Create.Error.Set(0)
-
-	m.Engine.Delete.Action.Set(0)
-	m.Engine.Delete.Error.Set(0)
-
-	m.Engine.Expire.Action.Set(0)
-	m.Engine.Expire.Error.Set(0)
-
-	m.Engine.Metric.Action.Set(0)
-	m.Engine.Metric.Error.Set(0)
-
-	m.Engine.Search.Action.Set(0)
-	m.Engine.Search.Error.Set(0)
-
-	m.Task.Expired.Set(0)
-	m.Task.NotFound.Set(0)
-	m.Task.Outdated.Set(0)
+	return nil
 }
