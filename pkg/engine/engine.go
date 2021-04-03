@@ -129,12 +129,6 @@ func (e *Engine) Expire() error {
 	return nil
 }
 
-func (e *Engine) Metric() metric.Metric {
-	e.metric.Engine.Metric.Cal.Inc()
-
-	return metric.Metric{}
-}
-
 func (e *Engine) Search() (*task.Task, error) {
 	var err error
 	var tsk *task.Task

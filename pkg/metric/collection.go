@@ -11,7 +11,6 @@ type CollectionEngine struct {
 	Create *CollectionEngineCollector
 	Delete *CollectionEngineCollector
 	Expire *CollectionEngineCollector
-	Metric *CollectionEngineCollector
 	Search *CollectionEngineCollector
 }
 
@@ -46,11 +45,6 @@ func New() *Collection {
 				Dur: &Metric{d: prometheus.NewDesc("rescue_engine_expire_duration_seconds" /***/, "the number of seconds a call to Engine.Expire took", nil, nil)},
 				Err: &Metric{d: prometheus.NewDesc("rescue_engine_expire_error_total" /********/, "the number of errors a call to Engine.Expire produced", nil, nil)},
 			},
-			Metric: &CollectionEngineCollector{
-				Cal: &Metric{d: prometheus.NewDesc("rescue_engine_metric_call_total" /*********/, "the number of times a call to Engine.Metric was made", nil, nil)},
-				Dur: &Metric{d: prometheus.NewDesc("rescue_engine_metric_duration_seconds" /***/, "the number of seconds a call to Engine.Metric took", nil, nil)},
-				Err: &Metric{d: prometheus.NewDesc("rescue_engine_metric_error_total" /********/, "the number of errors a call to Engine.Metric produced", nil, nil)},
-			},
 			Search: &CollectionEngineCollector{
 				Cal: &Metric{d: prometheus.NewDesc("rescue_engine_search_call_total" /*********/, "the number of times a call to Engine.Search was made", nil, nil)},
 				Dur: &Metric{d: prometheus.NewDesc("rescue_engine_search_duration_seconds" /***/, "the number of seconds a call to Engine.Search took", nil, nil)},
@@ -82,10 +76,6 @@ func (m *Collection) Reset() {
 	m.Engine.Expire.Cal.Res()
 	m.Engine.Expire.Dur.Res()
 	m.Engine.Expire.Err.Res()
-
-	m.Engine.Metric.Cal.Res()
-	m.Engine.Metric.Dur.Res()
-	m.Engine.Metric.Err.Res()
 
 	m.Engine.Search.Cal.Res()
 	m.Engine.Search.Dur.Res()
