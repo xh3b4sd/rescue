@@ -3,6 +3,7 @@ module github.com/xh3b4sd/rescue
 go 1.15
 
 require (
+	github.com/google/go-cmp v0.5.5
 	github.com/prometheus/client_golang v1.10.0
 	github.com/xh3b4sd/budget v0.2.1
 	github.com/xh3b4sd/logger v0.2.0

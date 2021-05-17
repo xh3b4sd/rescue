@@ -96,6 +96,44 @@ func Test_Engine_Lifecycle(t *testing.T) {
 		}
 	}
 
+	{
+		tsk := &task.Task{
+			Obj: task.TaskObj{
+				Metadata: map[string]string{
+					"test.rescue.io/key": "foo",
+				},
+			},
+		}
+
+		exi, err := eon.Exists(tsk)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if !exi {
+			t.Fatal("task must exist")
+		}
+	}
+
+	{
+		tsk := &task.Task{
+			Obj: task.TaskObj{
+				Metadata: map[string]string{
+					"test.rescue.io/key": "bar",
+				},
+			},
+		}
+
+		exi, err := etw.Exists(tsk)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if !exi {
+			t.Fatal("task must exist")
+		}
+	}
+
 	erc := make(chan error, 1)
 
 	go func() {
@@ -160,6 +198,44 @@ func Test_Engine_Lifecycle(t *testing.T) {
 		}
 
 		{
+			tsk := &task.Task{
+				Obj: task.TaskObj{
+					Metadata: map[string]string{
+						"test.rescue.io/key": "foo",
+					},
+				},
+			}
+
+			exi, err := eon.Exists(tsk)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if exi {
+				t.Fatal("task must not exist")
+			}
+		}
+
+		{
+			tsk := &task.Task{
+				Obj: task.TaskObj{
+					Metadata: map[string]string{
+						"test.rescue.io/key": "bar",
+					},
+				},
+			}
+
+			exi, err := etw.Exists(tsk)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if exi {
+				t.Fatal("task must not exist")
+			}
+		}
+
+		{
 			_, err = eon.Search()
 			if !IsNoTask(err) {
 				erc <- fmt.Errorf("queue must be empty")
@@ -182,7 +258,7 @@ func Test_Engine_Lifecycle(t *testing.T) {
 	}
 }
 
-func Test_Engine_Expire(t *testing.T) {
+func Test_Engine_Expire_Default(t *testing.T) {
 	var err error
 
 	var red redigo.Interface
@@ -208,8 +284,8 @@ func Test_Engine_Expire(t *testing.T) {
 			Logger: fake.New(),
 			Redigo: red,
 
-			Owner:  "eon",
-			Expire: time.Millisecond,
+			Owner: "eon",
+			TTL:   time.Millisecond,
 		}
 
 		eon, err = New(c)
@@ -224,8 +300,8 @@ func Test_Engine_Expire(t *testing.T) {
 			Logger: fake.New(),
 			Redigo: red,
 
-			Owner:  "etw",
-			Expire: time.Millisecond,
+			Owner: "etw",
+			TTL:   time.Millisecond,
 		}
 
 		etw, err = New(c)

@@ -106,6 +106,30 @@ func (e *Engine) Delete(tsk *task.Task) error {
 	return nil
 }
 
+func (e *Engine) Exists(tsk *task.Task) (bool, error) {
+	var err error
+	var exi bool
+
+	e.metric.Engine.Exists.Cal.Inc()
+
+	o := func() error {
+		exi, err = e.exists(tsk)
+		if err != nil {
+			return tracer.Mask(err)
+		}
+
+		return nil
+	}
+
+	err = e.metric.Engine.Exists.Dur.Sin(o)
+	if err != nil {
+		e.metric.Engine.Delete.Err.Inc()
+		return false, tracer.Mask(err)
+	}
+
+	return exi, nil
+}
+
 func (e *Engine) Expire() error {
 	var err error
 
