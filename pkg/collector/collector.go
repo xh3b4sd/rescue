@@ -43,6 +43,10 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Delete.Dur.Des() /***/, prometheus.GaugeValue /*****/, c.metric.Engine.Delete.Dur.Get())
 	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Delete.Err.Des() /***/, prometheus.CounterValue /***/, c.metric.Engine.Delete.Err.Get())
 
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Exists.Cal.Des() /***/, prometheus.CounterValue /***/, c.metric.Engine.Exists.Cal.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Exists.Dur.Des() /***/, prometheus.GaugeValue /*****/, c.metric.Engine.Exists.Dur.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Exists.Err.Des() /***/, prometheus.CounterValue /***/, c.metric.Engine.Exists.Err.Get())
+
 	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Expire.Cal.Des() /***/, prometheus.CounterValue /***/, c.metric.Engine.Expire.Cal.Get())
 	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Expire.Dur.Des() /***/, prometheus.GaugeValue /*****/, c.metric.Engine.Expire.Dur.Get())
 	ch <- prometheus.MustNewConstMetric(c.metric.Engine.Expire.Err.Des() /***/, prometheus.CounterValue /***/, c.metric.Engine.Expire.Err.Get())

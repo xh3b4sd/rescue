@@ -10,6 +10,7 @@ type Collection struct {
 type CollectionEngine struct {
 	Create *CollectionEngineCollector
 	Delete *CollectionEngineCollector
+	Exists *CollectionEngineCollector
 	Expire *CollectionEngineCollector
 	Search *CollectionEngineCollector
 }
@@ -39,6 +40,11 @@ func New() *Collection {
 				Cal: &Metric{d: prometheus.NewDesc("rescue_engine_delete_call_total" /*********/, "the number of times a call to Engine.Delete was made", nil, nil)},
 				Dur: &Metric{d: prometheus.NewDesc("rescue_engine_delete_duration_seconds" /***/, "the number of seconds a call to Engine.Delete took", nil, nil)},
 				Err: &Metric{d: prometheus.NewDesc("rescue_engine_delete_error_total" /********/, "the number of errors a call to Engine.Delete produced", nil, nil)},
+			},
+			Exists: &CollectionEngineCollector{
+				Cal: &Metric{d: prometheus.NewDesc("rescue_engine_exists_call_total" /*********/, "the number of times a call to Engine.Exists was made", nil, nil)},
+				Dur: &Metric{d: prometheus.NewDesc("rescue_engine_exists_duration_seconds" /***/, "the number of seconds a call to Engine.Exists took", nil, nil)},
+				Err: &Metric{d: prometheus.NewDesc("rescue_engine_exists_error_total" /********/, "the number of errors a call to Engine.Exists produced", nil, nil)},
 			},
 			Expire: &CollectionEngineCollector{
 				Cal: &Metric{d: prometheus.NewDesc("rescue_engine_expire_call_total" /*********/, "the number of times a call to Engine.Expire was made", nil, nil)},
@@ -72,6 +78,10 @@ func (m *Collection) Reset() {
 	m.Engine.Delete.Cal.Res()
 	m.Engine.Delete.Dur.Res()
 	m.Engine.Delete.Err.Res()
+
+	m.Engine.Exists.Cal.Res()
+	m.Engine.Exists.Dur.Res()
+	m.Engine.Exists.Err.Res()
 
 	m.Engine.Expire.Cal.Res()
 	m.Engine.Expire.Dur.Res()
