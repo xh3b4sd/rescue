@@ -258,7 +258,7 @@ func Test_Engine_Lifecycle(t *testing.T) {
 	}
 }
 
-func Test_Engine_Expire_Default(t *testing.T) {
+func Test_Engine_Expire(t *testing.T) {
 	var err error
 
 	var red redigo.Interface
