@@ -18,10 +18,6 @@ func (t *Task) GetBackoff() int {
 func (t *Task) GetExpire() int64 {
 	exp := t.Obj.Metadata["task.rescue.io/expire"]
 
-	if exp == "" {
-		return 0
-	}
-
 	e, err := strconv.ParseInt(exp, 10, 64)
 	if err != nil {
 		panic(err)
