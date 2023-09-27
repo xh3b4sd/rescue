@@ -65,7 +65,7 @@ func (e *Engine) delete(tas *task.Task) error {
 		k := key.Queue(e.que)
 		s := tas.GetID()
 
-		str, err := e.red.Sorted().Search().Value(k, s, s)
+		str, err := e.red.Sorted().Search().Score(k, s, s)
 		if err != nil {
 			return tracer.Mask(err)
 		}
