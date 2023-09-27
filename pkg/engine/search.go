@@ -134,7 +134,7 @@ func (e *Engine) search() (*task.Task, error) {
 		v := task.ToString(tas)
 		s := tas.GetID()
 
-		_, err := e.red.Sorted().Update().Index(k, v, s)
+		_, err := e.red.Sorted().Update().Score(k, v, s)
 		if err != nil {
 			return nil, tracer.Mask(err)
 		}

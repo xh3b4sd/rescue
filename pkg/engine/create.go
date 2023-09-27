@@ -84,7 +84,7 @@ func (e *Engine) create(tas *task.Task) error {
 		v := task.ToString(tas)
 		s := tid
 
-		err = e.red.Sorted().Create().Score(k, v, s)
+		err = e.red.Sorted().Create().Value(k, v, s)
 		if err != nil {
 			return tracer.Mask(err)
 		}
