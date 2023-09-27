@@ -101,7 +101,7 @@ func (e *Engine) extend(tas *task.Task) error {
 		v := task.ToString(cur)
 		s := cur.GetID()
 
-		_, err := e.red.Sorted().Update().Index(k, v, s)
+		_, err := e.red.Sorted().Update().Score(k, v, s)
 		if err != nil {
 			return tracer.Mask(err)
 		}
