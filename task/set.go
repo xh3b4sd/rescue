@@ -3,7 +3,7 @@ package task
 import (
 	"strconv"
 
-	"github.com/xh3b4sd/rescue/pkg/metadata"
+	"github.com/xh3b4sd/rescue/metadata"
 )
 
 func (t *Task) SetBackoff(b int) {

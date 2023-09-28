@@ -5,7 +5,7 @@ import (
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/tracer"
 
-	"github.com/xh3b4sd/rescue/pkg/metric"
+	"github.com/xh3b4sd/rescue/metric"
 )
 
 type Config struct {

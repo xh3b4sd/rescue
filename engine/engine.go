@@ -6,9 +6,9 @@ import (
 
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/redigo"
-	"github.com/xh3b4sd/rescue/pkg/balancer"
-	"github.com/xh3b4sd/rescue/pkg/metric"
-	"github.com/xh3b4sd/rescue/pkg/random"
+	"github.com/xh3b4sd/rescue/balancer"
+	"github.com/xh3b4sd/rescue/metric"
+	"github.com/xh3b4sd/rescue/random"
 )
 
 const (

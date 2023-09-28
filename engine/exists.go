@@ -1,11 +1,10 @@
 package engine
 
 import (
+	"github.com/xh3b4sd/rescue/metadata"
+	"github.com/xh3b4sd/rescue/task"
+	"github.com/xh3b4sd/rescue/validate"
 	"github.com/xh3b4sd/tracer"
-
-	"github.com/xh3b4sd/rescue/pkg/metadata"
-	"github.com/xh3b4sd/rescue/pkg/task"
-	"github.com/xh3b4sd/rescue/pkg/validate"
 )
 
 func (e *Engine) Exists(tas *task.Task) (bool, error) {

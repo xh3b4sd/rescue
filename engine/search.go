@@ -4,10 +4,9 @@ import (
 	"sort"
 	"time"
 
+	"github.com/xh3b4sd/rescue/key"
+	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/tracer"
-
-	"github.com/xh3b4sd/rescue/pkg/key"
-	"github.com/xh3b4sd/rescue/pkg/task"
 )
 
 func (e *Engine) Search() (*task.Task, error) {

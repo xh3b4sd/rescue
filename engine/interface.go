@@ -1,7 +1,7 @@
-package rescue
+package engine
 
 import (
-	"github.com/xh3b4sd/rescue/pkg/task"
+	"github.com/xh3b4sd/rescue/task"
 )
 
 type Interface interface {

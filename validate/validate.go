@@ -3,9 +3,8 @@ package validate
 import (
 	"strings"
 
+	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/tracer"
-
-	"github.com/xh3b4sd/rescue/pkg/task"
 )
 
 func Empty(tas *task.Task) error {
