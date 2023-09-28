@@ -44,47 +44,32 @@ func Test_Engine_Balance(t *testing.T) {
 
 	var eon *Engine
 	{
-		c := Config{
+		eon = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 
 			Owner: "eon",
-		}
-
-		eon, err = New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		})
 	}
 
 	var etw *Engine
 	{
-		c := Config{
+		etw = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 
 			Owner: "etw",
-		}
-
-		etw, err = New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		})
 	}
 
 	var eth *Engine
 	{
-		c := Config{
+		eth = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 
 			Owner: "eth",
-		}
-
-		eth, err = New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		})
 	}
 
 	{
@@ -212,34 +197,24 @@ func Test_Engine_Delete(t *testing.T) {
 
 	var eon *Engine
 	{
-		c := Config{
+		eon = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 
 			Owner: "eon",
 			TTL:   1 * time.Millisecond,
-		}
-
-		eon, err = New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		})
 	}
 
 	var etw *Engine
 	{
-		c := Config{
+		etw = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 
 			Owner: "etw",
 			TTL:   1 * time.Millisecond,
-		}
-
-		etw, err = New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		})
 	}
 
 	{
@@ -338,18 +313,13 @@ func Test_Engine_Exists(t *testing.T) {
 
 	var eon *Engine
 	{
-		c := Config{
+		eon = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 
 			Owner: "eon",
 			TTL:   500 * time.Millisecond,
-		}
-
-		eon, err = New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		})
 	}
 
 	{
@@ -492,34 +462,24 @@ func Test_Engine_Expire(t *testing.T) {
 
 	var eon *Engine
 	{
-		c := Config{
+		eon = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 
 			Owner: "eon",
 			TTL:   time.Millisecond,
-		}
-
-		eon, err = New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		})
 	}
 
 	var etw *Engine
 	{
-		c := Config{
+		etw = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 
 			Owner: "etw",
 			TTL:   time.Millisecond,
-		}
-
-		etw, err = New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		})
 	}
 
 	{
@@ -651,34 +611,24 @@ func Test_Engine_Extend(t *testing.T) {
 
 	var eon *Engine
 	{
-		c := Config{
+		eon = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 
 			Owner: "eon",
 			TTL:   time.Second,
-		}
-
-		eon, err = New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		})
 	}
 
 	var etw *Engine
 	{
-		c := Config{
+		etw = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 
 			Owner: "etw",
 			TTL:   time.Second,
-		}
-
-		etw, err = New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		})
 	}
 
 	{
@@ -942,32 +892,22 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 	var eon *Engine
 	{
-		c := Config{
+		eon = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 
 			Owner: "eon",
-		}
-
-		eon, err = New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		})
 	}
 
 	var etw *Engine
 	{
-		c := Config{
+		etw = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 
 			Owner: "etw",
-		}
-
-		etw, err = New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		})
 	}
 
 	{
@@ -1187,34 +1127,24 @@ func Test_Engine_Lister_Order(t *testing.T) {
 
 	var eon *Engine
 	{
-		c := Config{
+		eon = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 
 			Owner: "eon",
 			TTL:   500 * time.Millisecond,
-		}
-
-		eon, err = New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		})
 	}
 
 	var etw *Engine
 	{
-		c := Config{
+		etw = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 
 			Owner: "etw",
 			TTL:   500 * time.Millisecond,
-		}
-
-		etw, err = New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		})
 	}
 
 	{
@@ -1512,34 +1442,24 @@ func Test_Engine_Queue(t *testing.T) {
 
 	var eon *Engine
 	{
-		c := Config{
+		eon = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 
 			Queue: "one",
 			TTL:   500 * time.Millisecond,
-		}
-
-		eon, err = New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		})
 	}
 
 	var etw *Engine
 	{
-		c := Config{
+		etw = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 
 			Queue: "two",
 			TTL:   500 * time.Millisecond,
-		}
-
-		etw, err = New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		})
 	}
 
 	{

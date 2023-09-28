@@ -2,67 +2,32 @@ package random
 
 import (
 	"crypto/rand"
-
-	"github.com/xh3b4sd/budget/v3"
-	"github.com/xh3b4sd/budget/v3/pkg/breaker"
-	"github.com/xh3b4sd/random"
+	"math/big"
 )
 
 const (
-	Len = 5
+	Length = 5
+	Number = "0123456789"
+	Letter = "abcdefghijklmnopqrstuvwxyz"
 )
 
 const (
-	Digits = "0123456789"
-	Lower  = "abcdefghijklmnopqrstuvwxyz"
+	all = Number + Letter
 )
 
-const (
-	chars = Digits + Lower
-)
+// New returns a new random string that can be used to generate a worker name.
+// Worker names are reflected in task metadata using the owner label.
+func New() string {
+	var ran string
 
-func MustNew() string {
-	var err error
-
-	var bre budget.Interface
-	{
-		c := breaker.Config{
-			Limiter: breaker.Limiter{
-				Budget: Len,
-			},
-		}
-
-		bre, err = breaker.New(c)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	var ran random.Interface
-	{
-		c := random.Config{
-			Budget:     bre,
-			RandFunc:   rand.Int,
-			RandReader: rand.Reader,
-		}
-
-		ran, err = random.New(c)
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	var pas string
-	{
-		lis, err := ran.NMax(Len, len(chars))
+	for i := 0; i < Length; i++ {
+		ind, err := rand.Int(rand.Reader, big.NewInt(int64(len(all))))
 		if err != nil {
 			panic(err)
 		}
 
-		for _, i := range lis {
-			pas += string(chars[i])
-		}
+		ran += string(all[ind.Int64()])
 	}
 
-	return pas
+	return ran
 }

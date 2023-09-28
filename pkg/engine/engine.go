@@ -6,8 +6,6 @@ import (
 
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/redigo"
-	"github.com/xh3b4sd/tracer"
-
 	"github.com/xh3b4sd/rescue/pkg/balancer"
 	"github.com/xh3b4sd/rescue/pkg/metric"
 	"github.com/xh3b4sd/rescue/pkg/random"
@@ -39,24 +37,24 @@ type Engine struct {
 	ttl time.Duration
 }
 
-func New(config Config) (*Engine, error) {
+func New(config Config) *Engine {
 	if config.Balancer == nil {
 		config.Balancer = balancer.Default()
 	}
 	if config.Logger == nil {
-		return nil, tracer.Maskf(invalidConfigError, "%T.Logger must not be empty", config)
+		config.Logger = logger.Default()
 	}
 	if config.Metric == nil {
 		config.Metric = metric.Default()
 	}
 	if config.Owner == "" {
-		config.Owner = random.MustNew()
+		config.Owner = random.New()
 	}
 	if config.Queue == "" {
 		config.Queue = "def"
 	}
 	if config.Redigo == nil {
-		return nil, tracer.Maskf(invalidConfigError, "%T.Redigo must not be empty", config)
+		config.Redigo = redigo.Default()
 	}
 	if config.TTL == 0 {
 		config.TTL = TTL
@@ -73,5 +71,5 @@ func New(config Config) (*Engine, error) {
 		ttl: config.TTL,
 	}
 
-	return e, nil
+	return e
 }
