@@ -6,8 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-
-	"github.com/xh3b4sd/rescue/pkg/metadata"
+	"github.com/xh3b4sd/rescue/metadata"
 )
 
 func Test_Task_Pref(t *testing.T) {

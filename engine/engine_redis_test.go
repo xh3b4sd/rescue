@@ -13,10 +13,9 @@ import (
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/redigo"
 	"github.com/xh3b4sd/redigo/pkg/client"
+	"github.com/xh3b4sd/rescue/metadata"
+	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/tracer"
-
-	"github.com/xh3b4sd/rescue/pkg/metadata"
-	"github.com/xh3b4sd/rescue/pkg/task"
 )
 
 func Test_Engine_Balance(t *testing.T) {
