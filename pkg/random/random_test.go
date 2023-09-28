@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func Test_Random_MustNew(t *testing.T) {
+func Test_Random_New(t *testing.T) {
 	mut := sync.Mutex{}
 	see := map[string]struct{}{}
 
