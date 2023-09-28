@@ -10,19 +10,12 @@ import (
 )
 
 func Test_Engine_Interface(t *testing.T) {
-	var err error
-
 	var e *Engine
 	{
-		c := Config{
+		e = New(Config{
 			Logger: logger.Fake(),
 			Redigo: fake.New(),
-		}
-
-		e, err = New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
+		})
 	}
 
 	var _ rescue.Interface = e
