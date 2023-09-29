@@ -244,6 +244,10 @@ func Test_Engine_Delete(t *testing.T) {
 	}
 
 	{
+		time.Sleep(1 * time.Millisecond)
+	}
+
+	{
 		err = eon.Expire()
 		if err != nil {
 			t.Fatal(err)
