@@ -2,7 +2,7 @@ package engine
 
 import (
 	"github.com/xh3b4sd/rescue/task"
-	"github.com/xh3b4sd/rescue/validate"
+	"github.com/xh3b4sd/rescue/verify"
 	"github.com/xh3b4sd/tracer"
 )
 
@@ -33,17 +33,17 @@ func (e *Engine) Lister(tas *task.Task) ([]*task.Task, error) {
 func (e *Engine) lister(tas *task.Task) ([]*task.Task, error) {
 	var err error
 
-	// We validate the given task metadata in order to ensure that no domain
-	// metadata specific to the rescue internals are provided. That is to not
-	// let arbitrary processes purposfully list tasks by ID because that ability
-	// could be abused to take ownership from worker processes that may not be
-	// aware of the corruption.
+	// We verify the given task metadata in order to ensure that no domain
+	// metadata specific to the rescue internals are provided. That is to not let
+	// arbitrary processes purposfully list tasks by ID because that ability could
+	// be abused to take ownership from worker processes that may not be aware of
+	// the corruption.
 	{
-		err = validate.Empty(tas)
+		err = verify.Empty(tas)
 		if err != nil {
 			return nil, tracer.Mask(err)
 		}
-		err = validate.Label(tas)
+		err = verify.Label(tas)
 		if err != nil {
 			return nil, tracer.Mask(err)
 		}

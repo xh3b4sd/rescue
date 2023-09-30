@@ -1,7 +1,7 @@
 package task
 
 const (
-	// Privileged is to bypass certain design specific safeguards. Privileged may
+	// Bypass is to work around certain design specific safeguards. Bypass may
 	// never be used, unless very good reasons demand it for special use cases.
 	Bypass = "task.rescue.io/bypass"
 

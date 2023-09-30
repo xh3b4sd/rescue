@@ -2,7 +2,7 @@ package engine
 
 import (
 	"github.com/xh3b4sd/rescue/task"
-	"github.com/xh3b4sd/rescue/validate"
+	"github.com/xh3b4sd/rescue/verify"
 	"github.com/xh3b4sd/tracer"
 )
 
@@ -34,7 +34,7 @@ func (e *Engine) exists(tas *task.Task) (bool, error) {
 	var err error
 
 	{
-		err = validate.Empty(tas)
+		err = verify.Empty(tas)
 		if err != nil {
 			return false, tracer.Mask(err)
 		}
