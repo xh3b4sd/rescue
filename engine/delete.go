@@ -3,7 +3,7 @@ package engine
 import (
 	"github.com/xh3b4sd/rescue/key"
 	"github.com/xh3b4sd/rescue/task"
-	"github.com/xh3b4sd/rescue/validate"
+	"github.com/xh3b4sd/rescue/verify"
 	"github.com/xh3b4sd/tracer"
 )
 
@@ -34,7 +34,7 @@ func (e *Engine) delete(tas *task.Task) error {
 	var err error
 
 	{
-		err = validate.Empty(tas)
+		err = verify.Empty(tas)
 		if err != nil {
 			return tracer.Mask(err)
 		}
