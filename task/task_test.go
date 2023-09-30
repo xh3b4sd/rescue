@@ -6,257 +6,357 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/xh3b4sd/rescue/metadata"
 )
 
-func Test_Task_Pref(t *testing.T) {
+func Test_Task_All(t *testing.T) {
 	testCases := []struct {
 		tas *Task
-		pre []string
-		wit *Task
+		key []string
+		all *Task
 	}{
-		// case 0
+		// Case 000
 		{
 			tas: &Task{},
-			pre: []string{},
-			wit: nil,
+			key: []string{},
+			all: &Task{},
 		},
-		// case 1
+		// Case 001
+		{
+			tas: &Task{},
+			key: []string{
+				"foo",
+				Object,
+			},
+			all: nil,
+		},
+		// Case 002
 		{
 			tas: &Task{
-				Obj: TaskObj{
-					Metadata: map[string]string{
-						"test.domain.io/id":      "1",
-						"test.domain.io/owner":   "a",
-						"test.domain.io/version": "5",
-						"some.bucket.io/key":     "foo",
-					},
+				Meta: map[string]string{
+					Object: "1",
 				},
 			},
-			pre: []string{},
-			wit: nil,
+			key: []string{
+				"foo",
+			},
+			all: nil,
 		},
-		// case 2
+		// Case 003
 		{
 			tas: &Task{
-				Obj: TaskObj{
-					Metadata: map[string]string{
-						"test.domain.io/id":      "1",
-						"test.domain.io/owner":   "a",
-						"test.domain.io/version": "5",
-						"some.bucket.io/key":     "foo",
-					},
+				Meta: map[string]string{
+					Object: "1",
 				},
 			},
-			pre: []string{
-				"test",
+			key: []string{
+				"foo", // foo not in tas
+				Object,
 			},
-			wit: &Task{
-				Obj: TaskObj{
-					Metadata: map[string]string{
-						"test.domain.io/id":      "1",
-						"test.domain.io/owner":   "a",
-						"test.domain.io/version": "5",
-					},
-				},
-			},
+			all: nil,
 		},
-		// case 3
+		// Case 004
 		{
 			tas: &Task{
-				Obj: TaskObj{
-					Metadata: map[string]string{
-						"test.domain.io/id":      "1",
-						"test.domain.io/owner":   "a",
-						"test.domain.io/version": "5",
-						"some.bucket.io/key":     "foo",
-					},
+				Meta: map[string]string{
+					Object: "1",
 				},
 			},
-			pre: []string{
-				"this.buc",
+			key: []string{
+				Object,
 			},
-			wit: nil,
-		},
-		// case 4
-		{
-			tas: &Task{
-				Obj: TaskObj{
-					Metadata: map[string]string{
-						"test.domain.io/id":      "1",
-						"test.domain.io/owner":   "a",
-						"test.domain.io/version": "5",
-						"some.bucket.io/key":     "foo",
-					},
-				},
-			},
-			pre: []string{
-				"some.bucket.io",
-				"this.buck",
-			},
-			wit: &Task{
-				Obj: TaskObj{
-					Metadata: map[string]string{
-						"some.bucket.io/key": "foo",
-					},
+			all: &Task{
+				Meta: map[string]string{
+					Object: "1",
 				},
 			},
 		},
-		// case 5
+		// Case 005
 		{
 			tas: &Task{
-				Obj: TaskObj{
-					Metadata: map[string]string{
-						"test.domain.io/id":      "1",
-						"test.domain.io/owner":   "a",
-						"test.domain.io/version": "5",
-						"some.bucket.io/key":     "foo",
-					},
+				Meta: map[string]string{
+					Cycles: "5",
+					Object: "1",
+					Worker: "a",
 				},
 			},
-			pre: []string{
-				"some.others.io",
-				"this.buck",
+			key: []string{
+				Object,
 			},
-			wit: nil,
+			all: &Task{
+				Meta: map[string]string{
+					Object: "1",
+				},
+			},
+		},
+		// Case 006
+		{
+			tas: &Task{
+				Meta: map[string]string{
+					Cycles: "5",
+					Object: "1",
+					Worker: "a",
+				},
+			},
+			key: []string{
+				Object,
+				Worker,
+			},
+			all: &Task{
+				Meta: map[string]string{
+					Object: "1",
+					Worker: "a",
+				},
+			},
 		},
 	}
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
-			wit := tc.tas.Pref(tc.pre...)
+			all := tc.tas.All(tc.key...)
 
-			if !reflect.DeepEqual(tc.wit, wit) {
-				t.Fatalf("\n\n%s\n", cmp.Diff(tc.wit, wit))
+			if !reflect.DeepEqual(tc.all, all) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(tc.all, all))
 			}
 		})
 	}
 }
 
-func Test_Task_With(t *testing.T) {
+func Test_Task_Any(t *testing.T) {
 	testCases := []struct {
 		tas *Task
 		key []string
-		wit *Task
+		any *Task
 	}{
-		// case 0
+		// Case 000
 		{
 			tas: &Task{},
 			key: []string{},
-			wit: &Task{},
+			any: nil,
 		},
-		// case 1
-		{
-			tas: &Task{},
-			key: []string{
-				"foo",
-				metadata.ID,
-			},
-			wit: nil,
-		},
-		// case 2
+		// Case 001
 		{
 			tas: &Task{
-				Obj: TaskObj{
-					Metadata: map[string]string{
-						metadata.ID: "1",
-					},
+				Meta: map[string]string{
+					"test.domain.io/id":      "1",
+					"test.domain.io/owner":   "a",
+					"test.domain.io/version": "5",
+					"some.bucket.io/key":     "foo",
 				},
 			},
-			key: []string{
-				"foo",
-			},
-			wit: nil,
+			key: []string{},
+			any: nil,
 		},
-		// case 3
+		// Case 002
 		{
 			tas: &Task{
-				Obj: TaskObj{
-					Metadata: map[string]string{
-						metadata.ID: "1",
-					},
+				Meta: map[string]string{
+					"test.domain.io/id":      "1",
+					"test.domain.io/owner":   "a",
+					"test.domain.io/version": "5",
+					"some.bucket.io/key":     "foo",
 				},
 			},
 			key: []string{
-				"foo", // foo not in tas
-				metadata.ID,
+				"test*",
 			},
-			wit: nil,
-		},
-		// case 4
-		{
-			tas: &Task{
-				Obj: TaskObj{
-					Metadata: map[string]string{
-						metadata.ID: "1",
-					},
-				},
-			},
-			key: []string{
-				metadata.ID,
-			},
-			wit: &Task{
-				Obj: TaskObj{
-					Metadata: map[string]string{
-						metadata.ID: "1",
-					},
+			any: &Task{
+				Meta: map[string]string{
+					"test.domain.io/id":      "1",
+					"test.domain.io/owner":   "a",
+					"test.domain.io/version": "5",
 				},
 			},
 		},
-		// case 5
+		// Case 003
 		{
 			tas: &Task{
-				Obj: TaskObj{
-					Metadata: map[string]string{
-						metadata.ID:      "1",
-						metadata.Owner:   "a",
-						metadata.Version: "5",
-					},
+				Meta: map[string]string{
+					"test.domain.io/id":      "1",
+					"test.domain.io/owner":   "a",
+					"test.domain.io/version": "5",
+					"some.bucket.io/key":     "foo",
 				},
 			},
 			key: []string{
-				metadata.ID,
+				"this.buc*",
 			},
-			wit: &Task{
-				Obj: TaskObj{
-					Metadata: map[string]string{
-						metadata.ID: "1",
-					},
+			any: nil,
+		},
+		// Case 004
+		{
+			tas: &Task{
+				Meta: map[string]string{
+					"test.domain.io/id":      "1",
+					"test.domain.io/owner":   "a",
+					"test.domain.io/version": "5",
+					"some.bucket.io/key":     "foo",
+				},
+			},
+			key: []string{
+				"some.bucket.io",
+				"this.buck*",
+			},
+			any: &Task{
+				Meta: map[string]string{
+					"some.bucket.io/key": "foo",
 				},
 			},
 		},
-		// case 6
+		// Case 005
 		{
 			tas: &Task{
-				Obj: TaskObj{
-					Metadata: map[string]string{
-						metadata.ID:      "1",
-						metadata.Owner:   "a",
-						metadata.Version: "5",
-					},
+				Meta: map[string]string{
+					"test.domain.io/id":      "1",
+					"test.domain.io/owner":   "a",
+					"test.domain.io/version": "5",
+					"some.bucket.io/key":     "foo",
 				},
 			},
 			key: []string{
-				metadata.ID,
-				metadata.Owner,
+				"some.others.io",
+				"this.buck*",
 			},
-			wit: &Task{
-				Obj: TaskObj{
-					Metadata: map[string]string{
-						metadata.ID:    "1",
-						metadata.Owner: "a",
-					},
-				},
-			},
+			any: nil,
 		},
 	}
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
-			wit := tc.tas.With(tc.key...)
+			any := tc.tas.Any(tc.key...)
 
-			if !reflect.DeepEqual(tc.wit, wit) {
-				t.Fatalf("\n\n%s\n", cmp.Diff(tc.wit, wit))
+			if !reflect.DeepEqual(tc.any, any) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(tc.any, any))
+			}
+		})
+	}
+}
+
+func Test_Task_Has(t *testing.T) {
+	testCases := []struct {
+		all map[string]string
+		sub map[string]string
+		has bool
+	}{
+		// Case 000 ensures empty input results in false.
+		{
+			all: nil,
+			sub: nil,
+			has: false,
+		},
+		// Case 001 ensures empty input results in false.
+		{
+			all: map[string]string{},
+			sub: map[string]string{},
+			has: false,
+		},
+		// Case 002 ensures empty input results in false.
+		{
+			all: nil,
+			sub: map[string]string{},
+			has: false,
+		},
+		// Case 003 ensures empty input results in false.
+		{
+			all: map[string]string{},
+			sub: nil,
+			has: false,
+		},
+		// Case 004 ensures no match results in false.
+		{
+			all: map[string]string{
+				"key": "val",
+			},
+			sub: map[string]string{},
+			has: false,
+		},
+		// Case 005 ensures no match results in false.
+		{
+			all: map[string]string{},
+			sub: map[string]string{
+				"key": "val",
+			},
+			has: false,
+		},
+		// Case 006 ensures no match results in false.
+		{
+			all: map[string]string{
+				"key": "val",
+			},
+			sub: map[string]string{
+				"key": "lav",
+			},
+			has: false,
+		},
+		// Case 007 ensures missing matches result in false.
+		{
+			all: map[string]string{
+				"key": "val",
+				"baz": "zap",
+			},
+			sub: map[string]string{
+				"key": "val",
+				"one": "two",
+			},
+			has: false,
+		},
+		// Case 008 ensures single matches result in true.
+		{
+			all: map[string]string{
+				"key": "val",
+			},
+			sub: map[string]string{
+				"key": "val",
+			},
+			has: true,
+		},
+		// Case 009 ensures multiple matches result in true.
+		{
+			all: map[string]string{
+				"key": "val",
+				"one": "two",
+				"baz": "zap",
+			},
+			sub: map[string]string{
+				"key": "val",
+				"one": "two",
+			},
+			has: true,
+		},
+		// Case 010 ensures that the catch all returns true for any metadat.
+		{
+			all: map[string]string{
+				"key": "val",
+				"one": "val",
+				"baz": "val",
+			},
+			sub: map[string]string{
+				"*": "*",
+			},
+			has: true,
+		},
+		// Case 011 ensures that the catch all returns true for empty metadat.
+		{
+			all: map[string]string{},
+			sub: map[string]string{
+				"*": "*",
+			},
+			has: true,
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
+			var tas *Task
+			{
+				tas = &Task{
+					Meta: tc.all,
+				}
+			}
+
+			has := tas.Has(tc.sub)
+
+			if !reflect.DeepEqual(tc.has, has) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(tc.has, has))
 			}
 		})
 	}

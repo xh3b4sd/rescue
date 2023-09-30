@@ -127,8 +127,8 @@ github.com/xh3b4sd/budget/v3 v3.3.0 h1:/mg11kyDuYHI4LOT8hctLsVnK6ZeGN+/Rw5wzZ/Zh
 github.com/xh3b4sd/budget/v3 v3.3.0/go.mod h1:epHdjvXVpg5PE63RcBirhgY8D/vVa5dbXkDjQ/ycT40=
 github.com/xh3b4sd/logger v0.7.3 h1:iqzUqU3sd8cn5RZda/0GWGdJRA9j9qCBDYZBda7ti70=
 github.com/xh3b4sd/logger v0.7.3/go.mod h1:fIvpHlYAJFR/xbWtyuVlnZKyWhGI78C2RUbWDEBhT4k=
-github.com/xh3b4sd/redigo v0.34.6 h1:LgLi7PV0EYOQe3NFtCn08F5l4bFEZZZF3D8il5Dx+/U=
-github.com/xh3b4sd/redigo v0.34.6/go.mod h1:FezZ2igUyrLcJvR6RLvD/YpGL1GCbVY6bGQfJ6S4pYk=
+github.com/xh3b4sd/redigo v0.34.7 h1:FZeNlF4fbRT4TeJUYxzeTa6e5P5xCQto9kZliGH/2Uw=
+github.com/xh3b4sd/redigo v0.34.7/go.mod h1:FezZ2igUyrLcJvR6RLvD/YpGL1GCbVY6bGQfJ6S4pYk=
 github.com/xh3b4sd/tracer v0.10.1 h1:wuzVeQtqYsy51Nkb7P/XavZ8rQYptxxmlM1ivFJ8dXE=
 github.com/xh3b4sd/tracer v0.10.1/go.mod h1:8nRbNXXhSSDmPfyoRRYgwQt/RpzAUH+zNsagP9InH8M=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=

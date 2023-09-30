@@ -65,23 +65,19 @@ func (e *Engine) create(tas *task.Task) error {
 		}()
 	}
 
-	var tid float64
+	var tid int64
 	{
-		tid = float64(time.Now().UTC().UnixNano())
+		tid = time.Now().UTC().UnixNano()
 	}
 
 	{
-		tas.SetBackoff(0)
-		tas.SetExpire(0)
-		tas.SetID(tid)
-		tas.SetOwner("")
-		tas.SetVersion(1)
+		tas.Set().Object(tid)
 	}
 
 	{
 		k := key.Queue(e.que)
 		v := task.ToString(tas)
-		s := tid
+		s := float64(tid)
 
 		err = e.red.Sorted().Create().Score(k, v, s)
 		if err != nil {

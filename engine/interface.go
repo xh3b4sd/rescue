@@ -11,12 +11,12 @@ type Interface interface {
 	// Delete removes an existing task from the system.
 	Delete(tas *task.Task) error
 
-	// Exists verifies if a task with parts of the given metadata exists. Given a
-	// task was created with metadata a, b and c. Exists will return true if
-	// called with metadata b and c. If workers would want to verify if they still
-	// own a task, they could do the following call.
+	// Exists expresses whether a task with the given metadata exists within the
+	// queue. Given a task was created with metadata a, b and c. Exists will
+	// return true if called with metadata b and c. If workers would want to
+	// verify whether they still own a task, they could do the following call.
 	//
-	//     Exists(tas.With(metadata.ID, metadata.Owner))
+	//     Exists(tas.All(metadata.ID, metadata.Owner))
 	//
 	Exists(tas *task.Task) (bool, error)
 
@@ -32,6 +32,10 @@ type Interface interface {
 	// Extend can be called by task owners in order to extend the task's
 	// expiration.
 	Extend(tas *task.Task) error
+
+	// Listen returns the TCP address in the form of host:port which the
+	// underlying redis client is connected to.
+	Listen() string
 
 	// Lister fetches all existing tasks that match the given metadata. While
 	// there are valid use cases for leveraging Lister, these use cases might be

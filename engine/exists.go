@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"github.com/xh3b4sd/rescue/metadata"
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/rescue/validate"
 	"github.com/xh3b4sd/tracer"
@@ -72,11 +71,7 @@ func (e *Engine) exists(tas *task.Task) (bool, error) {
 
 	{
 		for _, t := range lis {
-			// When checking for metadata the task fetched from the queue must
-			// be given first since it contains all the metadata of the task
-			// itself. The task given to Engine.Exists contains only the
-			// relevant subset of metadata we want to match against.
-			if metadata.Contains(t.Obj.Metadata, tas.Obj.Metadata) {
+			if t.Has(tas.Meta) {
 				return true, nil
 			}
 		}

@@ -70,7 +70,7 @@ func (e *Engine) expire() error {
 	cur := map[string]int{}
 	{
 		for _, l := range lis {
-			cur[l.GetOwner()]++
+			cur[l.Get().Worker()]++
 		}
 	}
 
@@ -80,40 +80,41 @@ func (e *Engine) expire() error {
 			// owner assigned we ignore the task and move on to find another
 			// one.
 			{
-				if t.GetOwner() == "" {
+				if t.Get().Worker() == "" {
 					continue
 				}
 			}
 
-			var exp int64
-			var now int64
-			var own string
+			var exp time.Time
+			var now time.Time
+			var wrk string
 			{
-				exp = t.GetExpire()
-				now = time.Now().UTC().UnixNano()
-				own = t.GetOwner()
+				exp = t.Get().Expiry()
+				now = time.Now().UTC()
+				wrk = t.Get().Worker()
 			}
 
-			// We are looking for tasks which are expired already. So if the
-			// task we look at is not expired yet, we ignore it and move on to
-			// find another one.
+			// We are looking for tasks which are expired already. So if the task we
+			// look at is not expired yet, we ignore it and move on to find another
+			// one. In other words, if the current task's expiry is still about to
+			// happen after the current time, then the task is not yet expired, and we
+			// continue with the next task.
 			{
-				if now < exp {
+				if exp.After(now) {
 					continue
 				}
 			}
 
 			{
-				t.IncBackoff(1)
-				t.SetExpire(0)
-				t.SetOwner("")
-				t.IncVersion(1)
+				t.Prg().Expiry()
+				t.Prg().Worker()
+				t.Set().Cycles(t.Get().Cycles() + 1)
 			}
 
 			{
 				k := key.Queue(e.que)
 				v := task.ToString(t)
-				s := t.GetID()
+				s := float64(t.Get().Object())
 
 				_, err := e.red.Sorted().Update().Score(k, v, s)
 				if err != nil {
@@ -126,14 +127,14 @@ func (e *Engine) expire() error {
 			}
 
 			{
-				cur[own]--
+				cur[wrk]--
 			}
 		}
 	}
 
 	var des map[string]int
 	{
-		des = e.bal.Opt(ensure(keys(cur), e.own), sum(cur))
+		des = e.bal.Opt(ensure(keys(cur), e.wrk), sum(cur))
 	}
 
 	var dev map[string]int
@@ -148,41 +149,42 @@ func (e *Engine) expire() error {
 			// for the current owner we ignore the task and move on to find
 			// another one.
 			{
-				cou := dev[t.GetOwner()]
+				cou := dev[t.Get().Worker()]
 				if cou == 0 {
 					continue
 				}
 			}
 
-			var exp int64
-			var now int64
-			var own string
+			var exp time.Time
+			var now time.Time
+			var wrk string
 			{
-				exp = t.GetExpire()
-				now = time.Now().UTC().UnixNano()
-				own = t.GetOwner()
+				exp = t.Get().Expiry()
+				now = time.Now().UTC()
+				wrk = t.Get().Worker()
 			}
 
-			// We are looking for tasks which are expired already. So if the
-			// task we look at is not expired yet, we ignore it and move on to
-			// find another one.
+			// We are looking for tasks which are expired already. So if the task we
+			// look at is not expired yet, we ignore it and move on to find another
+			// one. In other words, if the current task's expiry is still about to
+			// happen after the current time, then the task is not yet expired, and we
+			// continue with the next task.
 			{
-				if now < exp {
+				if exp.After(now) {
 					continue
 				}
 			}
 
 			{
-				t.IncBackoff(1)
-				t.SetExpire(0)
-				t.SetOwner("")
-				t.IncVersion(1)
+				t.Prg().Expiry()
+				t.Prg().Worker()
+				t.Set().Cycles(t.Get().Cycles() + 1)
 			}
 
 			{
 				k := key.Queue(e.que)
 				v := task.ToString(t)
-				s := t.GetID()
+				s := float64(t.Get().Object())
 
 				_, err := e.red.Sorted().Update().Score(k, v, s)
 				if err != nil {
@@ -195,7 +197,7 @@ func (e *Engine) expire() error {
 			}
 
 			{
-				dev[own]--
+				dev[wrk]--
 			}
 		}
 	}

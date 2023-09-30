@@ -2,50 +2,40 @@ package task
 
 import (
 	"strconv"
-
-	"github.com/xh3b4sd/rescue/metadata"
+	"time"
 )
 
-func (t *Task) SetBackoff(b int) {
-	var bac string
-	{
-		bac = strconv.Itoa(b)
+type setter struct {
+	Meta map[string]string
+}
+
+func (t *Task) Set() Setter {
+	return &setter{
+		Meta: t.Meta,
+	}
+}
+
+func (s *setter) Bypass(x bool) {
+	s.Meta[Bypass] = strconv.FormatBool(x)
+}
+
+func (s *setter) Cycles(x int64) {
+	s.Meta[Cycles] = strconv.FormatInt(x, 10)
+}
+
+func (s *setter) Expiry(x time.Time) {
+	byt, err := x.MarshalJSON()
+	if err != nil {
+		panic(err)
 	}
 
-	t.Obj.Metadata[metadata.Backoff] = bac
+	s.Meta[Expiry] = string(byt)
 }
 
-func (t *Task) SetExpire(e int64) {
-	var exp string
-	{
-		exp = strconv.FormatInt(e, 10)
-	}
-
-	t.Obj.Metadata[metadata.Expire] = exp
+func (s *setter) Object(x int64) {
+	s.Meta[Object] = strconv.FormatInt(x, 10)
 }
 
-func (t *Task) SetID(i float64) {
-	var tid string
-	{
-		tid = strconv.FormatFloat(i, 'f', -1, 64)
-	}
-
-	t.Obj.Metadata[metadata.ID] = tid
-}
-
-func (t *Task) SetOwner(o string) {
-	t.Obj.Metadata[metadata.Owner] = o
-}
-
-func (t *Task) SetPrivileged(p bool) {
-	t.Obj.Metadata[metadata.Privileged] = strconv.FormatBool(p)
-}
-
-func (t *Task) SetVersion(v int) {
-	var ver string
-	{
-		ver = strconv.Itoa(v)
-	}
-
-	t.Obj.Metadata[metadata.Version] = ver
+func (s *setter) Worker(x string) {
+	s.Meta[Worker] = x
 }

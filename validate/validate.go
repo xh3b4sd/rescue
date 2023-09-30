@@ -12,7 +12,7 @@ func Empty(tas *task.Task) error {
 		return tracer.Maskf(invalidTaskError, "task must not be nil")
 	}
 
-	if len(tas.Obj.Metadata) == 0 {
+	if len(tas.Meta) == 0 {
 		return tracer.Maskf(invalidTaskError, "metadata must not be empty")
 	}
 
@@ -20,7 +20,7 @@ func Empty(tas *task.Task) error {
 }
 
 func Label(tas *task.Task) error {
-	for k := range tas.Obj.Metadata {
+	for k := range tas.Meta {
 		if strings.HasPrefix(k, "task.rescue.io") {
 			return tracer.Maskf(invalidTaskError, "metadata must not contain reserved scheme task.rescue.io")
 		}

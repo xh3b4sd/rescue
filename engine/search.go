@@ -75,18 +75,18 @@ func (e *Engine) search() (*task.Task, error) {
 	cur := map[string]int{}
 	{
 		for _, l := range lis {
-			cur[l.GetOwner()]++
+			cur[l.Get().Worker()]++
 		}
 	}
 
 	var des map[string]int
 	{
-		des = e.bal.Opt(ensure(keys(cur), e.own), sum(cur))
+		des = e.bal.Opt(ensure(keys(cur), e.wrk), sum(cur))
 	}
 
 	var dev int
 	{
-		dev = des[e.own] - cur[e.own]
+		dev = des[e.wrk] - cur[e.wrk]
 	}
 
 	{
@@ -103,7 +103,7 @@ func (e *Engine) search() (*task.Task, error) {
 			// there is an owner assigned we ignore the task and move on to find
 			// another one.
 			{
-				if t.GetOwner() != "" {
+				if t.Get().Worker() != "" {
 					continue
 				}
 			}
@@ -123,15 +123,14 @@ func (e *Engine) search() (*task.Task, error) {
 	}
 
 	{
-		tas.SetExpire(time.Now().UTC().UnixNano() + int64(e.ttl))
-		tas.SetOwner(e.own)
-		tas.IncVersion(1)
+		tas.Set().Expiry(time.Now().UTC().Add(e.exp))
+		tas.Set().Worker(e.wrk)
 	}
 
 	{
 		k := key.Queue(e.que)
 		v := task.ToString(tas)
-		s := tas.GetID()
+		s := float64(tas.Get().Object())
 
 		_, err := e.red.Sorted().Update().Score(k, v, s)
 		if err != nil {

@@ -12,34 +12,37 @@ import (
 )
 
 const (
-	// TTL is the default expiry of any given task.
-	TTL = 30 * time.Second
+	// Expiry is the default expiry of any given task.
+	Expiry = 30 * time.Second
 )
 
 type Config struct {
 	Balancer balancer.Interface
+	Expiry   time.Duration
 	Logger   logger.Interface
 	Metric   *metric.Collection
-	Owner    string
 	Queue    string
 	Redigo   redigo.Interface
-	TTL      time.Duration
+	Worker   string
 }
 
 type Engine struct {
 	bal balancer.Interface
 	ctx context.Context
+	exp time.Duration
 	log logger.Interface
 	met *metric.Collection
-	own string
 	que string
 	red redigo.Interface
-	ttl time.Duration
+	wrk string
 }
 
 func New(config Config) *Engine {
 	if config.Balancer == nil {
 		config.Balancer = balancer.Default()
+	}
+	if config.Expiry == 0 {
+		config.Expiry = Expiry
 	}
 	if config.Logger == nil {
 		config.Logger = logger.Default()
@@ -47,28 +50,25 @@ func New(config Config) *Engine {
 	if config.Metric == nil {
 		config.Metric = metric.Default()
 	}
-	if config.Owner == "" {
-		config.Owner = random.New()
-	}
 	if config.Queue == "" {
-		config.Queue = "def"
+		config.Queue = "default"
 	}
 	if config.Redigo == nil {
 		config.Redigo = redigo.Default()
 	}
-	if config.TTL == 0 {
-		config.TTL = TTL
+	if config.Worker == "" {
+		config.Worker = random.New()
 	}
 
 	e := &Engine{
 		bal: config.Balancer,
 		ctx: context.Background(),
+		exp: config.Expiry,
 		log: config.Logger,
 		met: config.Metric,
-		own: config.Owner,
 		que: config.Queue,
 		red: config.Redigo,
-		ttl: config.TTL,
+		wrk: config.Worker,
 	}
 
 	return e
