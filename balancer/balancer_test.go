@@ -14,13 +14,13 @@ func Test_Balancer_Dev(t *testing.T) {
 		des map[string]int
 		dev map[string]int
 	}{
-		// case 0
+		// Case 000
 		{
 			cur: map[string]int{},
 			des: map[string]int{},
 			dev: nil,
 		},
-		// case 1
+		// Case 001
 		{
 			cur: map[string]int{
 				"a": 1,
@@ -32,7 +32,7 @@ func Test_Balancer_Dev(t *testing.T) {
 			},
 			dev: nil,
 		},
-		// case 2
+		// Case 002
 		{
 			cur: map[string]int{
 				"a": 9,
@@ -46,7 +46,7 @@ func Test_Balancer_Dev(t *testing.T) {
 			},
 			dev: nil,
 		},
-		// case 3
+		// Case 003
 		{
 			cur: map[string]int{
 				"a": 12,
@@ -62,7 +62,7 @@ func Test_Balancer_Dev(t *testing.T) {
 				"a": 1,
 			},
 		},
-		// case 4
+		// Case 004
 		{
 			cur: map[string]int{
 				"a": 12,
@@ -79,7 +79,7 @@ func Test_Balancer_Dev(t *testing.T) {
 				"c": 1,
 			},
 		},
-		// case 5
+		// Case 005
 		{
 			cur: map[string]int{
 				"a": 86,
@@ -96,7 +96,7 @@ func Test_Balancer_Dev(t *testing.T) {
 				"b": 3,
 			},
 		},
-		// case 6
+		// Case 006
 		{
 			cur: map[string]int{
 				"a": 10,
@@ -112,7 +112,7 @@ func Test_Balancer_Dev(t *testing.T) {
 				"b": 1,
 			},
 		},
-		// case 7
+		// Case 007
 		{
 			cur: map[string]int{
 				"a": 9,
@@ -129,7 +129,7 @@ func Test_Balancer_Dev(t *testing.T) {
 				"b": 1,
 			},
 		},
-		// case 8
+		// Case 008
 		{
 			cur: map[string]int{
 				"a": 8,
@@ -146,7 +146,7 @@ func Test_Balancer_Dev(t *testing.T) {
 				"b": 1,
 			},
 		},
-		// case 9
+		// Case 009
 		{
 			cur: map[string]int{
 				"a": 7,
@@ -179,19 +179,19 @@ func Test_Balancer_Opt(t *testing.T) {
 		tas int
 		opt map[string]int
 	}{
-		// case 0
+		// Case 000
 		{
 			own: []string{},
 			tas: 0,
 			opt: nil,
 		},
-		// case 1
+		// Case 001
 		{
 			own: []string{},
 			tas: 3,
 			opt: nil,
 		},
-		// case 2
+		// Case 002
 		{
 			own: []string{
 				"a",
@@ -201,7 +201,7 @@ func Test_Balancer_Opt(t *testing.T) {
 				"a": 5,
 			},
 		},
-		// case 3
+		// Case 003
 		{
 			own: []string{
 				"a",
@@ -213,7 +213,7 @@ func Test_Balancer_Opt(t *testing.T) {
 				"b": 3,
 			},
 		},
-		// case 4
+		// Case 004
 		{
 			own: []string{
 				"a",
@@ -225,7 +225,7 @@ func Test_Balancer_Opt(t *testing.T) {
 				"b": 3,
 			},
 		},
-		// case 5
+		// Case 005
 		{
 			own: []string{
 				"a",
@@ -239,7 +239,7 @@ func Test_Balancer_Opt(t *testing.T) {
 				"c": 2,
 			},
 		},
-		// case 6
+		// Case 006
 		{
 			own: []string{
 				"a",
@@ -255,7 +255,7 @@ func Test_Balancer_Opt(t *testing.T) {
 				"c": 2,
 			},
 		},
-		// case 7
+		// Case 007
 		{
 			own: []string{
 				"a",
@@ -273,7 +273,7 @@ func Test_Balancer_Opt(t *testing.T) {
 				"e": 2,
 			},
 		},
-		// case 8
+		// Case 008
 		{
 			own: []string{
 				"a",

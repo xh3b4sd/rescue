@@ -64,7 +64,7 @@ func (e *Engine) extend(tas *task.Task) error {
 	var cur *task.Task
 	{
 		k := key.Queue(e.que)
-		s := tas.GetID()
+		s := float64(tas.Get().Object())
 
 		str, err := e.red.Sorted().Search().Score(k, s, s)
 		if err != nil {
@@ -81,8 +81,8 @@ func (e *Engine) extend(tas *task.Task) error {
 
 	// Tasks can only be extended by owners.
 	{
-		tid := cur.GetID() == tas.GetID()
-		own := cur.GetOwner() == tas.GetOwner()
+		tid := cur.Get().Object() == tas.Get().Object()
+		own := cur.Get().Worker() == tas.Get().Worker()
 
 		if !tid || !own {
 			e.met.Task.Outdated.Inc()
@@ -91,14 +91,13 @@ func (e *Engine) extend(tas *task.Task) error {
 	}
 
 	{
-		cur.SetExpire(time.Now().UTC().UnixNano() + int64(e.ttl))
-		cur.IncVersion(1)
+		cur.Set().Expiry(time.Now().UTC().Add(e.exp))
 	}
 
 	{
 		k := key.Queue(e.que)
 		v := task.ToString(cur)
-		s := cur.GetID()
+		s := float64(cur.Get().Object())
 
 		_, err := e.red.Sorted().Update().Score(k, v, s)
 		if err != nil {

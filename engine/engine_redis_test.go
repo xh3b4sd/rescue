@@ -13,7 +13,6 @@ import (
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/redigo"
 	"github.com/xh3b4sd/redigo/pkg/client"
-	"github.com/xh3b4sd/rescue/metadata"
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/tracer"
 )
@@ -46,8 +45,7 @@ func Test_Engine_Balance(t *testing.T) {
 		eon = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
-
-			Owner: "eon",
+			Worker: "eon",
 		})
 	}
 
@@ -56,8 +54,7 @@ func Test_Engine_Balance(t *testing.T) {
 		etw = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
-
-			Owner: "etw",
+			Worker: "etw",
 		})
 	}
 
@@ -66,18 +63,15 @@ func Test_Engine_Balance(t *testing.T) {
 		eth = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
-
-			Owner: "eth",
+			Worker: "eth",
 		})
 	}
 
 	{
 		for i := 0; i < 10; i++ {
 			tas := &task.Task{
-				Obj: task.TaskObj{
-					Metadata: map[string]string{
-						"test.rescue.io/num": strconv.Itoa(i),
-					},
+				Meta: map[string]string{
+					"test.rescue.io/num": strconv.Itoa(i),
 				},
 			}
 
@@ -197,31 +191,27 @@ func Test_Engine_Delete(t *testing.T) {
 	var eon *Engine
 	{
 		eon = New(Config{
+			Expiry: 1 * time.Millisecond,
 			Logger: logger.Fake(),
 			Redigo: red,
-
-			Owner: "eon",
-			TTL:   1 * time.Millisecond,
+			Worker: "eon",
 		})
 	}
 
 	var etw *Engine
 	{
 		etw = New(Config{
+			Expiry: 1 * time.Millisecond,
 			Logger: logger.Fake(),
 			Redigo: red,
-
-			Owner: "etw",
-			TTL:   1 * time.Millisecond,
+			Worker: "etw",
 		})
 	}
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "foo",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "foo",
 			},
 		}
 
@@ -238,7 +228,7 @@ func Test_Engine_Delete(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Obj.Metadata["test.rescue.io/key"] != "foo" {
+		if tas.Meta["test.rescue.io/key"] != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -255,7 +245,7 @@ func Test_Engine_Delete(t *testing.T) {
 	}
 
 	{
-		exi, err := eon.Exists(tas.With(metadata.ID, metadata.Owner))
+		exi, err := eon.Exists(tas.All(task.Object, task.Worker))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -273,7 +263,7 @@ func Test_Engine_Delete(t *testing.T) {
 	}
 
 	{
-		tas.SetPrivileged(true)
+		tas.Set().Bypass(true)
 	}
 
 	{
@@ -317,20 +307,17 @@ func Test_Engine_Exists(t *testing.T) {
 	var eon *Engine
 	{
 		eon = New(Config{
+			Expiry: 500 * time.Millisecond,
 			Logger: logger.Fake(),
 			Redigo: red,
-
-			Owner: "eon",
-			TTL:   500 * time.Millisecond,
+			Worker: "eon",
 		})
 	}
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "foo",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "foo",
 			},
 		}
 
@@ -347,13 +334,13 @@ func Test_Engine_Exists(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Obj.Metadata["test.rescue.io/key"] != "foo" {
+		if tas.Meta["test.rescue.io/key"] != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
 
 	{
-		exi, err := eon.Exists(tas.With(metadata.ID))
+		exi, err := eon.Exists(tas.All(task.Object))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -364,7 +351,7 @@ func Test_Engine_Exists(t *testing.T) {
 	}
 
 	{
-		exi, err := eon.Exists(tas.With(metadata.ID, metadata.Owner))
+		exi, err := eon.Exists(tas.All(task.Object, task.Worker))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -386,7 +373,7 @@ func Test_Engine_Exists(t *testing.T) {
 	}
 
 	{
-		exi, err := eon.Exists(tas.With(metadata.ID))
+		exi, err := eon.Exists(tas.All(task.Object))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -397,7 +384,7 @@ func Test_Engine_Exists(t *testing.T) {
 	}
 
 	{
-		exi, err := eon.Exists(tas.With(metadata.ID, metadata.Owner))
+		exi, err := eon.Exists(tas.All(task.Object, task.Worker))
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -420,7 +407,7 @@ func Test_Engine_Exists(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Obj.Metadata["test.rescue.io/key"] != "foo" {
+		if tas.Meta["test.rescue.io/key"] != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -466,31 +453,27 @@ func Test_Engine_Expire(t *testing.T) {
 	var eon *Engine
 	{
 		eon = New(Config{
+			Expiry: time.Millisecond,
 			Logger: logger.Fake(),
 			Redigo: red,
-
-			Owner: "eon",
-			TTL:   time.Millisecond,
+			Worker: "eon",
 		})
 	}
 
 	var etw *Engine
 	{
 		etw = New(Config{
+			Expiry: time.Millisecond,
 			Logger: logger.Fake(),
 			Redigo: red,
-
-			Owner: "etw",
-			TTL:   time.Millisecond,
+			Worker: "etw",
 		})
 	}
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "foo",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "foo",
 			},
 		}
 
@@ -502,10 +485,8 @@ func Test_Engine_Expire(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "bar",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "bar",
 			},
 		}
 
@@ -530,7 +511,7 @@ func Test_Engine_Expire(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		s = append(s, tas.Obj.Metadata["test.rescue.io/key"])
+		s = append(s, tas.Meta["test.rescue.io/key"])
 
 		err = etw.Delete(tas)
 		if err != nil {
@@ -556,7 +537,7 @@ func Test_Engine_Expire(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		s = append(s, tas.Obj.Metadata["test.rescue.io/key"])
+		s = append(s, tas.Meta["test.rescue.io/key"])
 
 		err = etw.Delete(tas)
 		if err != nil {
@@ -615,31 +596,27 @@ func Test_Engine_Extend(t *testing.T) {
 	var eon *Engine
 	{
 		eon = New(Config{
+			Expiry: time.Second,
 			Logger: logger.Fake(),
 			Redigo: red,
-
-			Owner: "eon",
-			TTL:   time.Second,
+			Worker: "eon",
 		})
 	}
 
 	var etw *Engine
 	{
 		etw = New(Config{
+			Expiry: time.Second,
 			Logger: logger.Fake(),
 			Redigo: red,
-
-			Owner: "etw",
-			TTL:   time.Second,
+			Worker: "etw",
 		})
 	}
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "foo",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "foo",
 			},
 		}
 
@@ -656,7 +633,7 @@ func Test_Engine_Extend(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Obj.Metadata["test.rescue.io/key"] != "foo" {
+		if tas.Meta["test.rescue.io/key"] != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -838,7 +815,7 @@ func Test_Engine_Extend(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Obj.Metadata["test.rescue.io/key"] != "foo" {
+		if tas.Meta["test.rescue.io/key"] != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -898,8 +875,7 @@ func Test_Engine_Lifecycle(t *testing.T) {
 		eon = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
-
-			Owner: "eon",
+			Worker: "eon",
 		})
 	}
 
@@ -908,17 +884,14 @@ func Test_Engine_Lifecycle(t *testing.T) {
 		etw = New(Config{
 			Logger: logger.Fake(),
 			Redigo: red,
-
-			Owner: "etw",
+			Worker: "etw",
 		})
 	}
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "foo",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "foo",
 			},
 		}
 
@@ -930,10 +903,8 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "bar",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "bar",
 			},
 		}
 
@@ -945,10 +916,8 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "foo",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "foo",
 			},
 		}
 
@@ -964,10 +933,8 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "bar",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "bar",
 			},
 		}
 
@@ -1000,7 +967,7 @@ func Test_Engine_Lifecycle(t *testing.T) {
 				return
 			}
 
-			s = append(s, tas.Obj.Metadata["test.rescue.io/key"])
+			s = append(s, tas.Meta["test.rescue.io/key"])
 
 			err = eon.Delete(tas)
 			if err != nil {
@@ -1018,7 +985,7 @@ func Test_Engine_Lifecycle(t *testing.T) {
 				return
 			}
 
-			s = append(s, tas.Obj.Metadata["test.rescue.io/key"])
+			s = append(s, tas.Meta["test.rescue.io/key"])
 
 			err = etw.Delete(tas)
 			if err != nil {
@@ -1046,10 +1013,8 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 		{
 			tas := &task.Task{
-				Obj: task.TaskObj{
-					Metadata: map[string]string{
-						"test.rescue.io/key": "foo",
-					},
+				Meta: map[string]string{
+					"test.rescue.io/key": "foo",
 				},
 			}
 
@@ -1065,10 +1030,8 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 		{
 			tas := &task.Task{
-				Obj: task.TaskObj{
-					Metadata: map[string]string{
-						"test.rescue.io/key": "bar",
-					},
+				Meta: map[string]string{
+					"test.rescue.io/key": "bar",
 				},
 			}
 
@@ -1131,32 +1094,28 @@ func Test_Engine_Lister_Order(t *testing.T) {
 	var eon *Engine
 	{
 		eon = New(Config{
+			Expiry: 500 * time.Millisecond,
 			Logger: logger.Fake(),
 			Redigo: red,
-
-			Owner: "eon",
-			TTL:   500 * time.Millisecond,
+			Worker: "eon",
 		})
 	}
 
 	var etw *Engine
 	{
 		etw = New(Config{
+			Expiry: 500 * time.Millisecond,
 			Logger: logger.Fake(),
 			Redigo: red,
-
-			Owner: "etw",
-			TTL:   500 * time.Millisecond,
+			Worker: "etw",
 		})
 	}
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "foo",
-					"test.rescue.io/zer": "tru",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "foo",
+				"test.rescue.io/zer": "tru",
 			},
 		}
 
@@ -1168,12 +1127,10 @@ func Test_Engine_Lister_Order(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "foo",
-					"test.rescue.io/zer": "tru",
-					"test.rescue.io/sin": "baz",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "foo",
+				"test.rescue.io/zer": "tru",
+				"test.rescue.io/sin": "baz",
 			},
 		}
 
@@ -1185,10 +1142,8 @@ func Test_Engine_Lister_Order(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "foo",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "foo",
 			},
 		}
 
@@ -1198,13 +1153,11 @@ func Test_Engine_Lister_Order(t *testing.T) {
 		}
 	}
 
-	var lis task.Tasks
+	var lis []*task.Task
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "foo",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "foo",
 			},
 		}
 
@@ -1218,13 +1171,13 @@ func Test_Engine_Lister_Order(t *testing.T) {
 		if len(lis) != 3 {
 			t.Fatal("expected 3 tasks listed")
 		}
-		if len(lis[0].Pref("test").Obj.Metadata) != 2 {
+		if len(lis[0].All("test*").Meta) != 2 {
 			t.Fatal("expected 2 task labels")
 		}
-		if len(lis[1].Pref("test").Obj.Metadata) != 3 {
+		if len(lis[1].All("test*").Meta) != 3 {
 			t.Fatal("expected 3 task labels")
 		}
-		if len(lis[2].Pref("test").Obj.Metadata) != 1 {
+		if len(lis[2].All("test*").Meta) != 1 {
 			t.Fatal("expected 1 task labels")
 		}
 	}
@@ -1242,10 +1195,8 @@ func Test_Engine_Lister_Order(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "foo",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "foo",
 			},
 		}
 
@@ -1259,23 +1210,21 @@ func Test_Engine_Lister_Order(t *testing.T) {
 		if len(lis) != 3 {
 			t.Fatal("expected 3 tasks listed")
 		}
-		if len(lis[0].Pref("test").Obj.Metadata) != 2 {
+		if len(lis[0].All("test*").Meta) != 2 {
 			t.Fatal("expected 2 task labels")
 		}
-		if len(lis[1].Pref("test").Obj.Metadata) != 3 {
+		if len(lis[1].All("test*").Meta) != 3 {
 			t.Fatal("expected 3 task labels")
 		}
-		if len(lis[2].Pref("test").Obj.Metadata) != 1 {
+		if len(lis[2].All("test*").Meta) != 1 {
 			t.Fatal("expected 1 task labels")
 		}
 	}
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/zer": "tru",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/zer": "tru",
 			},
 		}
 
@@ -1289,10 +1238,10 @@ func Test_Engine_Lister_Order(t *testing.T) {
 		if len(lis) != 2 {
 			t.Fatal("expected 2 tasks listed")
 		}
-		if len(lis[0].Pref("test").Obj.Metadata) != 2 {
+		if len(lis[0].All("test*").Meta) != 2 {
 			t.Fatal("expected 2 task labels")
 		}
-		if len(lis[1].Pref("test").Obj.Metadata) != 3 {
+		if len(lis[1].All("test*").Meta) != 3 {
 			t.Fatal("expected 3 task labels")
 		}
 	}
@@ -1310,10 +1259,8 @@ func Test_Engine_Lister_Order(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/zer": "tru",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/zer": "tru",
 			},
 		}
 
@@ -1327,10 +1274,10 @@ func Test_Engine_Lister_Order(t *testing.T) {
 		if len(lis) != 2 {
 			t.Fatal("expected 2 tasks listed")
 		}
-		if len(lis[0].Pref("test").Obj.Metadata) != 2 {
+		if len(lis[0].All("test*").Meta) != 2 {
 			t.Fatal("expected 2 task labels")
 		}
-		if len(lis[1].Pref("test").Obj.Metadata) != 3 {
+		if len(lis[1].All("test*").Meta) != 3 {
 			t.Fatal("expected 3 task labels")
 		}
 	}
@@ -1346,13 +1293,13 @@ func Test_Engine_Lister_Order(t *testing.T) {
 		if len(lis) != 3 {
 			t.Fatal("expected 3 tasks listed")
 		}
-		if len(lis[0].Pref("test").Obj.Metadata) != 2 {
+		if len(lis[0].All("test*").Meta) != 2 {
 			t.Fatal("expected 2 task labels")
 		}
-		if len(lis[1].Pref("test").Obj.Metadata) != 3 {
+		if len(lis[1].All("test*").Meta) != 3 {
 			t.Fatal("expected 3 task labels")
 		}
-		if len(lis[2].Pref("test").Obj.Metadata) != 1 {
+		if len(lis[2].All("test*").Meta) != 1 {
 			t.Fatal("expected 1 task labels")
 		}
 	}
@@ -1364,7 +1311,7 @@ func Test_Engine_Lister_Order(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Obj.Metadata["test.rescue.io/key"] != "foo" {
+		if tas.Meta["test.rescue.io/key"] != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -1382,7 +1329,7 @@ func Test_Engine_Lister_Order(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Obj.Metadata["test.rescue.io/key"] != "foo" {
+		if tas.Meta["test.rescue.io/key"] != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -1400,7 +1347,7 @@ func Test_Engine_Lister_Order(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Obj.Metadata["test.rescue.io/key"] != "foo" {
+		if tas.Meta["test.rescue.io/key"] != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -1446,32 +1393,28 @@ func Test_Engine_Queue(t *testing.T) {
 	var eon *Engine
 	{
 		eon = New(Config{
+			Expiry: 500 * time.Millisecond,
 			Logger: logger.Fake(),
 			Redigo: red,
-
-			Queue: "one",
-			TTL:   500 * time.Millisecond,
+			Queue:  "one",
 		})
 	}
 
 	var etw *Engine
 	{
 		etw = New(Config{
+			Expiry: 500 * time.Millisecond,
 			Logger: logger.Fake(),
 			Redigo: red,
-
-			Queue: "two",
-			TTL:   500 * time.Millisecond,
+			Queue:  "two",
 		})
 	}
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "foo",
-					"test.rescue.io/zer": "tru",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "foo",
+				"test.rescue.io/zer": "tru",
 			},
 		}
 
@@ -1483,12 +1426,10 @@ func Test_Engine_Queue(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "foo",
-					"test.rescue.io/zer": "tru",
-					"test.rescue.io/sin": "baz",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "foo",
+				"test.rescue.io/zer": "tru",
+				"test.rescue.io/sin": "baz",
 			},
 		}
 
@@ -1500,10 +1441,8 @@ func Test_Engine_Queue(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "foo",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "foo",
 			},
 		}
 
@@ -1513,13 +1452,11 @@ func Test_Engine_Queue(t *testing.T) {
 		}
 	}
 
-	var lis task.Tasks
+	var lis []*task.Task
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "foo",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "foo",
 			},
 		}
 
@@ -1537,10 +1474,8 @@ func Test_Engine_Queue(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Obj: task.TaskObj{
-				Metadata: map[string]string{
-					"test.rescue.io/key": "foo",
-				},
+			Meta: map[string]string{
+				"test.rescue.io/key": "foo",
 			},
 		}
 
@@ -1563,7 +1498,7 @@ func Test_Engine_Queue(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Obj.Metadata["test.rescue.io/key"] != "foo" {
+		if tas.Meta["test.rescue.io/key"] != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -1581,7 +1516,7 @@ func Test_Engine_Queue(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Obj.Metadata["test.rescue.io/key"] != "foo" {
+		if tas.Meta["test.rescue.io/key"] != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -1599,7 +1534,7 @@ func Test_Engine_Queue(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Obj.Metadata["test.rescue.io/key"] != "foo" {
+		if tas.Meta["test.rescue.io/key"] != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}

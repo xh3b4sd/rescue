@@ -1,6 +1,6 @@
 package task
 
-func (t *Task) All(key ...string) *Task {
+func (t *Task) Any(key ...string) *Task {
 	var tas *Task
 	{
 		tas = &Task{}
@@ -9,7 +9,7 @@ func (t *Task) All(key ...string) *Task {
 	for _, x := range key {
 		m, e := t.has(x)
 		if !e {
-			return nil
+			continue
 		}
 
 		if tas.Meta == nil {
@@ -19,6 +19,10 @@ func (t *Task) All(key ...string) *Task {
 		for k, v := range m {
 			tas.Meta[k] = v
 		}
+	}
+
+	if len(tas.Meta) == 0 {
+		return nil
 	}
 
 	return tas

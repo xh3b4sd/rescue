@@ -2,73 +2,68 @@ package task
 
 import (
 	"strconv"
-
-	"github.com/xh3b4sd/rescue/metadata"
+	"time"
 )
 
-func (t *Task) GetBackoff() int {
-	bac := t.Obj.Metadata[metadata.Backoff]
+type getter struct {
+	Meta map[string]string
+}
 
-	b, err := strconv.Atoi(bac)
-	if err != nil {
-		panic(err)
+func (t *Task) Get() Getter {
+	return &getter{
+		Meta: t.Meta,
 	}
-
-	return b
 }
 
-func (t *Task) GetExpire() int64 {
-	exp := t.Obj.Metadata[metadata.Expire]
-
-	e, err := strconv.ParseInt(exp, 10, 64)
-	if err != nil {
-		panic(err)
-	}
-
-	return e
-}
-
-func (t *Task) GetID() float64 {
-	tid := t.Obj.Metadata[metadata.ID]
-
-	i, err := strconv.ParseFloat(tid, 64)
-	if err != nil {
-		panic(err)
-	}
-
-	return i
-}
-
-func (t *Task) GetOwner() string {
-	own := t.Obj.Metadata[metadata.Owner]
-
-	o := own
-
-	return o
-}
-
-func (t *Task) GetPrivileged() bool {
-	pri := t.Obj.Metadata[metadata.Privileged]
-
-	if pri == "" {
+func (g *getter) Bypass() bool {
+	if g.Meta[Bypass] == "" {
 		return false
 	}
 
-	p, err := strconv.ParseBool(pri)
+	byp, err := strconv.ParseBool(g.Meta[Bypass])
 	if err != nil {
 		panic(err)
 	}
 
-	return p
+	return byp
 }
 
-func (t *Task) GetVersion() int {
-	ver := t.Obj.Metadata[metadata.Version]
+func (g *getter) Cycles() int64 {
+	if g.Meta[Cycles] == "" {
+		return 0
+	}
 
-	v, err := strconv.Atoi(ver)
+	cyc, err := strconv.ParseInt(g.Meta[Cycles], 10, 64)
 	if err != nil {
 		panic(err)
 	}
 
-	return v
+	return cyc
+}
+
+func (g *getter) Expiry() time.Time {
+	var tim *time.Time
+	{
+		tim = &time.Time{}
+	}
+
+	err := tim.UnmarshalJSON([]byte(g.Meta[Expiry]))
+	if err != nil {
+		panic(err)
+	}
+
+	return *tim
+}
+
+func (g *getter) Object() int64 {
+	cyc, err := strconv.ParseInt(g.Meta[Object], 10, 64)
+	if err != nil {
+		panic(err)
+	}
+
+	return cyc
+}
+
+func (g *getter) Worker() string {
+	return g.Meta[Worker]
 }
