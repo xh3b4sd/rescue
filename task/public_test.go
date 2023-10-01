@@ -66,6 +66,50 @@ func Test_Task_Meta_Emp(t *testing.T) {
 	}
 }
 
+func Test_Task_Meta_Set(t *testing.T) {
+	testCases := []struct {
+		tas *Task
+		key string
+		val string
+		set *Task
+	}{
+		// Case 000
+		{
+			tas: &Task{
+				Meta: &Public{"foo": "bar"},
+			},
+			key: "foo",
+			val: "zap",
+			set: &Task{
+				Meta: &Public{"foo": "zap"},
+			},
+		},
+		// Case 001
+		{
+			tas: &Task{
+				Meta: &Public{"foo": "bar", "one": "two"},
+			},
+			key: "one",
+			val: "thr",
+			set: &Task{
+				Meta: &Public{"foo": "bar", "one": "thr"},
+			},
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
+			tc.tas.Meta.Set(tc.key, tc.val)
+
+			set := tc.set
+
+			if !reflect.DeepEqual(tc.tas, set) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(tc.tas, set))
+			}
+		})
+	}
+}
+
 func Test_Task_Root_Emp(t *testing.T) {
 	testCases := []struct {
 		tas *Task
@@ -119,6 +163,50 @@ func Test_Task_Root_Emp(t *testing.T) {
 
 			if !reflect.DeepEqual(tc.emp, emp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(tc.emp, emp))
+			}
+		})
+	}
+}
+
+func Test_Task_Root_Set(t *testing.T) {
+	testCases := []struct {
+		tas *Task
+		key string
+		val string
+		set *Task
+	}{
+		// Case 000
+		{
+			tas: &Task{
+				Root: &Public{"foo": "bar"},
+			},
+			key: "foo",
+			val: "zap",
+			set: &Task{
+				Root: &Public{"foo": "zap"},
+			},
+		},
+		// Case 001
+		{
+			tas: &Task{
+				Root: &Public{"foo": "bar", "one": "two"},
+			},
+			key: "one",
+			val: "thr",
+			set: &Task{
+				Root: &Public{"foo": "bar", "one": "thr"},
+			},
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
+			tc.tas.Root.Set(tc.key, tc.val)
+
+			set := tc.set
+
+			if !reflect.DeepEqual(tc.tas, set) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(tc.tas, set))
 			}
 		})
 	}

@@ -33,5 +33,4 @@ func (p *Public) Has(lab map[string]string) bool {
 func (p *Public) Set(key string, val string) {
 	pub := *p
 	pub[key] = val
-	p = &pub
 }
