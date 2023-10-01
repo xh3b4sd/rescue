@@ -9,9 +9,9 @@ type setter struct {
 	Labl map[string]string
 }
 
-func (i *Intern) Set() *setter {
+func (c *Core) Set() *setter {
 	return &setter{
-		Labl: *i,
+		Labl: *c,
 	}
 }
 

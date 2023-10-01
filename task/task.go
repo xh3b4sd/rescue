@@ -21,7 +21,7 @@ type Task struct {
 	//     task.rescue.io/object    1611318984211839461
 	//     task.rescue.io/worker    al9qy
 	//
-	Core *Intern `json:"core,omitempty"`
+	Core *Core `json:"core,omitempty"`
 
 	// Meta contains task specific information defined by the user. Any worker
 	// should be able to identify whether they are able to execute on a task
@@ -33,7 +33,7 @@ type Task struct {
 	//        *naonao.io/action    delete
 	//     api.naonao.io/object    *
 	//
-	Meta *Public `json:"meta,omitempty"`
+	Meta *Meta `json:"meta,omitempty"`
 
 	// TODO implemnent Root as a new feature
 
@@ -55,5 +55,5 @@ type Task struct {
 	//
 	//     x.api.io/object    *
 	//
-	Root *Public `json:"root,omitempty"`
+	Root *Root `json:"root,omitempty"`
 }

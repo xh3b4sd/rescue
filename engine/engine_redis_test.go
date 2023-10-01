@@ -70,7 +70,7 @@ func Test_Engine_Balance(t *testing.T) {
 	{
 		for i := 0; i < 10; i++ {
 			tas := &task.Task{
-				Meta: &task.Public{
+				Meta: &task.Meta{
 					"test.api.io/num": strconv.Itoa(i),
 				},
 			}
@@ -210,7 +210,7 @@ func Test_Engine_Delete(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 			},
 		}
@@ -316,7 +316,7 @@ func Test_Engine_Exists(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 			},
 		}
@@ -472,7 +472,7 @@ func Test_Engine_Expire(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 			},
 		}
@@ -485,7 +485,7 @@ func Test_Engine_Expire(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "bar",
 			},
 		}
@@ -615,7 +615,7 @@ func Test_Engine_Extend(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 			},
 		}
@@ -890,7 +890,7 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 			},
 		}
@@ -903,7 +903,7 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "bar",
 			},
 		}
@@ -916,7 +916,7 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 			},
 		}
@@ -933,7 +933,7 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "bar",
 			},
 		}
@@ -1013,7 +1013,7 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 		{
 			tas := &task.Task{
-				Meta: &task.Public{
+				Meta: &task.Meta{
 					"test.api.io/key": "foo",
 				},
 			}
@@ -1030,7 +1030,7 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 		{
 			tas := &task.Task{
-				Meta: &task.Public{
+				Meta: &task.Meta{
 					"test.api.io/key": "bar",
 				},
 			}
@@ -1113,7 +1113,7 @@ func Test_Engine_Lister_Order(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 				"test.api.io/zer": "tru",
 			},
@@ -1127,7 +1127,7 @@ func Test_Engine_Lister_Order(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 				"test.api.io/zer": "tru",
 				"test.api.io/sin": "baz",
@@ -1142,7 +1142,7 @@ func Test_Engine_Lister_Order(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 			},
 		}
@@ -1156,7 +1156,7 @@ func Test_Engine_Lister_Order(t *testing.T) {
 	var lis []*task.Task
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 			},
 		}
@@ -1195,7 +1195,7 @@ func Test_Engine_Lister_Order(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 			},
 		}
@@ -1223,7 +1223,7 @@ func Test_Engine_Lister_Order(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/zer": "tru",
 			},
 		}
@@ -1259,7 +1259,7 @@ func Test_Engine_Lister_Order(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/zer": "tru",
 			},
 		}
@@ -1412,7 +1412,7 @@ func Test_Engine_Queue(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 				"test.api.io/zer": "tru",
 			},
@@ -1426,7 +1426,7 @@ func Test_Engine_Queue(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 				"test.api.io/zer": "tru",
 				"test.api.io/sin": "baz",
@@ -1441,7 +1441,7 @@ func Test_Engine_Queue(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 			},
 		}
@@ -1455,7 +1455,7 @@ func Test_Engine_Queue(t *testing.T) {
 	var lis []*task.Task
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 			},
 		}
@@ -1474,7 +1474,7 @@ func Test_Engine_Queue(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Public{
+			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 			},
 		}

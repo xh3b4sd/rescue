@@ -73,7 +73,7 @@ func (e *Engine) create(tas *task.Task) error {
 	}
 
 	{
-		tas.Core = &task.Intern{}
+		tas.Core = &task.Core{}
 	}
 
 	var tid int64

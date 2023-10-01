@@ -4,9 +4,9 @@ type purger struct {
 	Labl map[string]string
 }
 
-func (i *Intern) Prg() *purger {
+func (c *Core) Prg() *purger {
 	return &purger{
-		Labl: *i,
+		Labl: *c,
 	}
 }
 

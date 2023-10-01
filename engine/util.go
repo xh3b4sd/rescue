@@ -4,7 +4,7 @@ import "github.com/xh3b4sd/rescue/task"
 
 func All() *task.Task {
 	return &task.Task{
-		Meta: &task.Public{
+		Meta: &task.Meta{
 			"*": "*",
 		},
 	}

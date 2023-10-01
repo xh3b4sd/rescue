@@ -9,9 +9,9 @@ type getter struct {
 	Labl map[string]string
 }
 
-func (i *Intern) Get() *getter {
+func (c *Core) Get() *getter {
 	return &getter{
-		Labl: *i,
+		Labl: *c,
 	}
 }
 
