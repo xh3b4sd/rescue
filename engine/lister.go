@@ -88,7 +88,6 @@ func (e *Engine) lister(tas *task.Task) ([]*task.Task, error) {
 	var fil []*task.Task
 	{
 		for _, t := range lis {
-			// TODO test each part
 			if t.Core != nil && tas.Core != nil && !t.Core.Has(*tas.Core) {
 				continue
 			}
@@ -97,6 +96,7 @@ func (e *Engine) lister(tas *task.Task) ([]*task.Task, error) {
 				continue
 			}
 
+			// TODO test exists for root
 			if t.Root != nil && tas.Root != nil && !t.Root.Has(*tas.Root) {
 				continue
 			}
