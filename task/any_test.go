@@ -8,7 +8,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func Test_Labels_Any(t *testing.T) {
+func Test_Task_Any(t *testing.T) {
 	testCases := []struct {
 		lab map[string]string
 		key []string
