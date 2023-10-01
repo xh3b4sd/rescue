@@ -2,38 +2,32 @@ package task
 
 import "strings"
 
-func (t *Task) Has(met map[string]string) bool {
-	if len(met) == 1 && met["*"] == "*" {
+// Has expresses whether the given label set contains all of the given subset.
+// The first map represents the full label set to match against. The second map
+// represents the subset to match for.
+func Has(all map[string]string, sub map[string]string) bool {
+	if len(sub) == 1 && sub["*"] == "*" {
 		return true
 	}
 
-	if len(t.Meta) == 0 || len(met) == 0 {
+	if len(all) == 0 || len(sub) == 0 {
 		return false
 	}
 
-	for a, b := range met {
-		// TODO unit test, we want to have a key wildcards
-		//
-		//     ke*: val
-		//     *ey: val
-		//
-		m, e := t.has(a)
+	for x, y := range sub {
+		m, e := has(all, x)
 		if !e {
 			return false
 		}
 
-		// TODO unit test, we want to have a value wildcard
-		//
-		//     key: *
-		//
-		if b == "*" {
+		if y == "*" {
 			continue
 		}
 
 		var f bool
 
-		for _, y := range m {
-			if b == y {
+		for _, v := range m {
+			if y == v {
 				f = true
 				break
 			}
@@ -47,19 +41,19 @@ func (t *Task) Has(met map[string]string) bool {
 	return true
 }
 
-func (t *Task) has(a string) (map[string]string, bool) {
+func has(all map[string]string, k string) (map[string]string, bool) {
 	{
-		a = strings.TrimPrefix(a, "*")
-		a = strings.TrimSuffix(a, "*")
+		k = strings.TrimPrefix(k, "*")
+		k = strings.TrimSuffix(k, "*")
 	}
 
-	if len(a) < 3 {
+	if len(k) < 3 {
 		return nil, false
 	}
 
 	m := map[string]string{}
-	for x, y := range t.Meta {
-		if strings.Contains(x, a) {
+	for x, y := range all {
+		if strings.Contains(x, k) {
 			m[x] = y
 		}
 	}

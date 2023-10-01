@@ -1,31 +1,31 @@
 package task
 
 type purger struct {
-	Meta map[string]string
+	Labl map[string]string
 }
 
-func (t *Task) Prg() Purger {
+func (c *Core) Prg() *purger {
 	return &purger{
-		Meta: t.Meta,
+		Labl: *c,
 	}
 }
 
 func (p *purger) Bypass() {
-	delete(p.Meta, Bypass)
+	delete(p.Labl, Bypass)
 }
 
 func (p *purger) Cycles() {
-	delete(p.Meta, Cycles)
+	delete(p.Labl, Cycles)
 }
 
 func (p *purger) Expiry() {
-	delete(p.Meta, Expiry)
+	delete(p.Labl, Expiry)
 }
 
 func (p *purger) Object() {
-	delete(p.Meta, Object)
+	delete(p.Labl, Object)
 }
 
 func (p *purger) Worker() {
-	delete(p.Meta, Worker)
+	delete(p.Labl, Worker)
 }

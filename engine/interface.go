@@ -16,7 +16,7 @@ type Interface interface {
 	// return true if called with metadata b and c. If workers would want to
 	// verify whether they still own a task, they could do the following call.
 	//
-	//     Exists(tas.All(metadata.ID, metadata.Owner))
+	//     Exists(&task.Task{Core: tas.Core.All(task.Object, task.Worker)})
 	//
 	Exists(tas *task.Task) (bool, error)
 

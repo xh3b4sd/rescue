@@ -2,7 +2,6 @@ package engine
 
 import (
 	"github.com/xh3b4sd/rescue/task"
-	"github.com/xh3b4sd/rescue/verify"
 	"github.com/xh3b4sd/tracer"
 )
 
@@ -39,13 +38,21 @@ func (e *Engine) lister(tas *task.Task) ([]*task.Task, error) {
 	// be abused to take ownership from worker processes that may not be aware of
 	// the corruption.
 	{
-		err = verify.Empty(tas)
-		if err != nil {
-			return nil, tracer.Mask(err)
+		if tas == nil {
+			return nil, tracer.Maskf(taskEmptyError, "Task must not be empty")
 		}
-		err = verify.Label(tas)
-		if err != nil {
-			return nil, tracer.Mask(err)
+		if tas.Core != nil {
+			return nil, tracer.Maskf(taskCoreError, "Task.Core must be empty")
+		}
+		if tas.Meta.Emp() && tas.Root.Emp() {
+			return nil, tracer.Maskf(taskMetaEmptyError, "either Task.Meta or Task.Root must not be empty")
+		}
+
+		if tas.Meta != nil && tas.Meta.Has(Res()) {
+			return nil, tracer.Maskf(labelReservedError, "Task.Meta must not contain reserved scheme rescue.io")
+		}
+		if tas.Root != nil && tas.Root.Has(Res()) {
+			return nil, tracer.Maskf(labelReservedError, "Task.Root must not contain reserved scheme rescue.io")
 		}
 	}
 
@@ -81,7 +88,20 @@ func (e *Engine) lister(tas *task.Task) ([]*task.Task, error) {
 	var fil []*task.Task
 	{
 		for _, t := range lis {
-			if t.Has(tas.Meta) {
+			if t.Core != nil && tas.Core != nil && !t.Core.Has(*tas.Core) {
+				continue
+			}
+
+			if t.Meta != nil && tas.Meta != nil && !t.Meta.Has(*tas.Meta) {
+				continue
+			}
+
+			// TODO test exists for root
+			if t.Root != nil && tas.Root != nil && !t.Root.Has(*tas.Root) {
+				continue
+			}
+
+			{
 				fil = append(fil, t)
 			}
 		}

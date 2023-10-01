@@ -5,7 +5,6 @@ import (
 
 	"github.com/xh3b4sd/rescue/key"
 	"github.com/xh3b4sd/rescue/task"
-	"github.com/xh3b4sd/rescue/verify"
 	"github.com/xh3b4sd/tracer"
 )
 
@@ -33,12 +32,12 @@ func (e *Engine) Extend(tas *task.Task) error {
 }
 
 func (e *Engine) extend(tas *task.Task) error {
-	var err error
-
 	{
-		err = verify.Empty(tas)
-		if err != nil {
-			return tracer.Mask(err)
+		if tas == nil {
+			return tracer.Maskf(taskEmptyError, "Task must not be empty")
+		}
+		if tas.Core.Emp() {
+			return tracer.Maskf(taskCoreError, "Task.Core must not be empty")
 		}
 	}
 
@@ -64,7 +63,7 @@ func (e *Engine) extend(tas *task.Task) error {
 	var cur *task.Task
 	{
 		k := key.Queue(e.que)
-		s := float64(tas.Get().Object())
+		s := float64(tas.Core.Get().Object())
 
 		str, err := e.red.Sorted().Search().Score(k, s, s)
 		if err != nil {
@@ -81,8 +80,8 @@ func (e *Engine) extend(tas *task.Task) error {
 
 	// Tasks can only be extended by owners.
 	{
-		tid := cur.Get().Object() == tas.Get().Object()
-		own := cur.Get().Worker() == tas.Get().Worker()
+		tid := cur.Core.Get().Object() == tas.Core.Get().Object()
+		own := cur.Core.Get().Worker() == tas.Core.Get().Worker()
 
 		if !tid || !own {
 			e.met.Task.Outdated.Inc()
@@ -91,13 +90,13 @@ func (e *Engine) extend(tas *task.Task) error {
 	}
 
 	{
-		cur.Set().Expiry(time.Now().UTC().Add(e.exp))
+		cur.Core.Set().Expiry(time.Now().UTC().Add(e.exp))
 	}
 
 	{
 		k := key.Queue(e.que)
 		v := task.ToString(cur)
-		s := float64(cur.Get().Object())
+		s := float64(cur.Core.Get().Object())
 
 		_, err := e.red.Sorted().Update().Score(k, v, s)
 		if err != nil {

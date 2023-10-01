@@ -5,7 +5,6 @@ import (
 
 	"github.com/xh3b4sd/rescue/key"
 	"github.com/xh3b4sd/rescue/task"
-	"github.com/xh3b4sd/rescue/verify"
 	"github.com/xh3b4sd/tracer"
 )
 
@@ -36,13 +35,21 @@ func (e *Engine) create(tas *task.Task) error {
 	var err error
 
 	{
-		err = verify.Empty(tas)
-		if err != nil {
-			return tracer.Mask(err)
+		if tas == nil {
+			return tracer.Maskf(taskEmptyError, "Task must not be empty")
 		}
-		err = verify.Label(tas)
-		if err != nil {
-			return tracer.Mask(err)
+		if tas.Core != nil {
+			return tracer.Maskf(taskCoreError, "Task.Core must be empty")
+		}
+		if tas.Meta.Emp() {
+			return tracer.Maskf(taskMetaEmptyError, "Task.Meta must not be empty")
+		}
+
+		if tas.Meta != nil && tas.Meta.Has(Res()) {
+			return tracer.Maskf(labelReservedError, "Task.Meta must not contain reserved scheme rescue.io")
+		}
+		if tas.Root != nil && tas.Root.Has(Res()) {
+			return tracer.Maskf(labelReservedError, "Task.Root must not contain reserved scheme rescue.io")
 		}
 	}
 
@@ -65,13 +72,17 @@ func (e *Engine) create(tas *task.Task) error {
 		}()
 	}
 
+	{
+		tas.Core = &task.Core{}
+	}
+
 	var tid int64
 	{
 		tid = time.Now().UTC().UnixNano()
 	}
 
 	{
-		tas.Set().Object(tid)
+		tas.Core.Set().Object(tid)
 	}
 
 	{

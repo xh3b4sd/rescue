@@ -75,7 +75,7 @@ func (e *Engine) search() (*task.Task, error) {
 	cur := map[string]int{}
 	{
 		for _, l := range lis {
-			cur[l.Get().Worker()]++
+			cur[l.Core.Get().Worker()]++
 		}
 	}
 
@@ -103,7 +103,7 @@ func (e *Engine) search() (*task.Task, error) {
 			// there is an owner assigned we ignore the task and move on to find
 			// another one.
 			{
-				if t.Get().Worker() != "" {
+				if t.Core.Get().Worker() != "" {
 					continue
 				}
 			}
@@ -123,14 +123,14 @@ func (e *Engine) search() (*task.Task, error) {
 	}
 
 	{
-		tas.Set().Expiry(time.Now().UTC().Add(e.exp))
-		tas.Set().Worker(e.wrk)
+		tas.Core.Set().Expiry(time.Now().UTC().Add(e.exp))
+		tas.Core.Set().Worker(e.wrk)
 	}
 
 	{
 		k := key.Queue(e.que)
 		v := task.ToString(tas)
-		s := float64(tas.Get().Object())
+		s := float64(tas.Core.Get().Object())
 
 		_, err := e.red.Sorted().Update().Score(k, v, s)
 		if err != nil {

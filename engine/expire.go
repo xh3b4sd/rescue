@@ -70,7 +70,7 @@ func (e *Engine) expire() error {
 	cur := map[string]int{}
 	{
 		for _, l := range lis {
-			cur[l.Get().Worker()]++
+			cur[l.Core.Get().Worker()]++
 		}
 	}
 
@@ -80,7 +80,7 @@ func (e *Engine) expire() error {
 			// owner assigned we ignore the task and move on to find another
 			// one.
 			{
-				if t.Get().Worker() == "" {
+				if t.Core.Get().Worker() == "" {
 					continue
 				}
 			}
@@ -89,9 +89,9 @@ func (e *Engine) expire() error {
 			var now time.Time
 			var wrk string
 			{
-				exp = t.Get().Expiry()
+				exp = t.Core.Get().Expiry()
 				now = time.Now().UTC()
-				wrk = t.Get().Worker()
+				wrk = t.Core.Get().Worker()
 			}
 
 			// We are looking for tasks which are expired already. So if the task we
@@ -106,15 +106,15 @@ func (e *Engine) expire() error {
 			}
 
 			{
-				t.Prg().Expiry()
-				t.Prg().Worker()
-				t.Set().Cycles(t.Get().Cycles() + 1)
+				t.Core.Prg().Expiry()
+				t.Core.Prg().Worker()
+				t.Core.Set().Cycles(t.Core.Get().Cycles() + 1)
 			}
 
 			{
 				k := key.Queue(e.que)
 				v := task.ToString(t)
-				s := float64(t.Get().Object())
+				s := float64(t.Core.Get().Object())
 
 				_, err := e.red.Sorted().Update().Score(k, v, s)
 				if err != nil {
@@ -149,7 +149,7 @@ func (e *Engine) expire() error {
 			// for the current owner we ignore the task and move on to find
 			// another one.
 			{
-				cou := dev[t.Get().Worker()]
+				cou := dev[t.Core.Get().Worker()]
 				if cou == 0 {
 					continue
 				}
@@ -159,9 +159,9 @@ func (e *Engine) expire() error {
 			var now time.Time
 			var wrk string
 			{
-				exp = t.Get().Expiry()
+				exp = t.Core.Get().Expiry()
 				now = time.Now().UTC()
-				wrk = t.Get().Worker()
+				wrk = t.Core.Get().Worker()
 			}
 
 			// We are looking for tasks which are expired already. So if the task we
@@ -176,15 +176,15 @@ func (e *Engine) expire() error {
 			}
 
 			{
-				t.Prg().Expiry()
-				t.Prg().Worker()
-				t.Set().Cycles(t.Get().Cycles() + 1)
+				t.Core.Prg().Expiry()
+				t.Core.Prg().Worker()
+				t.Core.Set().Cycles(t.Core.Get().Cycles() + 1)
 			}
 
 			{
 				k := key.Queue(e.que)
 				v := task.ToString(t)
-				s := float64(t.Get().Object())
+				s := float64(t.Core.Get().Object())
 
 				_, err := e.red.Sorted().Update().Score(k, v, s)
 				if err != nil {
