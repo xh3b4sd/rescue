@@ -6,12 +6,36 @@ import (
 	"github.com/xh3b4sd/tracer"
 )
 
-var invalidConfigError = &tracer.Error{
-	Kind: "invalidConfigError",
+var labelReservedError = &tracer.Error{
+	Kind: "labelReservedError",
 }
 
-func IsInvalidConfig(err error) bool {
-	return errors.Is(err, invalidConfigError)
+func IsLabelReserved(err error) bool {
+	return errors.Is(err, labelReservedError)
+}
+
+var taskCoreError = &tracer.Error{
+	Kind: "taskCoreError",
+}
+
+func IsTaskCore(err error) bool {
+	return errors.Is(err, taskCoreError)
+}
+
+var taskEmptyError = &tracer.Error{
+	Kind: "taskEmptyError",
+}
+
+func IsTaskEmpty(err error) bool {
+	return errors.Is(err, taskEmptyError)
+}
+
+var taskMetaEmptyError = &tracer.Error{
+	Kind: "taskMetaEmptyError",
+}
+
+func IsTaskMetaEmpty(err error) bool {
+	return errors.Is(err, taskMetaEmptyError)
 }
 
 var taskNotFoundError = &tracer.Error{

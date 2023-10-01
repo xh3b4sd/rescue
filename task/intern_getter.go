@@ -6,21 +6,21 @@ import (
 )
 
 type getter struct {
-	Meta map[string]string
+	Labl map[string]string
 }
 
-func (t *Task) Get() Getter {
+func (i *Intern) Get() *getter {
 	return &getter{
-		Meta: t.Meta,
+		Labl: *i,
 	}
 }
 
 func (g *getter) Bypass() bool {
-	if g.Meta[Bypass] == "" {
+	if g.Labl[Bypass] == "" {
 		return false
 	}
 
-	byp, err := strconv.ParseBool(g.Meta[Bypass])
+	byp, err := strconv.ParseBool(g.Labl[Bypass])
 	if err != nil {
 		panic(err)
 	}
@@ -29,11 +29,11 @@ func (g *getter) Bypass() bool {
 }
 
 func (g *getter) Cycles() int64 {
-	if g.Meta[Cycles] == "" {
+	if g.Labl[Cycles] == "" {
 		return 0
 	}
 
-	cyc, err := strconv.ParseInt(g.Meta[Cycles], 10, 64)
+	cyc, err := strconv.ParseInt(g.Labl[Cycles], 10, 64)
 	if err != nil {
 		panic(err)
 	}
@@ -47,7 +47,7 @@ func (g *getter) Expiry() time.Time {
 		tim = &time.Time{}
 	}
 
-	err := tim.UnmarshalJSON([]byte(g.Meta[Expiry]))
+	err := tim.UnmarshalJSON([]byte(g.Labl[Expiry]))
 	if err != nil {
 		panic(err)
 	}
@@ -56,7 +56,7 @@ func (g *getter) Expiry() time.Time {
 }
 
 func (g *getter) Object() int64 {
-	cyc, err := strconv.ParseInt(g.Meta[Object], 10, 64)
+	cyc, err := strconv.ParseInt(g.Labl[Object], 10, 64)
 	if err != nil {
 		panic(err)
 	}
@@ -65,5 +65,5 @@ func (g *getter) Object() int64 {
 }
 
 func (g *getter) Worker() string {
-	return g.Meta[Worker]
+	return g.Labl[Worker]
 }

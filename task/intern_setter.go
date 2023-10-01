@@ -6,21 +6,21 @@ import (
 )
 
 type setter struct {
-	Meta map[string]string
+	Labl map[string]string
 }
 
-func (t *Task) Set() Setter {
+func (i *Intern) Set() *setter {
 	return &setter{
-		Meta: t.Meta,
+		Labl: *i,
 	}
 }
 
 func (s *setter) Bypass(x bool) {
-	s.Meta[Bypass] = strconv.FormatBool(x)
+	s.Labl[Bypass] = strconv.FormatBool(x)
 }
 
 func (s *setter) Cycles(x int64) {
-	s.Meta[Cycles] = strconv.FormatInt(x, 10)
+	s.Labl[Cycles] = strconv.FormatInt(x, 10)
 }
 
 func (s *setter) Expiry(x time.Time) {
@@ -29,13 +29,13 @@ func (s *setter) Expiry(x time.Time) {
 		panic(err)
 	}
 
-	s.Meta[Expiry] = string(byt)
+	s.Labl[Expiry] = string(byt)
 }
 
 func (s *setter) Object(x int64) {
-	s.Meta[Object] = strconv.FormatInt(x, 10)
+	s.Labl[Object] = strconv.FormatInt(x, 10)
 }
 
 func (s *setter) Worker(x string) {
-	s.Meta[Worker] = x
+	s.Labl[Worker] = x
 }

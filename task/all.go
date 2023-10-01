@@ -1,25 +1,18 @@
 package task
 
-func (t *Task) All(key ...string) *Task {
-	var tas *Task
-	{
-		tas = &Task{}
-	}
+func All(all map[string]string, key ...string) map[string]string {
+	lab := map[string]string{}
 
 	for _, x := range key {
-		m, e := t.has(x)
+		m, e := has(all, x)
 		if !e {
 			return nil
 		}
 
-		if tas.Meta == nil {
-			tas.Meta = map[string]string{}
-		}
-
 		for k, v := range m {
-			tas.Meta[k] = v
+			lab[k] = v
 		}
 	}
 
-	return tas
+	return lab
 }

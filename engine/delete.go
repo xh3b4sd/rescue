@@ -3,7 +3,6 @@ package engine
 import (
 	"github.com/xh3b4sd/rescue/key"
 	"github.com/xh3b4sd/rescue/task"
-	"github.com/xh3b4sd/rescue/verify"
 	"github.com/xh3b4sd/tracer"
 )
 
@@ -34,9 +33,11 @@ func (e *Engine) delete(tas *task.Task) error {
 	var err error
 
 	{
-		err = verify.Empty(tas)
-		if err != nil {
-			return tracer.Mask(err)
+		if tas == nil {
+			return tracer.Maskf(taskEmptyError, "Task must not be empty")
+		}
+		if tas.Core.Emp() {
+			return tracer.Maskf(taskCoreError, "Task.Core must not be empty")
 		}
 	}
 
@@ -62,7 +63,7 @@ func (e *Engine) delete(tas *task.Task) error {
 	var cur *task.Task
 	{
 		k := key.Queue(e.que)
-		s := float64(tas.Get().Object())
+		s := float64(tas.Core.Get().Object())
 
 		str, err := e.red.Sorted().Search().Score(k, s, s)
 		if err != nil {
@@ -94,8 +95,8 @@ func (e *Engine) delete(tas *task.Task) error {
 	// system, and we would have broken the integrity of it.
 	var equ bool
 	{
-		tid := cur.Get().Object() == tas.Get().Object()
-		own := cur.Get().Worker() == tas.Get().Worker() || tas.Get().Bypass()
+		tid := cur.Core.Get().Object() == tas.Core.Get().Object()
+		own := cur.Core.Get().Worker() == tas.Core.Get().Worker() || tas.Core.Get().Bypass()
 
 		if tid && own {
 			equ = true
@@ -104,7 +105,7 @@ func (e *Engine) delete(tas *task.Task) error {
 
 	{
 		if !equ {
-			cur.Set().Cycles(cur.Get().Cycles() + 1)
+			cur.Core.Set().Cycles(cur.Core.Get().Cycles() + 1)
 		}
 	}
 
@@ -112,7 +113,7 @@ func (e *Engine) delete(tas *task.Task) error {
 		if !equ {
 			k := key.Queue(e.que)
 			v := task.ToString(cur)
-			s := float64(cur.Get().Object())
+			s := float64(cur.Core.Get().Object())
 
 			_, err := e.red.Sorted().Update().Score(k, v, s)
 			if err != nil {
@@ -130,7 +131,7 @@ func (e *Engine) delete(tas *task.Task) error {
 
 	{
 		k := key.Queue(e.que)
-		s := float64(tas.Get().Object())
+		s := float64(tas.Core.Get().Object())
 
 		err = e.red.Sorted().Delete().Score(k, s)
 		if err != nil {

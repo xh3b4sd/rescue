@@ -2,7 +2,9 @@ package task
 
 import "time"
 
+// TODO should maybe just be a way to provide the relative duration based on expiry
 // TODO unit test
+
 // NewTimer returns a new timer configured with the duration between now and
 // this task's expiry. Optionally, a single time instance can be given to
 // overwrite the internal UTC based "now". If this task is already expired, then
@@ -24,7 +26,7 @@ func NewTimer(tas *Task, tim ...time.Time) *time.Timer {
 
 	var exp time.Time
 	{
-		exp = tas.Get().Expiry()
+		exp = tas.Core.Get().Expiry()
 	}
 
 	var dur time.Duration

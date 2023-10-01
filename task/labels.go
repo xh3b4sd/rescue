@@ -30,11 +30,3 @@ const (
 	// Worker is the name of the worker executing the task.
 	Worker = "task.rescue.io/worker"
 )
-
-func All() *Task {
-	return &Task{
-		Meta: map[string]string{
-			"*": "*",
-		},
-	}
-}

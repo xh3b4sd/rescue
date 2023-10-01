@@ -70,8 +70,8 @@ func Test_Engine_Balance(t *testing.T) {
 	{
 		for i := 0; i < 10; i++ {
 			tas := &task.Task{
-				Meta: map[string]string{
-					"test.rescue.io/num": strconv.Itoa(i),
+				Meta: &task.Public{
+					"test.api.io/num": strconv.Itoa(i),
 				},
 			}
 
@@ -210,8 +210,8 @@ func Test_Engine_Delete(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "foo",
+			Meta: &task.Public{
+				"test.api.io/key": "foo",
 			},
 		}
 
@@ -228,7 +228,7 @@ func Test_Engine_Delete(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Meta["test.rescue.io/key"] != "foo" {
+		if tas.Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -245,7 +245,7 @@ func Test_Engine_Delete(t *testing.T) {
 	}
 
 	{
-		exi, err := eon.Exists(tas.All(task.Object, task.Worker))
+		exi, err := eon.Exists(&task.Task{Core: tas.Core.All(task.Object, task.Worker)})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -263,7 +263,7 @@ func Test_Engine_Delete(t *testing.T) {
 	}
 
 	{
-		tas.Set().Bypass(true)
+		tas.Core.Set().Bypass(true)
 	}
 
 	{
@@ -316,8 +316,8 @@ func Test_Engine_Exists(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "foo",
+			Meta: &task.Public{
+				"test.api.io/key": "foo",
 			},
 		}
 
@@ -334,13 +334,13 @@ func Test_Engine_Exists(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Meta["test.rescue.io/key"] != "foo" {
+		if tas.Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
 
 	{
-		exi, err := eon.Exists(tas.All(task.Object))
+		exi, err := eon.Exists(&task.Task{Core: tas.Core.All(task.Object)})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -351,7 +351,7 @@ func Test_Engine_Exists(t *testing.T) {
 	}
 
 	{
-		exi, err := eon.Exists(tas.All(task.Object, task.Worker))
+		exi, err := eon.Exists(&task.Task{Core: tas.Core.All(task.Object, task.Worker)})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -373,7 +373,7 @@ func Test_Engine_Exists(t *testing.T) {
 	}
 
 	{
-		exi, err := eon.Exists(tas.All(task.Object))
+		exi, err := eon.Exists(&task.Task{Core: tas.Core.All(task.Object)})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -384,7 +384,7 @@ func Test_Engine_Exists(t *testing.T) {
 	}
 
 	{
-		exi, err := eon.Exists(tas.All(task.Object, task.Worker))
+		exi, err := eon.Exists(&task.Task{Core: tas.Core.All(task.Object, task.Worker)})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -407,7 +407,7 @@ func Test_Engine_Exists(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Meta["test.rescue.io/key"] != "foo" {
+		if tas.Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -472,8 +472,8 @@ func Test_Engine_Expire(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "foo",
+			Meta: &task.Public{
+				"test.api.io/key": "foo",
 			},
 		}
 
@@ -485,8 +485,8 @@ func Test_Engine_Expire(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "bar",
+			Meta: &task.Public{
+				"test.api.io/key": "bar",
 			},
 		}
 
@@ -511,7 +511,7 @@ func Test_Engine_Expire(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		s = append(s, tas.Meta["test.rescue.io/key"])
+		s = append(s, tas.Meta.Get("test.api.io/key"))
 
 		err = etw.Delete(tas)
 		if err != nil {
@@ -537,7 +537,7 @@ func Test_Engine_Expire(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		s = append(s, tas.Meta["test.rescue.io/key"])
+		s = append(s, tas.Meta.Get("test.api.io/key"))
 
 		err = etw.Delete(tas)
 		if err != nil {
@@ -615,8 +615,8 @@ func Test_Engine_Extend(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "foo",
+			Meta: &task.Public{
+				"test.api.io/key": "foo",
 			},
 		}
 
@@ -633,7 +633,7 @@ func Test_Engine_Extend(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Meta["test.rescue.io/key"] != "foo" {
+		if tas.Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -815,7 +815,7 @@ func Test_Engine_Extend(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Meta["test.rescue.io/key"] != "foo" {
+		if tas.Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -890,8 +890,8 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "foo",
+			Meta: &task.Public{
+				"test.api.io/key": "foo",
 			},
 		}
 
@@ -903,8 +903,8 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "bar",
+			Meta: &task.Public{
+				"test.api.io/key": "bar",
 			},
 		}
 
@@ -916,8 +916,8 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "foo",
+			Meta: &task.Public{
+				"test.api.io/key": "foo",
 			},
 		}
 
@@ -933,8 +933,8 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "bar",
+			Meta: &task.Public{
+				"test.api.io/key": "bar",
 			},
 		}
 
@@ -967,7 +967,7 @@ func Test_Engine_Lifecycle(t *testing.T) {
 				return
 			}
 
-			s = append(s, tas.Meta["test.rescue.io/key"])
+			s = append(s, tas.Meta.Get("test.api.io/key"))
 
 			err = eon.Delete(tas)
 			if err != nil {
@@ -985,7 +985,7 @@ func Test_Engine_Lifecycle(t *testing.T) {
 				return
 			}
 
-			s = append(s, tas.Meta["test.rescue.io/key"])
+			s = append(s, tas.Meta.Get("test.api.io/key"))
 
 			err = etw.Delete(tas)
 			if err != nil {
@@ -1013,8 +1013,8 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 		{
 			tas := &task.Task{
-				Meta: map[string]string{
-					"test.rescue.io/key": "foo",
+				Meta: &task.Public{
+					"test.api.io/key": "foo",
 				},
 			}
 
@@ -1030,8 +1030,8 @@ func Test_Engine_Lifecycle(t *testing.T) {
 
 		{
 			tas := &task.Task{
-				Meta: map[string]string{
-					"test.rescue.io/key": "bar",
+				Meta: &task.Public{
+					"test.api.io/key": "bar",
 				},
 			}
 
@@ -1113,9 +1113,9 @@ func Test_Engine_Lister_Order(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "foo",
-				"test.rescue.io/zer": "tru",
+			Meta: &task.Public{
+				"test.api.io/key": "foo",
+				"test.api.io/zer": "tru",
 			},
 		}
 
@@ -1127,10 +1127,10 @@ func Test_Engine_Lister_Order(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "foo",
-				"test.rescue.io/zer": "tru",
-				"test.rescue.io/sin": "baz",
+			Meta: &task.Public{
+				"test.api.io/key": "foo",
+				"test.api.io/zer": "tru",
+				"test.api.io/sin": "baz",
 			},
 		}
 
@@ -1142,8 +1142,8 @@ func Test_Engine_Lister_Order(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "foo",
+			Meta: &task.Public{
+				"test.api.io/key": "foo",
 			},
 		}
 
@@ -1156,8 +1156,8 @@ func Test_Engine_Lister_Order(t *testing.T) {
 	var lis []*task.Task
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "foo",
+			Meta: &task.Public{
+				"test.api.io/key": "foo",
 			},
 		}
 
@@ -1171,13 +1171,13 @@ func Test_Engine_Lister_Order(t *testing.T) {
 		if len(lis) != 3 {
 			t.Fatal("expected 3 tasks listed")
 		}
-		if len(lis[0].All("test*").Meta) != 2 {
+		if len(*lis[0].Meta.All("test*")) != 2 {
 			t.Fatal("expected 2 task labels")
 		}
-		if len(lis[1].All("test*").Meta) != 3 {
+		if len(*lis[1].Meta.All("test*")) != 3 {
 			t.Fatal("expected 3 task labels")
 		}
-		if len(lis[2].All("test*").Meta) != 1 {
+		if len(*lis[2].Meta.All("test*")) != 1 {
 			t.Fatal("expected 1 task labels")
 		}
 	}
@@ -1195,8 +1195,8 @@ func Test_Engine_Lister_Order(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "foo",
+			Meta: &task.Public{
+				"test.api.io/key": "foo",
 			},
 		}
 
@@ -1210,21 +1210,21 @@ func Test_Engine_Lister_Order(t *testing.T) {
 		if len(lis) != 3 {
 			t.Fatal("expected 3 tasks listed")
 		}
-		if len(lis[0].All("test*").Meta) != 2 {
+		if len(*lis[0].Meta.All("test*")) != 2 {
 			t.Fatal("expected 2 task labels")
 		}
-		if len(lis[1].All("test*").Meta) != 3 {
+		if len(*lis[1].Meta.All("test*")) != 3 {
 			t.Fatal("expected 3 task labels")
 		}
-		if len(lis[2].All("test*").Meta) != 1 {
+		if len(*lis[2].Meta.All("test*")) != 1 {
 			t.Fatal("expected 1 task labels")
 		}
 	}
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/zer": "tru",
+			Meta: &task.Public{
+				"test.api.io/zer": "tru",
 			},
 		}
 
@@ -1238,10 +1238,10 @@ func Test_Engine_Lister_Order(t *testing.T) {
 		if len(lis) != 2 {
 			t.Fatal("expected 2 tasks listed")
 		}
-		if len(lis[0].All("test*").Meta) != 2 {
+		if len(*lis[0].Meta.All("test*")) != 2 {
 			t.Fatal("expected 2 task labels")
 		}
-		if len(lis[1].All("test*").Meta) != 3 {
+		if len(*lis[1].Meta.All("test*")) != 3 {
 			t.Fatal("expected 3 task labels")
 		}
 	}
@@ -1259,8 +1259,8 @@ func Test_Engine_Lister_Order(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/zer": "tru",
+			Meta: &task.Public{
+				"test.api.io/zer": "tru",
 			},
 		}
 
@@ -1274,16 +1274,16 @@ func Test_Engine_Lister_Order(t *testing.T) {
 		if len(lis) != 2 {
 			t.Fatal("expected 2 tasks listed")
 		}
-		if len(lis[0].All("test*").Meta) != 2 {
+		if len(*lis[0].Meta.All("test*")) != 2 {
 			t.Fatal("expected 2 task labels")
 		}
-		if len(lis[1].All("test*").Meta) != 3 {
+		if len(*lis[1].Meta.All("test*")) != 3 {
 			t.Fatal("expected 3 task labels")
 		}
 	}
 
 	{
-		lis, err = eon.Lister(task.All())
+		lis, err = eon.Lister(All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1293,13 +1293,13 @@ func Test_Engine_Lister_Order(t *testing.T) {
 		if len(lis) != 3 {
 			t.Fatal("expected 3 tasks listed")
 		}
-		if len(lis[0].All("test*").Meta) != 2 {
+		if len(*lis[0].Meta.All("test*")) != 2 {
 			t.Fatal("expected 2 task labels")
 		}
-		if len(lis[1].All("test*").Meta) != 3 {
+		if len(*lis[1].Meta.All("test*")) != 3 {
 			t.Fatal("expected 3 task labels")
 		}
-		if len(lis[2].All("test*").Meta) != 1 {
+		if len(*lis[2].Meta.All("test*")) != 1 {
 			t.Fatal("expected 1 task labels")
 		}
 	}
@@ -1311,7 +1311,7 @@ func Test_Engine_Lister_Order(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Meta["test.rescue.io/key"] != "foo" {
+		if tas.Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -1329,7 +1329,7 @@ func Test_Engine_Lister_Order(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Meta["test.rescue.io/key"] != "foo" {
+		if tas.Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -1347,7 +1347,7 @@ func Test_Engine_Lister_Order(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Meta["test.rescue.io/key"] != "foo" {
+		if tas.Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -1412,9 +1412,9 @@ func Test_Engine_Queue(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "foo",
-				"test.rescue.io/zer": "tru",
+			Meta: &task.Public{
+				"test.api.io/key": "foo",
+				"test.api.io/zer": "tru",
 			},
 		}
 
@@ -1426,10 +1426,10 @@ func Test_Engine_Queue(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "foo",
-				"test.rescue.io/zer": "tru",
-				"test.rescue.io/sin": "baz",
+			Meta: &task.Public{
+				"test.api.io/key": "foo",
+				"test.api.io/zer": "tru",
+				"test.api.io/sin": "baz",
 			},
 		}
 
@@ -1441,8 +1441,8 @@ func Test_Engine_Queue(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "foo",
+			Meta: &task.Public{
+				"test.api.io/key": "foo",
 			},
 		}
 
@@ -1455,8 +1455,8 @@ func Test_Engine_Queue(t *testing.T) {
 	var lis []*task.Task
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "foo",
+			Meta: &task.Public{
+				"test.api.io/key": "foo",
 			},
 		}
 
@@ -1474,8 +1474,8 @@ func Test_Engine_Queue(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: map[string]string{
-				"test.rescue.io/key": "foo",
+			Meta: &task.Public{
+				"test.api.io/key": "foo",
 			},
 		}
 
@@ -1498,7 +1498,7 @@ func Test_Engine_Queue(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Meta["test.rescue.io/key"] != "foo" {
+		if tas.Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -1516,7 +1516,7 @@ func Test_Engine_Queue(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Meta["test.rescue.io/key"] != "foo" {
+		if tas.Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}
@@ -1534,7 +1534,7 @@ func Test_Engine_Queue(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if tas.Meta["test.rescue.io/key"] != "foo" {
+		if tas.Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
 		}
 	}

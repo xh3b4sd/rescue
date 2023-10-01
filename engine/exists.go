@@ -2,7 +2,6 @@ package engine
 
 import (
 	"github.com/xh3b4sd/rescue/task"
-	"github.com/xh3b4sd/rescue/verify"
 	"github.com/xh3b4sd/tracer"
 )
 
@@ -34,9 +33,18 @@ func (e *Engine) exists(tas *task.Task) (bool, error) {
 	var err error
 
 	{
-		err = verify.Empty(tas)
-		if err != nil {
-			return false, tracer.Mask(err)
+		if tas == nil {
+			return false, tracer.Maskf(taskEmptyError, "Task must not be empty")
+		}
+		if tas.Core.Emp() && tas.Meta.Emp() && tas.Root.Emp() {
+			return false, tracer.Maskf(taskMetaEmptyError, "either  Task.Core, Task.Meta or Task.Root must not be empty")
+		}
+
+		if tas.Meta != nil && tas.Meta.Has(Res()) {
+			return false, tracer.Maskf(labelReservedError, "Task.Meta must not contain reserved scheme rescue.io")
+		}
+		if tas.Root != nil && tas.Root.Has(Res()) {
+			return false, tracer.Maskf(labelReservedError, "Task.Root must not contain reserved scheme rescue.io")
 		}
 	}
 
@@ -71,7 +79,20 @@ func (e *Engine) exists(tas *task.Task) (bool, error) {
 
 	{
 		for _, t := range lis {
-			if t.Has(tas.Meta) {
+			if t.Core != nil && tas.Core != nil && !t.Core.Has(*tas.Core) {
+				continue
+			}
+
+			if t.Meta != nil && tas.Meta != nil && !t.Meta.Has(*tas.Meta) {
+				continue
+			}
+
+			// TODO test exists for root
+			if t.Root != nil && tas.Root != nil && !t.Root.Has(*tas.Root) {
+				continue
+			}
+
+			{
 				return true, nil
 			}
 		}
