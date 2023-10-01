@@ -3,7 +3,6 @@ package engine
 import (
 	"time"
 
-	"github.com/xh3b4sd/rescue/key"
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/tracer"
 )
@@ -62,7 +61,7 @@ func (e *Engine) extend(tas *task.Task) error {
 
 	var cur *task.Task
 	{
-		k := key.Queue(e.que)
+		k := e.Keyfmt()
 		s := float64(tas.Core.Get().Object())
 
 		str, err := e.red.Sorted().Search().Score(k, s, s)
@@ -94,7 +93,7 @@ func (e *Engine) extend(tas *task.Task) error {
 	}
 
 	{
-		k := key.Queue(e.que)
+		k := e.Keyfmt()
 		v := task.ToString(cur)
 		s := float64(cur.Core.Get().Object())
 

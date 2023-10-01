@@ -16,16 +16,10 @@ const (
 	ReductionParameter = 0.50
 )
 
-type Config struct {
-}
+type Balancer struct{}
 
-type Balancer struct {
-}
-
-func New(config Config) (*Balancer, error) {
-	b := &Balancer{}
-
-	return b, nil
+func New() *Balancer {
+	return &Balancer{}
 }
 
 func (b *Balancer) Dev(cur map[string]int, des map[string]int) map[string]int {

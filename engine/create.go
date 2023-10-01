@@ -3,7 +3,6 @@ package engine
 import (
 	"time"
 
-	"github.com/xh3b4sd/rescue/key"
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/tracer"
 )
@@ -86,7 +85,7 @@ func (e *Engine) create(tas *task.Task) error {
 	}
 
 	{
-		k := key.Queue(e.que)
+		k := e.Keyfmt()
 		v := task.ToString(tas)
 		s := float64(tid)
 

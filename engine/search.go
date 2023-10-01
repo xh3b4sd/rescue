@@ -4,7 +4,6 @@ import (
 	"sort"
 	"time"
 
-	"github.com/xh3b4sd/rescue/key"
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/tracer"
 )
@@ -128,7 +127,7 @@ func (e *Engine) search() (*task.Task, error) {
 	}
 
 	{
-		k := key.Queue(e.que)
+		k := e.Keyfmt()
 		v := task.ToString(tas)
 		s := float64(tas.Core.Get().Object())
 
@@ -146,7 +145,7 @@ func (e *Engine) searchAll() ([]*task.Task, error) {
 
 	var str []string
 	{
-		k := key.Queue(e.que)
+		k := e.Keyfmt()
 
 		str, err = e.red.Sorted().Search().Order(k, 0, -1)
 		if err != nil {
