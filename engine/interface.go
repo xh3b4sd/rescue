@@ -33,6 +33,10 @@ type Interface interface {
 	// expiration.
 	Extend(tas *task.Task) error
 
+	// Keyfmt returns the formatted key for this engine's queue, the underlying
+	// sorted set in Redis.
+	Keyfmt() string
+
 	// Listen returns the TCP address in the form of host:port which the
 	// underlying redis client is connected to.
 	Listen() string
