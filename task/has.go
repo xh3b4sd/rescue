@@ -2,6 +2,9 @@ package task
 
 import "strings"
 
+// Has expresses whether the given label set contains all of the given subset.
+// The first map represents the full label set to match against. The second map
+// represents the subset to match for.
 func Has(all map[string]string, sub map[string]string) bool {
 	if len(sub) == 1 && sub["*"] == "*" {
 		return true
