@@ -71,13 +71,13 @@ func (e *Engine) create(tas *task.Task) error {
 		}()
 	}
 
-	{
-		tas.Core = &task.Core{}
-	}
-
 	var tid int64
 	{
 		tid = time.Now().UTC().UnixNano()
+	}
+
+	{
+		tas.Core = &task.Core{}
 	}
 
 	{

@@ -72,6 +72,7 @@ func (m *Metric) Sin(o func() error) error {
 
 func avg(l []float64) float64 {
 	var s float64
+
 	for _, f := range l {
 		s += f
 	}

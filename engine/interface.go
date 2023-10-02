@@ -22,11 +22,11 @@ type Interface interface {
 
 	// Expire is a background process that every worker should continously execute
 	// in order to revoke ownership from tasks that have not been completed within
-	// the specified time. Expire goes through the full list of available tasks
-	// and revokes ownership from every task that was found to be expired. That
-	// means that in a cluster of multiple workers, it takes only a single
-	// functioning worker to call expire in order to keep existing tasks available
-	// to be worked on.
+	// the specified time of expiry. Expire goes through the full list of
+	// available tasks and revokes ownership from every task that was found to be
+	// expired. That means that in a cluster of multiple workers, it takes only a
+	// single functioning worker to call expire in order to keep existing tasks
+	// available to be worked on.
 	Expire() error
 
 	// Extend can be called by task owners in order to extend the task's

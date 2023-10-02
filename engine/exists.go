@@ -73,28 +73,19 @@ func (e *Engine) exists(tas *task.Task) (bool, error) {
 		if err != nil {
 			return false, tracer.Mask(err)
 		}
-
-		e.met.Task.Queued.Set(float64(len(lis)))
 	}
 
 	{
-		for _, t := range lis {
-			if t.Core != nil && tas.Core != nil && !t.Core.Has(*tas.Core) {
-				continue
-			}
+		e.met.Task.Inactive.Set(float64(len(lis)))
+	}
 
-			if t.Meta != nil && tas.Meta != nil && !t.Meta.Has(*tas.Meta) {
-				continue
-			}
+	for _, t := range lis {
+		cor := tas.Core.Emp() || (t.Core != nil && t.Core.Has(*tas.Core))
+		met := tas.Meta.Emp() || (t.Meta != nil && t.Meta.Has(*tas.Meta))
+		roo := tas.Root.Emp() || (t.Root != nil && t.Root.Has(*tas.Root))
 
-			// TODO test exists for root
-			if t.Root != nil && tas.Root != nil && !t.Root.Has(*tas.Root) {
-				continue
-			}
-
-			{
-				return true, nil
-			}
+		if cor && met && roo {
+			return true, nil
 		}
 	}
 

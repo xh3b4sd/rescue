@@ -65,9 +65,11 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 
 	ch <- prometheus.MustNewConstMetric(c.metric.Task.Expired.Des() /********/, prometheus.CounterValue /***/, c.metric.Task.Expired.Get())
 	ch <- prometheus.MustNewConstMetric(c.metric.Task.Extended.Des() /*******/, prometheus.CounterValue /***/, c.metric.Task.Extended.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Task.Inactive.Des() /*******/, prometheus.GaugeValue /*****/, c.metric.Task.Inactive.Get())
 	ch <- prometheus.MustNewConstMetric(c.metric.Task.NotFound.Des() /*******/, prometheus.CounterValue /***/, c.metric.Task.NotFound.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Task.Obsolete.Des() /*******/, prometheus.CounterValue /***/, c.metric.Task.Obsolete.Get())
 	ch <- prometheus.MustNewConstMetric(c.metric.Task.Outdated.Des() /*******/, prometheus.CounterValue /***/, c.metric.Task.Outdated.Get())
-	ch <- prometheus.MustNewConstMetric(c.metric.Task.Queued.Des() /*********/, prometheus.CounterValue /***/, c.metric.Task.Queued.Get())
+	ch <- prometheus.MustNewConstMetric(c.metric.Task.Parallel.Des() /*******/, prometheus.GaugeValue /*****/, c.metric.Task.Parallel.Get())
 
 	c.metric.Reset()
 }

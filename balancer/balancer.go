@@ -30,16 +30,14 @@ func (b *Balancer) Dev(cur map[string]int, des map[string]int) map[string]int {
 	}
 
 	dev := map[string]int{}
-	{
-		for _, k := range key {
-			c := cur[k]
-			d := des[k]
+	for _, k := range key {
+		c := cur[k]
+		d := des[k]
 
-			r := (c - d) * 2
+		r := (c - d) * 2
 
-			if r > 0 {
-				dev[k] = r
-			}
+		if r > 0 {
+			dev[k] = r
 		}
 	}
 
@@ -64,15 +62,13 @@ func (b *Balancer) Opt(own []string, tas int) map[string]int {
 	}
 
 	var cop []string
-	{
-		for _, o := range own {
-			if !contains(cop, o) {
-				cop = append(cop, o)
-			}
+	for _, o := range own {
+		if !contains(cop, o) {
+			cop = append(cop, o)
 		}
-
-		sort.Strings(cop)
 	}
+
+	sort.Strings(cop)
 
 	bal := map[string]int{}
 
@@ -97,20 +93,18 @@ func (b *Balancer) Opt(own []string, tas int) map[string]int {
 
 func (b *Balancer) reduce(dev map[string]int) map[string]int {
 	red := map[string]int{}
-	{
-		for k := range dev {
-			r := float64(dev[k]) * ReductionParameter
-			n, _ := math.Modf(r)
+	for k := range dev {
+		r := float64(dev[k]) * ReductionParameter
+		n, _ := math.Modf(r)
 
-			if r > 0 && n == 0 {
-				red[k] = 1
-			}
-			if r > 0 && n == 1 {
-				red[k] = 1
-			}
-			if r > 0 && n > 1 {
-				red[k] = int(n / 2)
-			}
+		if r > 0 && n == 0 {
+			red[k] = 1
+		}
+		if r > 0 && n == 1 {
+			red[k] = 1
+		}
+		if r > 0 && n > 1 {
+			red[k] = int(n / 2)
 		}
 	}
 
