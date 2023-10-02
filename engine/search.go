@@ -76,6 +76,9 @@ func (e *Engine) search() (*task.Task, error) {
 	// Find all tasks that have a Task.Root defined. If the root task exists,
 	// delete the task that defines it, because the existing root task is meant to
 	// cover all the business logic that its nested tasks are responsible for.
+	// Note that we collect the list indices of the redundant tasks that we delete
+	// from the underlying sorted set.
+	var rem []int
 	for i, x := range lis {
 		if x.Root == nil {
 			continue
@@ -108,27 +111,41 @@ func (e *Engine) search() (*task.Task, error) {
 			{
 				e.met.Task.Obsolete.Inc()
 			}
+
+			{
+				rem = append(rem, i)
+			}
 		}
 	}
 
+	// Each of the redundant task must be removed from our local copy once we
+	// deleted the respective elements from the underlying sorted set.
+	for i, x := range rem {
+		j := x - i
+		if j < len(lis)-1 {
+			copy(lis[j:], lis[j+1:])
+		}
+		lis[len(lis)-1] = nil
+		lis = lis[:len(lis)-1]
+	}
+
+	// Calculate the balanced ownership that workers can claim.
 	cur := map[string]int{}
 	{
 		for _, l := range lis {
 			cur[l.Core.Get().Worker()]++
 		}
-	}
 
-	var des map[string]int
-	{
-		des = e.bal.Opt(ensure(keys(cur), e.wrk), sum(cur))
-	}
+		var des map[string]int
+		{
+			des = e.bal.Opt(ensure(keys(cur), e.wrk), sum(cur))
+		}
 
-	var dev int
-	{
-		dev = des[e.wrk] - cur[e.wrk]
-	}
+		var dev int
+		{
+			dev = des[e.wrk] - cur[e.wrk]
+		}
 
-	{
 		if dev <= 0 {
 			e.met.Task.NotFound.Inc()
 			return nil, tracer.Mask(taskNotFoundError)
