@@ -1,6 +1,8 @@
 package task
 
-import "strings"
+import (
+	"strings"
+)
 
 // Has expresses whether the given label set contains all of the given subset.
 // The first map represents the full label set to match against. The second map

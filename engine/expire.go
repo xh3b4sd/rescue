@@ -61,73 +61,67 @@ func (e *Engine) expire() error {
 	}
 
 	{
-		if len(lis) == 0 {
-			return nil
-		}
+		e.met.Task.Inactive.Set(float64(len(lis)))
+	}
+
+	if len(lis) == 0 {
+		return nil
 	}
 
 	cur := map[string]int{}
-	{
-		for _, l := range lis {
-			cur[l.Core.Get().Worker()]++
-		}
+	for _, l := range lis {
+		cur[l.Core.Get().Worker()]++
 	}
 
-	{
-		for _, t := range lis {
-			// We are looking for tasks which have an owner. So if there is no
-			// owner assigned we ignore the task and move on to find another
-			// one.
-			{
-				if t.Core.Get().Worker() == "" {
-					continue
-				}
-			}
+	for _, t := range lis {
+		// We are looking for tasks which have an owner. So if there is no
+		// owner assigned we ignore the task and move on to find another
+		// one.
+		if t.Core.Get().Worker() == "" {
+			continue
+		}
 
-			var exp time.Time
-			var now time.Time
-			var wrk string
-			{
-				exp = t.Core.Get().Expiry()
-				now = time.Now().UTC()
-				wrk = t.Core.Get().Worker()
-			}
+		var exp time.Time
+		var now time.Time
+		var wrk string
+		{
+			exp = t.Core.Get().Expiry()
+			now = time.Now().UTC()
+			wrk = t.Core.Get().Worker()
+		}
 
-			// We are looking for tasks which are expired already. So if the task we
-			// look at is not expired yet, we ignore it and move on to find another
-			// one. In other words, if the current task's expiry is still about to
-			// happen after the current time, then the task is not yet expired, and we
-			// continue with the next task.
-			{
-				if exp.After(now) {
-					continue
-				}
-			}
+		// We are looking for tasks which are expired already. So if the task we
+		// look at is not expired yet, we ignore it and move on to find another
+		// one. In other words, if the current task's expiry is still about to
+		// happen after the current time, then the task is not yet expired, and we
+		// continue with the next task.
+		if exp.After(now) {
+			continue
+		}
 
-			{
-				t.Core.Prg().Expiry()
-				t.Core.Prg().Worker()
-				t.Core.Set().Cycles(t.Core.Get().Cycles() + 1)
-			}
+		{
+			t.Core.Prg().Expiry()
+			t.Core.Prg().Worker()
+			t.Core.Set().Cycles(t.Core.Get().Cycles() + 1)
+		}
 
-			{
-				k := e.Keyfmt()
-				v := task.ToString(t)
-				s := float64(t.Core.Get().Object())
+		{
+			k := e.Keyfmt()
+			v := task.ToString(t)
+			s := float64(t.Core.Get().Object())
 
-				_, err := e.red.Sorted().Update().Score(k, v, s)
-				if err != nil {
-					return tracer.Mask(err)
-				}
+			_, err := e.red.Sorted().Update().Score(k, v, s)
+			if err != nil {
+				return tracer.Mask(err)
 			}
+		}
 
-			{
-				e.met.Task.Expired.Inc()
-			}
+		{
+			e.met.Task.Expired.Inc()
+		}
 
-			{
-				cur[wrk]--
-			}
+		{
+			cur[wrk]--
 		}
 	}
 
@@ -141,70 +135,61 @@ func (e *Engine) expire() error {
 		dev = e.bal.Dev(cur, des)
 	}
 
-	{
-		for _, t := range lis {
-			// We are looking for tasks which have an owner that is supposed to
-			// revoke their ownership. So if there is no revocation indicated
-			// for the current owner we ignore the task and move on to find
-			// another one.
-			{
-				cou := dev[t.Core.Get().Worker()]
-				if cou == 0 {
-					continue
-				}
-			}
+	for _, t := range lis {
+		// We are looking for tasks which have an owner that is supposed to
+		// revoke their ownership. So if there is no revocation indicated
+		// for the current owner we ignore the task and move on to find
+		// another one.
+		if dev[t.Core.Get().Worker()] == 0 {
+			continue
+		}
 
-			var exp time.Time
-			var now time.Time
-			var wrk string
-			{
-				exp = t.Core.Get().Expiry()
-				now = time.Now().UTC()
-				wrk = t.Core.Get().Worker()
-			}
+		var exp time.Time
+		var now time.Time
+		var wrk string
+		{
+			exp = t.Core.Get().Expiry()
+			now = time.Now().UTC()
+			wrk = t.Core.Get().Worker()
+		}
 
-			// We are looking for tasks which are expired already. So if the task we
-			// look at is not expired yet, we ignore it and move on to find another
-			// one. In other words, if the current task's expiry is still about to
-			// happen after the current time, then the task is not yet expired, and we
-			// continue with the next task.
-			{
-				if exp.After(now) {
-					continue
-				}
-			}
+		// We are looking for tasks which are expired already. So if the task we
+		// look at is not expired yet, we ignore it and move on to find another
+		// one. In other words, if the current task's expiry is still about to
+		// happen after the current time, then the task is not yet expired, and we
+		// continue with the next task.
+		if exp.After(now) {
+			continue
+		}
 
-			{
-				t.Core.Prg().Expiry()
-				t.Core.Prg().Worker()
-				t.Core.Set().Cycles(t.Core.Get().Cycles() + 1)
-			}
+		{
+			t.Core.Prg().Expiry()
+			t.Core.Prg().Worker()
+			t.Core.Set().Cycles(t.Core.Get().Cycles() + 1)
+		}
 
-			{
-				k := e.Keyfmt()
-				v := task.ToString(t)
-				s := float64(t.Core.Get().Object())
+		{
+			k := e.Keyfmt()
+			v := task.ToString(t)
+			s := float64(t.Core.Get().Object())
 
-				_, err := e.red.Sorted().Update().Score(k, v, s)
-				if err != nil {
-					return tracer.Mask(err)
-				}
+			_, err := e.red.Sorted().Update().Score(k, v, s)
+			if err != nil {
+				return tracer.Mask(err)
 			}
+		}
 
-			{
-				e.met.Task.Expired.Inc()
-			}
+		{
+			e.met.Task.Expired.Inc()
+		}
 
-			{
-				dev[wrk]--
-			}
+		{
+			dev[wrk]--
 		}
 	}
 
-	{
-		if sum(dev) != 0 {
-			return tracer.Mask(taskNotRevokedError)
-		}
+	if sum(dev) != 0 {
+		return tracer.Mask(taskNotRevokedError)
 	}
 
 	return nil

@@ -60,14 +60,54 @@ func (e *Engine) search() (*task.Task, error) {
 		if err != nil {
 			return nil, tracer.Mask(err)
 		}
+	}
 
-		e.met.Task.Queued.Set(float64(len(lis)))
+	{
+		e.met.Task.Inactive.Set(float64(len(lis)))
 	}
 
 	{
 		if len(lis) == 0 {
 			e.met.Task.NotFound.Inc()
 			return nil, tracer.Mask(taskNotFoundError)
+		}
+	}
+
+	// Find all tasks that have a Task.Root defined. If the root task exists,
+	// delete the task that defines it, because the existing root task is meant to
+	// cover all the business logic that its nested tasks are responsible for.
+	for i, x := range lis {
+		if x.Root == nil {
+			continue
+		}
+
+		for j, y := range lis {
+			// Skip the task we are processing right now. Here x and y are equal in
+			// case i and j are the same.
+			if i == j {
+				continue
+			}
+
+			// Skip all the tasks that do not match the root description.
+			if !y.Meta.Has(*x.Root) {
+				continue
+			}
+
+			// Delete x since it was identified to be a nested task under the root
+			// that is represented by task y.
+			{
+				k := e.Keyfmt()
+				s := float64(x.Core.Get().Object())
+
+				err = e.red.Sorted().Delete().Score(k, s)
+				if err != nil {
+					return nil, tracer.Mask(err)
+				}
+			}
+
+			{
+				e.met.Task.Obsolete.Inc()
+			}
 		}
 	}
 
@@ -96,29 +136,25 @@ func (e *Engine) search() (*task.Task, error) {
 	}
 
 	var tas *task.Task
-	{
-		for _, t := range lis {
-			// We are looking for tasks which do not yet have an owner. So if
-			// there is an owner assigned we ignore the task and move on to find
-			// another one.
-			{
-				if t.Core.Get().Worker() != "" {
-					continue
-				}
+	for _, t := range lis {
+		// We are looking for tasks which do not yet have an owner. So if
+		// there is an owner assigned we ignore the task and move on to find
+		// another one.
+		{
+			if t.Core.Get().Worker() != "" {
+				continue
 			}
+		}
 
-			{
-				tas = t
-				break
-			}
+		{
+			tas = t
+			break
 		}
 	}
 
-	{
-		if tas == nil {
-			e.met.Task.NotFound.Inc()
-			return nil, tracer.Mask(taskNotFoundError)
-		}
+	if tas == nil {
+		e.met.Task.NotFound.Inc()
+		return nil, tracer.Mask(taskNotFoundError)
 	}
 
 	{
@@ -135,6 +171,10 @@ func (e *Engine) search() (*task.Task, error) {
 		if err != nil {
 			return nil, tracer.Mask(err)
 		}
+	}
+
+	{
+		e.met.Task.Parallel.Set(float64(cur[tas.Core.Get().Worker()] + 1))
 	}
 
 	return tas, nil
@@ -156,10 +196,8 @@ func (e *Engine) searchAll() ([]*task.Task, error) {
 	}
 
 	var lis []*task.Task
-	{
-		for _, s := range str {
-			lis = append(lis, task.FromString(s))
-		}
+	for _, s := range str {
+		lis = append(lis, task.FromString(s))
 	}
 
 	return lis, nil

@@ -24,9 +24,11 @@ type CollectionEngineCollector struct {
 type CollectionTask struct {
 	Expired  Interface
 	Extended Interface
+	Inactive Interface
 	NotFound Interface
+	Obsolete Interface
 	Outdated Interface
-	Queued   Interface
+	Parallel Interface
 }
 
 func (c *Collection) Reset() {
@@ -60,7 +62,9 @@ func (c *Collection) Reset() {
 
 	c.Task.Expired.Res()
 	c.Task.Extended.Res()
+	c.Task.Inactive.Res()
 	c.Task.NotFound.Res()
+	c.Task.Obsolete.Res()
 	c.Task.Outdated.Res()
-	c.Task.Queued.Res()
+	c.Task.Parallel.Res()
 }

@@ -44,9 +44,11 @@ func Default() *Collection {
 		Task: &CollectionTask{
 			Expired:  &Metric{d: prometheus.NewDesc("rescue_task_expired_total" /****/, "the number of times a task was expired during a call to Engine.Expire", nil, nil)},
 			Extended: &Metric{d: prometheus.NewDesc("rescue_task_extended_total" /***/, "the number of times a task was extended during a call to Engine.Extend", nil, nil)},
-			NotFound: &Metric{d: prometheus.NewDesc("rescue_task_notfound_total" /***/, "the number of times a task was could not be found during a call to Engine.Search", nil, nil)},
-			Outdated: &Metric{d: prometheus.NewDesc("rescue_task_outdated_total" /***/, "the number of times a task was tried to cleaned up during a call to Engine.Delete", nil, nil)},
-			Queued:   &Metric{d: prometheus.NewDesc("rescue_task_queued_total" /*****/, "the number of tasks found in the queue during a call to Engine.Search", nil, nil)},
+			Inactive: &Metric{d: prometheus.NewDesc("rescue_task_inactive_total" /***/, "the number of tasks found idle in the queue during a call to Engine.*", nil, nil)},
+			NotFound: &Metric{d: prometheus.NewDesc("rescue_task_notfound_total" /***/, "the number of times a task could not be found during a call to Engine.*", nil, nil)},
+			Obsolete: &Metric{d: prometheus.NewDesc("rescue_task_obsolete_total" /***/, "the number of times a nested task was removed during a call to Engine.Search", nil, nil)},
+			Outdated: &Metric{d: prometheus.NewDesc("rescue_task_outdated_total" /***/, "the number of times a task has changed internally during a call to Engine.*", nil, nil)},
+			Parallel: &Metric{d: prometheus.NewDesc("rescue_task_parallel_total" /***/, "the number of tasks claimed concurrently by a single worker during a call to Engine.Search", nil, nil)},
 		},
 	}
 

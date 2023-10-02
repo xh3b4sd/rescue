@@ -102,30 +102,24 @@ func (e *Engine) delete(tas *task.Task) error {
 		}
 	}
 
-	{
-		if !equ {
-			cur.Core.Set().Cycles(cur.Core.Get().Cycles() + 1)
+	if !equ {
+		cur.Core.Set().Cycles(cur.Core.Get().Cycles() + 1)
+	}
+
+	if !equ {
+		k := e.Keyfmt()
+		v := task.ToString(cur)
+		s := float64(cur.Core.Get().Object())
+
+		_, err := e.red.Sorted().Update().Score(k, v, s)
+		if err != nil {
+			return tracer.Mask(err)
 		}
 	}
 
-	{
-		if !equ {
-			k := e.Keyfmt()
-			v := task.ToString(cur)
-			s := float64(cur.Core.Get().Object())
-
-			_, err := e.red.Sorted().Update().Score(k, v, s)
-			if err != nil {
-				return tracer.Mask(err)
-			}
-		}
-	}
-
-	{
-		if !equ {
-			e.met.Task.Outdated.Inc()
-			return tracer.Mask(taskOutdatedError)
-		}
+	if !equ {
+		e.met.Task.Outdated.Inc()
+		return tracer.Mask(taskOutdatedError)
 	}
 
 	{

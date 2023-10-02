@@ -1,18 +1,6 @@
 package task
 
 type Task struct {
-	// TODO figure out whether to use Brkr and how
-
-	// Brkr is an optional channel transparently carrying a mechanism to signal
-	// the end of a deadline. Especially long running tasks may be at risk of
-	// running way beyond the given task expiry. Claiming new tasks from the queue
-	// should not be affected by the processing of claimed tasks. So in order to
-	// signal task expiry to the outside and the inside, Brkr might be used to
-	// coordinate relevant processes.
-	Brkr <-chan struct{} `json:"-"`
-
-	// TODO use Core for internal labels only
-
 	// Core contains systemically relevant information fundamental for task
 	// distribution. Below is shown example metadata managed internally.
 	//
@@ -34,8 +22,6 @@ type Task struct {
 	//     api.naonao.io/object    *
 	//
 	Meta *Meta `json:"meta,omitempty"`
-
-	// TODO implemnent Root as a new feature
 
 	// Root allows to manage a tree of dependencies. Consider task x and y, where
 	// x is the root of y.

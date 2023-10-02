@@ -32,11 +32,10 @@ func (e *Engine) Lister(tas *task.Task) ([]*task.Task, error) {
 func (e *Engine) lister(tas *task.Task) ([]*task.Task, error) {
 	var err error
 
-	// We verify the given task metadata in order to ensure that no domain
-	// metadata specific to the rescue internals are provided. That is to not let
-	// arbitrary processes purposfully list tasks by ID because that ability could
-	// be abused to take ownership from worker processes that may not be aware of
-	// the corruption.
+	// We verify the given task labels to ensure that no core metadata specific to
+	// the rescue internals are provided. That is to not let arbitrary processes
+	// purposfully list tasks by ID because that ability could be abused to take
+	// ownership from worker processes that may not be aware of the corruption.
 	{
 		if tas == nil {
 			return nil, tracer.Maskf(taskEmptyError, "Task must not be empty")
@@ -81,29 +80,20 @@ func (e *Engine) lister(tas *task.Task) ([]*task.Task, error) {
 		if err != nil {
 			return nil, tracer.Mask(err)
 		}
+	}
 
-		e.met.Task.Queued.Set(float64(len(lis)))
+	{
+		e.met.Task.Inactive.Set(float64(len(lis)))
 	}
 
 	var fil []*task.Task
-	{
-		for _, t := range lis {
-			if t.Core != nil && tas.Core != nil && !t.Core.Has(*tas.Core) {
-				continue
-			}
+	for _, t := range lis {
+		cor := tas.Core.Emp() || (t.Core != nil && t.Core.Has(*tas.Core))
+		met := tas.Meta.Emp() || (t.Meta != nil && t.Meta.Has(*tas.Meta))
+		roo := tas.Root.Emp() || (t.Root != nil && t.Root.Has(*tas.Root))
 
-			if t.Meta != nil && tas.Meta != nil && !t.Meta.Has(*tas.Meta) {
-				continue
-			}
-
-			// TODO test exists for root
-			if t.Root != nil && tas.Root != nil && !t.Root.Has(*tas.Root) {
-				continue
-			}
-
-			{
-				fil = append(fil, t)
-			}
+		if cor && met && roo {
+			fil = append(fil, t)
 		}
 	}
 

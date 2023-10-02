@@ -103,5 +103,9 @@ func (e *Engine) extend(tas *task.Task) error {
 		}
 	}
 
+	{
+		e.met.Task.Extended.Inc()
+	}
+
 	return nil
 }
