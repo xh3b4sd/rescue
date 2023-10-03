@@ -169,5 +169,5 @@ export REDIS_PORT=6380
 ```
 
 ```
-docker run --rm --name redis-stack-redigo -p 6380:6379 -p 8002:8001 redis/redis-stack:latest
+docker run --rm --name redis-stack-rescue -p 6380:6379 -p 8002:8001 redis/redis-stack:latest
 ```
