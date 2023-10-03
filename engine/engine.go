@@ -9,6 +9,7 @@ import (
 	"github.com/xh3b4sd/rescue/balancer"
 	"github.com/xh3b4sd/rescue/metric"
 	"github.com/xh3b4sd/rescue/random"
+	"github.com/xh3b4sd/tracer"
 )
 
 const (
@@ -72,4 +73,13 @@ func New(config Config) *Engine {
 	}
 
 	return e
+}
+
+func (e *Engine) lerror(err error) {
+	e.log.Log(
+		e.ctx,
+		"level", "error",
+		"message", err.Error(),
+		"stack", tracer.Stack(err),
+	)
 }
