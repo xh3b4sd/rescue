@@ -62,7 +62,7 @@ func (e *Engine) exists(tas *task.Task) (bool, error) {
 		defer func() {
 			err := e.red.Locker().Release()
 			if err != nil {
-				e.log.Log(e.ctx, "level", "error", "message", "release failed", "stack", tracer.Stack(err))
+				e.lerror(tracer.Mask(err))
 			}
 		}()
 	}
