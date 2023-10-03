@@ -7,7 +7,7 @@ type Task struct {
 	//     task.rescue.io/cycles    4
 	//     task.rescue.io/expiry    2023-09-28T14:23:24.16198Z
 	//     task.rescue.io/object    1611318984211839461
-	//     task.rescue.io/worker    al9qy
+	//     task.rescue.io/worker    90dc68ba-4820-42ac-a924-2450388c15a6
 	//
 	Core *Core `json:"core,omitempty"`
 

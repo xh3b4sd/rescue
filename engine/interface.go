@@ -5,16 +5,27 @@ import (
 )
 
 type Interface interface {
-	// Create submits a new task to the system.
+	// Create submits a new task to the system. Anyone can create any task any
+	// time. The task producer must just have an understanding of what consumers
+	// within the system are capable of. Task.Meta and Task.Root of a queued task
+	// must always match with a consumer in order to be processed.
 	Create(tas *task.Task) error
 
-	// Delete removes an existing task from the system.
+	// Delete removes an existing task from the system. Tasks can only be deleted
+	// by the workers that own the task they have been assigned to. Task ownership
+	// cannot be cherry-picked. Deleting an expired task causes an error on the
+	// consumer side, because the worker falsely believing to still be the task
+	// owner, is operating based on an outdated copy of the task that changed
+	// meanwhile within the system.
 	Delete(tas *task.Task) error
 
-	// Exists expresses whether a task with the given metadata exists within the
-	// queue. Given a task was created with metadata a, b and c. Exists will
-	// return true if called with metadata b and c. If workers would want to
+	// Exists expresses whether a task with the given label set exists within the
+	// underlying queue. Given a task was created with metadata a, b and c, Exists
+	// will return true if called with metadata b and c. If workers would want to
 	// verify whether they still own a task, they could do the following call.
+	// Basically, calling `tas.Core.All` returns a label set that matches all the
+	// given label keys. That selective label set is then used by Exists to find
+	// any task that matches the given query.
 	//
 	//     Exists(&task.Task{Core: tas.Core.All(task.Object, task.Worker)})
 	//
@@ -29,8 +40,16 @@ type Interface interface {
 	// available to be worked on.
 	Expire() error
 
-	// Extend can be called by task owners in order to extend the task's
-	// expiration.
+	// Extend can be called by workers owning a task in order to extend that
+	// task's expiry. There should be a good reason to extend an ownership claim.
+	// For instance, extending a task's expiry because the amount of work cannot
+	// be done by a worker within the specified time may rather indicate a broken
+	// system design. Processing tasks should not take forever. Instead,
+	// processing tasks should require a limited amount of actions. It is totally
+	// legitimate to process a task according to a budget and then return it to
+	// the queue for another worker to pick it up later. Such a system design
+	// should lead to more resilient and reliable software architectures, simply
+	// because resource management is then designed to be eventually reconciled.
 	Extend(tas *task.Task) error
 
 	// Keyfmt returns the formatted key for this engine's queue, the underlying

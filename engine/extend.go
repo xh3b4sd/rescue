@@ -77,7 +77,7 @@ func (e *Engine) extend(tas *task.Task) error {
 		cur = task.FromString(str[0])
 	}
 
-	// Tasks can only be extended by owners.
+	// Tasks can only be extended by workers owning that task.
 	{
 		tid := cur.Core.Get().Object() == tas.Core.Get().Object()
 		own := cur.Core.Get().Worker() == tas.Core.Get().Worker()

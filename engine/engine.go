@@ -4,11 +4,11 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/redigo"
 	"github.com/xh3b4sd/rescue/balancer"
 	"github.com/xh3b4sd/rescue/metric"
-	"github.com/xh3b4sd/rescue/random"
 	"github.com/xh3b4sd/tracer"
 )
 
@@ -58,7 +58,7 @@ func New(config Config) *Engine {
 		config.Redigo = redigo.Default()
 	}
 	if config.Worker == "" {
-		config.Worker = random.New()
+		config.Worker = uuid.New().String()
 	}
 
 	e := &Engine{

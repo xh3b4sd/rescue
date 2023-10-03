@@ -6,13 +6,13 @@ import (
 )
 
 const (
-	// DeviationThreshold is the fraction of maximum cumulative deviation
-	// allowed between current and desired balance.
+	// DeviationThreshold is the fraction of maximum cumulative deviation allowed
+	// between current and desired balance.
 	DeviationThreshold = 0.20
 	// ReductionParameter is the fraction of reduction applied to any identified
-	// deviation. Given a deviation of 5, 1 and 3 for owners a, b, and c, the
-	// resulting deviations after applying ReductionParameter would be 2, 1 and
-	// 1 respectively.
+	// deviation. Given a deviation of 5, 1 and 3 for workers a, b, and c, the
+	// resulting deviations after applying ReductionParameter would be 2, 1 and 1
+	// respectively.
 	ReductionParameter = 0.50
 )
 
@@ -56,19 +56,21 @@ func (b *Balancer) Dev(cur map[string]int, des map[string]int) map[string]int {
 	return nil
 }
 
-func (b *Balancer) Opt(own []string, tas int) map[string]int {
-	if len(own) == 0 {
+func (b *Balancer) Opt(wrk []string, tas int) map[string]int {
+	if len(wrk) == 0 {
 		return nil
 	}
 
 	var cop []string
-	for _, o := range own {
-		if !contains(cop, o) {
-			cop = append(cop, o)
+	for _, x := range wrk {
+		if !contains(cop, x) {
+			cop = append(cop, x)
 		}
 	}
 
-	sort.Strings(cop)
+	{
+		sort.Strings(cop)
+	}
 
 	bal := map[string]int{}
 
@@ -77,8 +79,8 @@ func (b *Balancer) Opt(own []string, tas int) map[string]int {
 			break
 		}
 
-		for _, o := range cop {
-			bal[o]++
+		for _, x := range cop {
+			bal[x]++
 
 			tas--
 
@@ -93,6 +95,7 @@ func (b *Balancer) Opt(own []string, tas int) map[string]int {
 
 func (b *Balancer) reduce(dev map[string]int) map[string]int {
 	red := map[string]int{}
+
 	for k := range dev {
 		r := float64(dev[k]) * ReductionParameter
 		n, _ := math.Modf(r)
