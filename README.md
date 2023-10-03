@@ -1,8 +1,9 @@
 # rescue
 
-Reconciliation driven resource queue. The main primitive of `rescue` is a
-`Task`. A Task describes some kind of job, a piece of work that has to be done.
-The job description is defined by a set of labels, simple key-value pairs.
+Reconciliation driven resource queue. The main primitives of `rescue` are the
+`Engine` and `Task` types. A Task describes some kind of job, a piece of work
+that has to be done. The job description is defined by a set of labels, simple
+key-value pairs.
 
 ```go
 type Task struct {
@@ -12,7 +13,7 @@ type Task struct {
 	//     task.rescue.io/cycles    4
 	//     task.rescue.io/expiry    2023-09-28T14:23:24.16198Z
 	//     task.rescue.io/object    1611318984211839461
-	//     task.rescue.io/worker    al9qy
+	//     task.rescue.io/worker    90dc68ba-4820-42ac-a924-2450388c15a6
 	//
 	Core *Core `json:"core,omitempty"`
 
@@ -20,11 +21,10 @@ type Task struct {
 	// should be able to identify whether they are able to execute on a task
 	// successfully, given the task metadata. Upon task creation, certain metadata
 	// can be set by producers in order to inform consumers about the task's
-	// intention. The asterisk may be used as a wildcard for matching any key or
-	// value.
+	// intention.
 	//
-	//        *naonao.io/action    delete
-	//     api.naonao.io/object    *
+	//     x.api.io/action    delete
+	//     x.api.io/object    1234
 	//
 	Meta *Meta `json:"meta,omitempty"`
 
@@ -44,7 +44,7 @@ type Task struct {
 	// task y may define x as root like shown below, for y to be discarded by the
 	// system, if it happens to exist alongside x.
 	//
-	//     x.api.io/object    *
+	//     x.api.io/object    1234
 	//
 	Root *Root `json:"root,omitempty"`
 }
@@ -54,10 +54,10 @@ type Task struct {
 
 ### Create Tasks
 
-Anyone can create any task any time. The task producer must just have an
-understanding of what consumers within the system are capable of. `Meta` and
-`Root` of a queued task must always match with a consumer in order to be
-processed.
+`Engine.Create` submits a new task to the system. Anyone can create any task any
+time. The task producer must just have an understanding of what consumers within
+the system are capable of. `Task.Meta` and `Task.Root` of a queued task must
+always match with a consumer in order to be processed.
 
 ```go
 tas := &task.Task{
@@ -77,12 +77,38 @@ if err != nil {
 
 ### Delete Tasks
 
-Tasks can only be deleted by the workers that own the task they have been
-assigned to. Task ownership cannot be cherry-picked. Deleting an expired task
-causes an error on the consumer side.
+`Engine.Delete` removes an existing task from the system. Tasks can only be
+deleted by the workers that own the task they have been assigned to. Task
+ownership cannot be cherry-picked. Deleting an expired task causes an error on
+the consumer side, because the worker falsely believing to still be the task
+owner, is operating based on an outdated copy of the task that changed meanwhile
+within the system.
 
 ```go
 err := eng.Delete(tas)
+if err != nil {
+	panic(err)
+}
+```
+
+
+
+### Verify Tasks
+
+`Engine.Exists` expresses whether a task with the given label set exists within
+the underlying queue. Given a task was created with metadata a, b and c, Exists
+will return true if called with metadata b and c. If workers would want to
+verify whether they still own a task, they could do the following call.
+Basically, calling `tas.Core.All` returns a label set that matches all the given
+label keys. That selective label set is then used by Exists to find any task
+that matches the given query.
+
+```go
+tas := &task.Task{
+	Core: tas.Core.All(task.Object, task.Worker),
+}
+
+exi, err := eng.Exists(tas)
 if err != nil {
 	panic(err)
 }
@@ -111,7 +137,7 @@ if err != nil {
 
 ### Search Tasks
 
-Search provides the calling worker with an available task.
+`Engine.Search` provides the calling worker with an available task.
 
 ```go
 tas, err := eng.Search()
@@ -128,7 +154,8 @@ A common pattern to select the right task to work on would be some kind of
 worker interface like shown below. Since any worker may be assigned to any task
 at any time, the correct business logic must be invoked for the current task at
 hand. That means a task must be identified using `Filter`, and then be processed
-using `Ensure`.
+using `Ensure`. The asterisk may be used as a wildcard for matching any key or
+value.
 
 ```go
 func (w *Worker) Ensure(tas *task.Task) error {

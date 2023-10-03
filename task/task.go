@@ -7,7 +7,7 @@ type Task struct {
 	//     task.rescue.io/cycles    4
 	//     task.rescue.io/expiry    2023-09-28T14:23:24.16198Z
 	//     task.rescue.io/object    1611318984211839461
-	//     task.rescue.io/worker    al9qy
+	//     task.rescue.io/worker    90dc68ba-4820-42ac-a924-2450388c15a6
 	//
 	Core *Core `json:"core,omitempty"`
 
@@ -15,11 +15,10 @@ type Task struct {
 	// should be able to identify whether they are able to execute on a task
 	// successfully, given the task metadata. Upon task creation, certain metadata
 	// can be set by producers in order to inform consumers about the task's
-	// intention. The asterisk may be used as a wildcard for matching any key or
-	// value.
+	// intention.
 	//
-	//        *naonao.io/action    delete
-	//     api.naonao.io/object    *
+	//     x.api.io/action    delete
+	//     x.api.io/object    1234
 	//
 	Meta *Meta `json:"meta,omitempty"`
 
@@ -39,7 +38,7 @@ type Task struct {
 	// task y may define x as root like shown below, for y to be discarded by the
 	// system, if it happens to exist alongside x.
 	//
-	//     x.api.io/object    *
+	//     x.api.io/object    1234
 	//
 	Root *Root `json:"root,omitempty"`
 }

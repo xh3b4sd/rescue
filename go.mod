@@ -4,6 +4,7 @@ go 1.21
 
 require (
 	github.com/google/go-cmp v0.5.9
+	github.com/google/uuid v1.3.1
 	github.com/prometheus/client_golang v1.17.0
 	github.com/xh3b4sd/budget/v3 v3.3.0
 	github.com/xh3b4sd/logger v0.7.3
