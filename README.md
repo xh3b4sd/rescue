@@ -46,7 +46,7 @@ type Task struct {
 	//     month         3 months      on the 15th (at 17:00)
 	//
 	// Note that scheduled tasks are emitted according to their specified
-	// interval, never earlier, but arguably later to a neglectable extend.
+	// interval, never earlier, but arguably later to a negligible extend.
 	// Scheduling will always depend on the current conditions of the underlying
 	// system. If hardware is overloaded or no worker process is running, then
 	// scheduling might be affected considerably. If workers search for tasks
@@ -179,11 +179,11 @@ if err != nil {
 
 `Engine.Ticker` is an optional background process that every worker can
 continously execute in order to emit scheduled tasks based on any task template
-within the underlying queue defining `Task.Cron`. Ticker goes through the full
-list of available tasks and creates new tasks for any task template that is
-found to be due for scheduling based on its next tick. That means that in a
-cluster of multiple workers, it takes only a single functioning worker to call
-ticker in order to keep scheduling recurring tasks for anyone to work on.
+defining `Task.Cron`. Ticker goes through the full list of available tasks and
+creates new tasks for any task template that is found to be due for scheduling
+based on its next tick. That means that in a cluster of multiple workers, it
+takes only a single functioning worker to call ticker in order to keep
+scheduling recurring tasks for anyone to work on.
 
 ```go
 err := eng.Ticker()

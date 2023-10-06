@@ -74,11 +74,10 @@ type Interface interface {
 
 	// Engine.Ticker is an optional background process that every worker can
 	// continously execute in order to emit scheduled tasks based on any task
-	// template within the underlying queue defining Task.Cron. Ticker goes
-	// through the full list of available tasks and creates new tasks for any task
-	// template that is found to be due for scheduling based on its next tick.
-	// That means that in a cluster of multiple workers, it takes only a single
-	// functioning worker to call ticker in order to keep scheduling recurring
-	// tasks for anyone to work on.
+	// template defining Task.Cron. Ticker goes through the full list of available
+	// tasks and creates new tasks for any task template that is found to be due
+	// for scheduling based on its next tick. That means that in a cluster of
+	// multiple workers, it takes only a single functioning worker to call ticker
+	// in order to keep scheduling recurring tasks for anyone to work on.
 	Ticker() error
 }
