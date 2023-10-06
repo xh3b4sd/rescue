@@ -5,17 +5,17 @@ import (
 	"time"
 )
 
-type getter struct {
+type getcor struct {
 	Labl map[string]string
 }
 
-func (c *Core) Get() *getter {
-	return &getter{
+func (c *Core) Get() *getcor {
+	return &getcor{
 		Labl: *c,
 	}
 }
 
-func (g *getter) Bypass() bool {
+func (g *getcor) Bypass() bool {
 	if g.Labl[Bypass] == "" {
 		return false
 	}
@@ -28,7 +28,7 @@ func (g *getter) Bypass() bool {
 	return byp
 }
 
-func (g *getter) Cycles() int64 {
+func (g *getcor) Cycles() int64 {
 	if g.Labl[Cycles] == "" {
 		return 0
 	}
@@ -41,7 +41,7 @@ func (g *getter) Cycles() int64 {
 	return cyc
 }
 
-func (g *getter) Expiry() time.Time {
+func (g *getcor) Expiry() time.Time {
 	var tim *time.Time
 	{
 		tim = &time.Time{}
@@ -55,7 +55,7 @@ func (g *getter) Expiry() time.Time {
 	return *tim
 }
 
-func (g *getter) Object() int64 {
+func (g *getcor) Object() int64 {
 	cyc, err := strconv.ParseInt(g.Labl[Object], 10, 64)
 	if err != nil {
 		panic(err)
@@ -64,6 +64,6 @@ func (g *getter) Object() int64 {
 	return cyc
 }
 
-func (g *getter) Worker() string {
+func (g *getcor) Worker() string {
 	return g.Labl[Worker]
 }

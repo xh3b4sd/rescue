@@ -40,6 +40,11 @@ func Default() *Collection {
 				Dur: &Metric{d: prometheus.NewDesc("rescue_engine_search_duration_seconds" /***/, "the number of seconds a call to Engine.Search took", nil, nil)},
 				Err: &Metric{d: prometheus.NewDesc("rescue_engine_search_error_total" /********/, "the number of errors a call to Engine.Search produced", nil, nil)},
 			},
+			Ticker: &CollectionEngineCollector{
+				Cal: &Metric{d: prometheus.NewDesc("rescue_engine_ticker_call_total" /*********/, "the number of times a call to Engine.Ticker was made", nil, nil)},
+				Dur: &Metric{d: prometheus.NewDesc("rescue_engine_ticker_duration_seconds" /***/, "the number of seconds a call to Engine.Ticker took", nil, nil)},
+				Err: &Metric{d: prometheus.NewDesc("rescue_engine_ticker_error_total" /********/, "the number of errors a call to Engine.Ticker produced", nil, nil)},
+			},
 		},
 		Task: &CollectionTask{
 			Expired:  &Metric{d: prometheus.NewDesc("rescue_task_expired_total" /****/, "the number of times a task was expired during a call to Engine.Expire", nil, nil)},

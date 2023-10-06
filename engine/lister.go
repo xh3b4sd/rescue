@@ -43,8 +43,8 @@ func (e *Engine) lister(tas *task.Task) ([]*task.Task, error) {
 		if tas.Core != nil {
 			return nil, tracer.Maskf(taskCoreError, "Task.Core must be empty")
 		}
-		if tas.Meta.Emp() && tas.Root.Emp() {
-			return nil, tracer.Maskf(taskMetaEmptyError, "either Task.Meta or Task.Root must not be empty")
+		if (tas.Cron == nil || tas.Cron.Emp()) && (tas.Meta == nil || tas.Meta.Emp()) && (tas.Root == nil || tas.Root.Emp()) {
+			return nil, tracer.Maskf(taskMetaEmptyError, "at least one of Task.Cron, Task.Meta or Task.Root must be given")
 		}
 
 		if tas.Meta != nil && tas.Meta.Has(Res()) {
@@ -89,10 +89,11 @@ func (e *Engine) lister(tas *task.Task) ([]*task.Task, error) {
 	var fil []*task.Task
 	for _, t := range lis {
 		cor := tas.Core.Emp() || (t.Core != nil && t.Core.Has(*tas.Core))
+		crn := tas.Cron.Emp() || (t.Cron != nil && t.Cron.Has(*tas.Cron))
 		met := tas.Meta.Emp() || (t.Meta != nil && t.Meta.Has(*tas.Meta))
 		roo := tas.Root.Emp() || (t.Root != nil && t.Root.Has(*tas.Root))
 
-		if cor && met && roo {
+		if cor && crn && met && roo {
 			fil = append(fil, t)
 		}
 	}

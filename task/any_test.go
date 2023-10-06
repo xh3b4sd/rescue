@@ -97,7 +97,7 @@ func Test_Task_Any(t *testing.T) {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
 			any := Any(tc.lab, tc.key...)
 
-			if !reflect.DeepEqual(tc.any, any) {
+			if !reflect.DeepEqual(any, tc.any) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(tc.any, any))
 			}
 		})

@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/xh3b4sd/rescue/task"
+	"github.com/xh3b4sd/rescue/ticker"
 	"github.com/xh3b4sd/tracer"
 )
 
@@ -40,10 +41,32 @@ func (e *Engine) create(tas *task.Task) error {
 		if tas.Core != nil {
 			return tracer.Maskf(taskCoreError, "Task.Core must be empty")
 		}
-		if tas.Meta.Emp() {
+		if tas.Meta == nil || tas.Meta.Emp() {
 			return tracer.Maskf(taskMetaEmptyError, "Task.Meta must not be empty")
 		}
+	}
 
+	var tic *ticker.Ticker
+	if tas.Cron != nil {
+		tic = ticker.New(tas.Cron.Get().Aevery(), e.tim.Create())
+	}
+
+	{
+		if tas.Cron != nil && tas.Root != nil {
+			return tracer.Maskf(taskCronError, "Task.Cron and Task.Root must not be configured together")
+		}
+		if tas.Cron != nil && len(*tas.Cron) != 1 {
+			return tracer.Maskf(taskCronError, "Task.Cron must only be configured with one valid format")
+		}
+		if tas.Cron != nil && tic.TickP1().IsZero() {
+			return tracer.Maskf(taskCronError, "Task.Cron format must be valid")
+		}
+	}
+
+	{
+		if tas.Cron != nil && tas.Meta.Has(Res()) {
+			return tracer.Maskf(labelReservedError, "Task.Cron must not contain reserved scheme rescue.io")
+		}
 		if tas.Meta != nil && tas.Meta.Has(Res()) {
 			return tracer.Maskf(labelReservedError, "Task.Meta must not contain reserved scheme rescue.io")
 		}
@@ -82,6 +105,11 @@ func (e *Engine) create(tas *task.Task) error {
 
 	{
 		tas.Core.Set().Object(tid)
+	}
+
+	if tas.Cron != nil {
+		tas.Cron.Set().TickM1(tic.TickM1())
+		tas.Cron.Set().TickP1(tic.TickP1())
 	}
 
 	{

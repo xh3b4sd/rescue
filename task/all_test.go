@@ -98,7 +98,7 @@ func Test_Task_All(t *testing.T) {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
 			all := All(tc.lab, tc.key...)
 
-			if !reflect.DeepEqual(tc.all, all) {
+			if !reflect.DeepEqual(all, tc.all) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(tc.all, all))
 			}
 		})

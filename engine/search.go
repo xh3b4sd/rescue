@@ -1,9 +1,6 @@
 package engine
 
 import (
-	"sort"
-	"time"
-
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/tracer"
 )
@@ -66,11 +63,9 @@ func (e *Engine) search() (*task.Task, error) {
 		e.met.Task.Inactive.Set(float64(len(lis)))
 	}
 
-	{
-		if len(lis) == 0 {
-			e.met.Task.NotFound.Inc()
-			return nil, tracer.Mask(taskNotFoundError)
-		}
+	if len(lis) == 0 {
+		e.met.Task.NotFound.Inc()
+		return nil, tracer.Mask(taskNotFoundError)
 	}
 
 	// Find all tasks that have a Task.Root defined. If the root task exists,
@@ -80,7 +75,24 @@ func (e *Engine) search() (*task.Task, error) {
 	// from the underlying sorted set.
 	var rem []int
 	for i, x := range lis {
+		// Remove all scheduled task templates for further processing.
+		if x.Cron != nil {
+			rem = append(rem, i)
+			continue
+		}
+
 		if x.Root == nil {
+			continue
+		}
+
+		// It is not permitted to set reserved labels to Task.Root from the outside.
+		// The system though does that for scheduled tasks that are emitted on the
+		// basis of task templates specifying Task.Cron. Scheduled tasks will
+		// contain the tree root's object ID, referencing the task template.
+		// Scheduled tasks are not obsolete based on their tree structure and
+		// template reference. So if we find a scheduled task we ignore them,
+		// because we do not want to delete those.
+		if x.Root.Len() == 1 && x.Root.Exi(task.Object) {
 			continue
 		}
 
@@ -129,6 +141,11 @@ func (e *Engine) search() (*task.Task, error) {
 		lis = lis[:len(lis)-1]
 	}
 
+	if len(lis) == 0 {
+		e.met.Task.NotFound.Inc()
+		return nil, tracer.Mask(taskNotFoundError)
+	}
+
 	// Calculate the balanced ownership that workers can claim.
 	cur := map[string]int{}
 	{
@@ -175,7 +192,7 @@ func (e *Engine) search() (*task.Task, error) {
 	}
 
 	{
-		tas.Core.Set().Expiry(time.Now().UTC().Add(e.exp))
+		tas.Core.Set().Expiry(e.tim.Search().Add(e.exp))
 		tas.Core.Set().Worker(e.wrk)
 	}
 
@@ -208,8 +225,6 @@ func (e *Engine) searchAll() ([]*task.Task, error) {
 		if err != nil {
 			return nil, tracer.Mask(err)
 		}
-
-		sort.Strings(str)
 	}
 
 	var lis []*task.Task

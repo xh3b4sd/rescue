@@ -86,7 +86,7 @@ func (e *Engine) expire() error {
 		var wrk string
 		{
 			exp = t.Core.Get().Expiry()
-			now = time.Now().UTC()
+			now = e.tim.Expire()
 			wrk = t.Core.Get().Worker()
 		}
 
@@ -149,7 +149,7 @@ func (e *Engine) expire() error {
 		var wrk string
 		{
 			exp = t.Core.Get().Expiry()
-			now = time.Now().UTC()
+			now = e.tim.Expire()
 			wrk = t.Core.Get().Worker()
 		}
 

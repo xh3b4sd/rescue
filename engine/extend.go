@@ -1,8 +1,6 @@
 package engine
 
 import (
-	"time"
-
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/tracer"
 )
@@ -79,17 +77,18 @@ func (e *Engine) extend(tas *task.Task) error {
 
 	// Tasks can only be extended by workers owning that task.
 	{
-		tid := cur.Core.Get().Object() == tas.Core.Get().Object()
+		exi := cur.Core.Exi().Worker() && tas.Core.Exi().Worker()
 		own := cur.Core.Get().Worker() == tas.Core.Get().Worker()
+		tid := cur.Core.Get().Object() == tas.Core.Get().Object()
 
-		if !tid || !own {
+		if !exi || !own || !tid {
 			e.met.Task.Outdated.Inc()
 			return tracer.Mask(taskOutdatedError)
 		}
 	}
 
 	{
-		cur.Core.Set().Expiry(time.Now().UTC().Add(e.exp))
+		cur.Core.Set().Expiry(e.tim.Extend().Add(e.exp))
 	}
 
 	{

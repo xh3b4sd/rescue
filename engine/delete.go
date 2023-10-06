@@ -94,10 +94,11 @@ func (e *Engine) delete(tas *task.Task) error {
 	// system, and we would have broken the integrity of it.
 	var equ bool
 	{
-		tid := cur.Core.Get().Object() == tas.Core.Get().Object()
+		exi := cur.Core.Exi().Worker() && tas.Core.Exi().Worker() || tas.Core.Get().Bypass()
 		own := cur.Core.Get().Worker() == tas.Core.Get().Worker() || tas.Core.Get().Bypass()
+		tid := cur.Core.Get().Object() == tas.Core.Get().Object()
 
-		if tid && own {
+		if exi && own && tid {
 			equ = true
 		}
 	}

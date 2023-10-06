@@ -11,11 +11,48 @@ type Task struct {
 	// distribution. Below is shown example metadata managed internally.
 	//
 	//     task.rescue.io/cycles    4
-	//     task.rescue.io/expiry    2023-09-28T14:23:24.16198Z
+	//     task.rescue.io/expiry    2023-09-28T14:23:24.161982Z
 	//     task.rescue.io/object    1611318984211839461
 	//     task.rescue.io/worker    90dc68ba-4820-42ac-a924-2450388c15a6
 	//
 	Core *Core `json:"core,omitempty"`
+
+	// Cron contains optional scheduling information. A task may define to be
+	// scheduled at an interval on the clock. Below is an example of a task that
+	// is emitted at an interval of every 6 hours. That is every day at 00:00,
+	// 06:00, 12:00 and 18:00, measured in UTC.
+	//
+	//     time.rescue.io/@every    6 hours
+	//
+	// Upon task creation, tasks defining an optional schedule will reflect the
+	// previous and the next tick according to their configured interval.
+	//
+	//     time.rescue.io/tick-1    2023-09-28T12:00:00.000000Z
+	//     time.rescue.io/tick+1    2023-09-28T18:00:00.000000Z
+	//
+	// The interval definition supports an opinionated set of duration units
+	// expressed in more or less natural language. Note that the third column of
+	// second and third order definitions for detailed schedules is not
+	// implemented at the moment. Only quantity=1 and quantity=x are supported
+	// right now. Important to show here right now is that the DSL allows for
+	// certain extensions, if desirable.
+	//
+	//     quantity=1    quantity=x    at / on (at)
+	//
+	//     minute        15 minutes
+	//     hour          4 hours       at **:30
+	//     day           5 days        at 08:00
+	//     week          2 weeks       on Wednesday (at 06:00)
+	//     month         3 months      on the 15th (at 17:00)
+	//
+	// Note that scheduled tasks are emitted according to their specified
+	// interval, never earlier, but arguably later to a neglectable extend.
+	// Scheduling will always depend on the current conditions of the underlying
+	// system. If hardware is overloaded or no worker process is running, then
+	// scheduling might be affected considerably. If workers search for tasks
+	// every 5 seconds, then scheduled tasks are likely to be executed with a
+	// delay of a couple of seconds.
+	Cron *Cron `json:"cron,omitempty"`
 
 	// Meta contains task specific information defined by the user. Any worker
 	// should be able to identify whether they are able to execute on a task
@@ -57,7 +94,8 @@ type Task struct {
 `Engine.Create` submits a new task to the system. Anyone can create any task any
 time. The task producer must just have an understanding of what consumers within
 the system are capable of. `Task.Meta` and `Task.Root` of a queued task must
-always match with a consumer in order to be processed.
+always match with a consumer in order to be processed. Scheduled tasks may be
+created using `Task.Cron`.
 
 ```go
 tas := &task.Task{
@@ -82,7 +120,9 @@ deleted by the workers that own the task they have been assigned to. Task
 ownership cannot be cherry-picked. Deleting an expired task causes an error on
 the consumer side, because the worker falsely believing to still be the task
 owner, is operating based on an outdated copy of the task that changed meanwhile
-within the system.
+within the system. Note that task templates defining `Task.Cron` may be deleted
+by anyone using the bypass label, since those templates are never owned by any
+worker.
 
 ```go
 err := eng.Delete(tas)
@@ -128,6 +168,25 @@ available to be worked on.
 
 ```go
 err := eng.Expire()
+if err != nil {
+	panic(err)
+}
+```
+
+
+
+### Repeat Tasks
+
+`Engine.Ticker` is an optional background process that every worker can
+continously execute in order to emit scheduled tasks based on any task template
+within the underlying queue defining `Task.Cron`. Ticker goes through the full
+list of available tasks and creates new tasks for any task template that is
+found to be due for scheduling based on its next tick. That means that in a
+cluster of multiple workers, it takes only a single functioning worker to call
+ticker in order to keep scheduling recurring tasks for anyone to work on.
+
+```go
+err := eng.Ticker()
 if err != nil {
 	panic(err)
 }
