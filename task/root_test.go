@@ -59,7 +59,7 @@ func Test_Task_Root_Emp(t *testing.T) {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
 			emp := tc.tas.Root.Emp()
 
-			if !reflect.DeepEqual(tc.emp, emp) {
+			if emp != tc.emp {
 				t.Fatalf("\n\n%s\n", cmp.Diff(tc.emp, emp))
 			}
 		})
@@ -117,7 +117,7 @@ func Test_Task_Root_Exi(t *testing.T) {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
 			exi := tc.tas.Root.Exi("foo")
 
-			if !reflect.DeepEqual(tc.exi, exi) {
+			if exi != tc.exi {
 				t.Fatalf("\n\n%s\n", cmp.Diff(tc.exi, exi))
 			}
 		})
@@ -175,7 +175,7 @@ func Test_Task_Root_Get(t *testing.T) {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
 			get := tc.tas.Root.Get("foo")
 
-			if !reflect.DeepEqual(tc.get, get) {
+			if get != tc.get {
 				t.Fatalf("\n\n%s\n", cmp.Diff(tc.get, get))
 			}
 		})
