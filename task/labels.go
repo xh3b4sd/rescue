@@ -33,16 +33,16 @@ const (
 
 const (
 	// Aevery is the optional scheduling information that users may provide. See
-	// Task.Time for more information.
+	// Task.Cron for more information.
 	Aevery = "time.rescue.io/@every"
 
 	// TickM1 is the unix timestamp of the most recent interval at which a
 	// scheduled task got emitted and then eventually resolved. TickM1 is only
 	// updated to the next interval of tick-1, if the task emitted most recently
-	// got deleted again in time. It may happen that the task emitted most
-	// recently did not get deleted in time for whatever reason. Then TickM1
-	// remains unchanged until the system was able to resolve certain underlying
-	// issues.
+	// got successfully resolved. It may happen that the task emitted most
+	// recently did not get resolved before scheduling for the next tick was
+	// supposed to happen. Then TickM1 remains unchanged until the system was able
+	// to resolve certain underlying issues.
 	TickM1 = "time.rescue.io/tick-1"
 
 	// TickP1 is the unix timestamp of the next upcoming interval at which a
