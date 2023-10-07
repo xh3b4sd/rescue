@@ -1,10 +1,21 @@
 package ticker
 
 import (
-	"fmt"
 	"math"
 	"time"
 )
+
+func (t *Ticker) TickM1() time.Time {
+	if t.qnt == 1 {
+		return t.tickM1(t.qnt, t.uni)
+	}
+
+	if t.qnt >= 2 {
+		return t.tickM1(t.qnt, t.uni[:len(t.uni)-1])
+	}
+
+	return time.Time{}
+}
 
 func (t *Ticker) tickM1(qnt int, uni string) time.Time {
 	if uni == "minute" {
@@ -106,7 +117,6 @@ func (t *Ticker) tickM1(qnt int, uni string) time.Time {
 }
 
 func modQnt(x int, y int) int {
-	m, f := math.Modf(float64(x) / float64(y))
-	fmt.Printf("%#v\n", f)
+	m, _ := math.Modf(float64(x) / float64(y))
 	return int(m) * y
 }

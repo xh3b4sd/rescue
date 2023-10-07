@@ -49,30 +49,6 @@ func New(fmt string, tim ...time.Time) *Ticker {
 	return tic
 }
 
-func (t *Ticker) TickM1() time.Time {
-	if t.qnt == 1 {
-		return t.tickM1(t.qnt, t.uni)
-	}
-
-	if t.qnt >= 2 {
-		return t.tickM1(t.qnt, t.uni[:len(t.uni)-1])
-	}
-
-	return time.Time{}
-}
-
-func (t *Ticker) TickP1() time.Time {
-	if t.qnt == 1 {
-		return t.tickP1(t.qnt, t.uni)
-	}
-
-	if t.qnt >= 2 {
-		return t.tickP1(t.qnt, t.uni[:len(t.uni)-1])
-	}
-
-	return time.Time{}
-}
-
 func musNum(str string) int {
 	num, err := strconv.Atoi(str)
 	if err != nil {

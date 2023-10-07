@@ -8,8 +8,6 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-// TODO ensure multiple months are only valid if they are defined as a multiple
-// of 12, so that they repeat monotonically equal in every year
 func Test_Ticker_Invalid(t *testing.T) {
 	testCases := []struct {
 		fmt string
