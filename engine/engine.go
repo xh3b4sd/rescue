@@ -25,6 +25,7 @@ type Config struct {
 	Metric   *metric.Collection
 	Queue    string
 	Redigo   redigo.Interface
+	Sepkey   string
 	Timer    *timer.Timer
 	Worker   string
 }
@@ -37,6 +38,7 @@ type Engine struct {
 	met *metric.Collection
 	que string
 	red redigo.Interface
+	sep string
 	tim *timer.Timer
 	wrk string
 }
@@ -60,6 +62,9 @@ func New(config Config) *Engine {
 	if config.Redigo == nil {
 		config.Redigo = redigo.Default()
 	}
+	if config.Sepkey == "" {
+		config.Sepkey = ":"
+	}
 	if config.Timer == nil {
 		config.Timer = timer.New()
 	}
@@ -75,6 +80,7 @@ func New(config Config) *Engine {
 		met: config.Metric,
 		que: config.Queue,
 		red: config.Redigo,
+		sep: config.Sepkey,
 		tim: config.Timer,
 		wrk: config.Worker,
 	}

@@ -1,6 +1,10 @@
 package task
 
-import "time"
+import (
+	"time"
+
+	"github.com/xh3b4sd/rescue/ticker"
+)
 
 type getcrn struct {
 	Labl map[string]string
@@ -17,29 +21,19 @@ func (g *getcrn) Aevery() string {
 }
 
 func (g *getcrn) TickM1() time.Time {
-	var tim *time.Time
-	{
-		tim = &time.Time{}
-	}
-
-	err := tim.UnmarshalJSON([]byte(g.Labl[TickM1]))
+	tim, err := time.Parse(ticker.Layout, g.Labl[TickM1])
 	if err != nil {
 		panic(err)
 	}
 
-	return *tim
+	return tim
 }
 
 func (g *getcrn) TickP1() time.Time {
-	var tim *time.Time
-	{
-		tim = &time.Time{}
-	}
-
-	err := tim.UnmarshalJSON([]byte(g.Labl[TickP1]))
+	tim, err := time.Parse(ticker.Layout, g.Labl[TickP1])
 	if err != nil {
 		panic(err)
 	}
 
-	return *tim
+	return tim
 }
