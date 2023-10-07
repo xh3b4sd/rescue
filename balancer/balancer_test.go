@@ -293,7 +293,7 @@ func Test_Balancer_Opt(t *testing.T) {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
 			opt := Default().Opt(tc.own, tc.tas)
 
-			if !reflect.DeepEqual(tc.opt, opt) {
+			if !reflect.DeepEqual(opt, tc.opt) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(tc.opt, opt))
 			}
 		})

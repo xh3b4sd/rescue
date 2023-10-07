@@ -22,6 +22,14 @@ func IsTaskCore(err error) bool {
 	return errors.Is(err, taskCoreError)
 }
 
+var taskCronError = &tracer.Error{
+	Kind: "taskCronError",
+}
+
+func IsTaskCron(err error) bool {
+	return errors.Is(err, taskCronError)
+}
+
 var taskEmptyError = &tracer.Error{
 	Kind: "taskEmptyError",
 }

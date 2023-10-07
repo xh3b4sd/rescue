@@ -5,25 +5,25 @@ import (
 	"time"
 )
 
-type setter struct {
+type setcor struct {
 	Labl map[string]string
 }
 
-func (c *Core) Set() *setter {
-	return &setter{
+func (c *Core) Set() *setcor {
+	return &setcor{
 		Labl: *c,
 	}
 }
 
-func (s *setter) Bypass(x bool) {
+func (s *setcor) Bypass(x bool) {
 	s.Labl[Bypass] = strconv.FormatBool(x)
 }
 
-func (s *setter) Cycles(x int64) {
+func (s *setcor) Cycles(x int64) {
 	s.Labl[Cycles] = strconv.FormatInt(x, 10)
 }
 
-func (s *setter) Expiry(x time.Time) {
+func (s *setcor) Expiry(x time.Time) {
 	byt, err := x.MarshalJSON()
 	if err != nil {
 		panic(err)
@@ -32,10 +32,10 @@ func (s *setter) Expiry(x time.Time) {
 	s.Labl[Expiry] = string(byt)
 }
 
-func (s *setter) Object(x int64) {
+func (s *setcor) Object(x int64) {
 	s.Labl[Object] = strconv.FormatInt(x, 10)
 }
 
-func (s *setter) Worker(x string) {
+func (s *setcor) Worker(x string) {
 	s.Labl[Worker] = x
 }

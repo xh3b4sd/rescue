@@ -10,6 +10,12 @@ func All() *task.Task {
 	}
 }
 
+func Obj() map[string]string {
+	return map[string]string{
+		task.Object: "*",
+	}
+}
+
 func Res() map[string]string {
 	return map[string]string{
 		"*rescue.io*": "*",

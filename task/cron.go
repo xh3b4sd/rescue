@@ -1,0 +1,30 @@
+package task
+
+type Cron map[string]string
+
+func (c *Cron) All(key ...string) *Cron {
+	crn := Cron(All(*c, key...))
+	return &crn
+}
+
+func (c *Cron) Any(key ...string) *Cron {
+	crn := Cron(Any(*c, key...))
+	return &crn
+}
+
+func (c *Cron) Emp() bool {
+	return c.Len() == 0
+}
+
+func (c *Cron) Has(lab map[string]string) bool {
+	return Has(*c, lab)
+}
+
+func (c *Cron) Len() int {
+	if c == nil {
+		return 0
+	}
+
+	crn := *c
+	return len(crn)
+}

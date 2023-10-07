@@ -13,21 +13,38 @@ func (m *Meta) Any(key ...string) *Meta {
 }
 
 func (m *Meta) Emp() bool {
+	return m.Len() == 0
+}
+
+func (m *Meta) Exi(key string) bool {
 	if m == nil {
-		return true
+		return false
 	}
 
 	met := *m
-	return len(met) == 0
+	return key != "" && met[key] != ""
 }
 
 func (m *Meta) Get(key string) string {
+	if m == nil {
+		return ""
+	}
+
 	met := *m
 	return met[key]
 }
 
 func (m *Meta) Has(lab map[string]string) bool {
 	return Has(*m, lab)
+}
+
+func (m *Meta) Len() int {
+	if m == nil {
+		return 0
+	}
+
+	met := *m
+	return len(met)
 }
 
 func (m *Meta) Set(key string, val string) {

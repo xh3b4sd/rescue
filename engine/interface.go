@@ -8,7 +8,8 @@ type Interface interface {
 	// Create submits a new task to the system. Anyone can create any task any
 	// time. The task producer must just have an understanding of what consumers
 	// within the system are capable of. Task.Meta and Task.Root of a queued task
-	// must always match with a consumer in order to be processed.
+	// must always match with a consumer in order to be processed. Scheduled tasks
+	// may be created using Task.Cron.
 	Create(tas *task.Task) error
 
 	// Delete removes an existing task from the system. Tasks can only be deleted
@@ -16,7 +17,9 @@ type Interface interface {
 	// cannot be cherry-picked. Deleting an expired task causes an error on the
 	// consumer side, because the worker falsely believing to still be the task
 	// owner, is operating based on an outdated copy of the task that changed
-	// meanwhile within the system.
+	// meanwhile within the system. within the system. Note that task templates
+	// defining Task.Cron may be deleted by anyone using the bypass label, since
+	// those templates are never owned by any worker.
 	Delete(tas *task.Task) error
 
 	// Exists expresses whether a task with the given label set exists within the
@@ -68,4 +71,13 @@ type Interface interface {
 
 	// Search provides the calling worker with an available task.
 	Search() (*task.Task, error)
+
+	// Engine.Ticker is an optional background process that every worker can
+	// continously execute in order to emit scheduled tasks based on any task
+	// template defining Task.Cron. Ticker goes through the full list of available
+	// tasks and creates new tasks for any task template that is found to be due
+	// for scheduling based on its next tick. That means that in a cluster of
+	// multiple workers, it takes only a single functioning worker to call ticker
+	// in order to keep scheduling recurring tasks for anyone to work on.
+	Ticker() error
 }

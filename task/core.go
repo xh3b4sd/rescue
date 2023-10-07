@@ -13,14 +13,18 @@ func (c *Core) Any(key ...string) *Core {
 }
 
 func (c *Core) Emp() bool {
-	if c == nil {
-		return true
-	}
-
-	cor := *c
-	return len(cor) == 0
+	return c.Len() == 0
 }
 
 func (c *Core) Has(lab map[string]string) bool {
 	return Has(*c, lab)
+}
+
+func (c *Core) Len() int {
+	if c == nil {
+		return 0
+	}
+
+	cor := *c
+	return len(cor)
 }

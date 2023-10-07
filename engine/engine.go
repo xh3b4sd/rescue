@@ -9,6 +9,7 @@ import (
 	"github.com/xh3b4sd/redigo"
 	"github.com/xh3b4sd/rescue/balancer"
 	"github.com/xh3b4sd/rescue/metric"
+	"github.com/xh3b4sd/rescue/timer"
 	"github.com/xh3b4sd/tracer"
 )
 
@@ -24,6 +25,7 @@ type Config struct {
 	Metric   *metric.Collection
 	Queue    string
 	Redigo   redigo.Interface
+	Timer    *timer.Timer
 	Worker   string
 }
 
@@ -35,6 +37,7 @@ type Engine struct {
 	met *metric.Collection
 	que string
 	red redigo.Interface
+	tim *timer.Timer
 	wrk string
 }
 
@@ -57,6 +60,9 @@ func New(config Config) *Engine {
 	if config.Redigo == nil {
 		config.Redigo = redigo.Default()
 	}
+	if config.Timer == nil {
+		config.Timer = timer.New()
+	}
 	if config.Worker == "" {
 		config.Worker = uuid.New().String()
 	}
@@ -69,6 +75,7 @@ func New(config Config) *Engine {
 		met: config.Metric,
 		que: config.Queue,
 		red: config.Redigo,
+		tim: config.Timer,
 		wrk: config.Worker,
 	}
 

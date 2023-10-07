@@ -2,7 +2,6 @@ package task
 
 import (
 	"fmt"
-	"reflect"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -222,7 +221,7 @@ func Test_Task_Has(t *testing.T) {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
 			has := Has(tc.all, tc.sub)
 
-			if !reflect.DeepEqual(tc.has, has) {
+			if has != tc.has {
 				t.Fatalf("\n\n%s\n", cmp.Diff(tc.has, has))
 			}
 		})

@@ -14,11 +14,9 @@ func keys(lis map[string]int) []string {
 	var key []string
 
 	for k := range lis {
-		if k == "" {
-			continue
+		if k != "" {
+			key = append(key, k)
 		}
-
-		key = append(key, k)
 	}
 
 	return key

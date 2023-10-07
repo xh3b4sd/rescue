@@ -13,6 +13,7 @@ type CollectionEngine struct {
 	Extend *CollectionEngineCollector
 	Lister *CollectionEngineCollector
 	Search *CollectionEngineCollector
+	Ticker *CollectionEngineCollector
 }
 
 type CollectionEngineCollector struct {
@@ -59,6 +60,10 @@ func (c *Collection) Reset() {
 	c.Engine.Search.Cal.Res()
 	c.Engine.Search.Dur.Res()
 	c.Engine.Search.Err.Res()
+
+	c.Engine.Ticker.Cal.Res()
+	c.Engine.Ticker.Dur.Res()
+	c.Engine.Ticker.Err.Res()
 
 	c.Task.Expired.Res()
 	c.Task.Extended.Res()
