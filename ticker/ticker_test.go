@@ -111,6 +111,11 @@ func Test_Ticker_Only_Unit(t *testing.T) {
 		now time.Time
 		tp1 time.Time
 	}{
+
+		//
+		// minute
+		//
+
 		// Case 000
 		{
 			fmt: "minute",
@@ -128,102 +133,213 @@ func Test_Ticker_Only_Unit(t *testing.T) {
 		// Case 002
 		{
 			fmt: "minute",
+			tm1: musTim("2023-09-28T14:23:00.000000Z"),
+			now: musTim("2023-09-28T14:23:00.161982Z"),
+			tp1: musTim("2023-09-28T14:24:00.000000Z"),
+		},
+		// Case 003
+		{
+			fmt: "minute",
+			tm1: musTim("2023-09-28T14:23:00.000000Z"),
+			now: musTim("2023-09-28T14:23:59.161982Z"),
+			tp1: musTim("2023-09-28T14:24:00.000000Z"),
+		},
+		// Case 004
+		{
+			fmt: "minute",
 			tm1: musTim("2023-09-28T23:59:00.000000Z"),
 			now: musTim("2023-09-28T23:59:24.161982Z"),
 			tp1: musTim("2023-09-29T00:00:00.000000Z"),
 		},
-		// Case 003
+
+		//
+		// hour
+		//
+
+		// Case 005
 		{
 			fmt: "hour",
 			tm1: musTim("2023-09-28T13:00:00.000000Z"),
 			now: musTim("2023-09-28T14:00:00.000000Z"),
 			tp1: musTim("2023-09-28T15:00:00.000000Z"),
 		},
-		// Case 004
+		// Case 006
 		{
 			fmt: "hour",
 			tm1: musTim("2023-09-28T14:00:00.000000Z"),
 			now: musTim("2023-09-28T14:23:24.161982Z"),
 			tp1: musTim("2023-09-28T15:00:00.000000Z"),
 		},
-		// Case 005
+		// Case 007
+		{
+			fmt: "hour",
+			tm1: musTim("2023-09-28T23:00:00.000000Z"),
+			now: musTim("2023-09-28T23:00:00.161982Z"),
+			tp1: musTim("2023-09-29T00:00:00.000000Z"),
+		},
+		// Case 008
 		{
 			fmt: "hour",
 			tm1: musTim("2023-09-28T23:00:00.000000Z"),
 			now: musTim("2023-09-28T23:59:24.161982Z"),
 			tp1: musTim("2023-09-29T00:00:00.000000Z"),
 		},
-		// Case 006
+
+		//
+		// day
+		//
+
+		// Case 009
 		{
 			fmt: "day",
 			tm1: musTim("2023-09-27T00:00:00.000000Z"),
 			now: musTim("2023-09-28T00:00:00.000000Z"),
 			tp1: musTim("2023-09-29T00:00:00.000000Z"),
 		},
-		// Case 007
+		// Case 010
 		{
 			fmt: "day",
 			tm1: musTim("2023-09-30T00:00:00.000000Z"),
 			now: musTim("2023-10-01T00:00:00.000000Z"),
 			tp1: musTim("2023-10-02T00:00:00.000000Z"),
 		},
-		// Case 008
+		// Case 011
 		{
 			fmt: "day",
 			tm1: musTim("2023-09-28T00:00:00.000000Z"),
 			now: musTim("2023-09-28T14:23:24.161982Z"),
 			tp1: musTim("2023-09-29T00:00:00.000000Z"),
 		},
-		// Case 009
+		// Case 012
 		{
 			fmt: "day",
 			tm1: musTim("2023-09-30T00:00:00.000000Z"),
 			now: musTim("2023-09-30T14:23:24.161982Z"),
 			tp1: musTim("2023-10-01T00:00:00.000000Z"),
 		},
-		// Case 010
+
+		//
+		// week
+		//
+
+		// Case 013
 		{
 			fmt: "week",
 			tm1: musTim("2023-09-18T00:00:00.000000Z"), // Monday
 			now: musTim("2023-09-25T00:00:00.000000Z"), // Monday
 			tp1: musTim("2023-10-02T00:00:00.000000Z"), // Monday
 		},
-		// Case 011
+		// Case 014
+		{
+			fmt: "week",
+			tm1: musTim("2023-09-25T00:00:00.000000Z"), // Monday
+			now: musTim("2023-09-25T00:00:00.161982Z"), // Monday
+			tp1: musTim("2023-10-02T00:00:00.000000Z"), // Monday
+		},
+		// Case 015
 		{
 			fmt: "week",
 			tm1: musTim("2023-09-25T00:00:00.000000Z"), // Monday
 			now: musTim("2023-09-28T14:23:24.161982Z"), // Thursday
 			tp1: musTim("2023-10-02T00:00:00.000000Z"), // Monday
 		},
-		// Case 012
+		// Case 016
+		{
+			fmt: "week",
+			tm1: musTim("2023-09-25T00:00:00.000000Z"), // Monday
+			now: musTim("2023-10-01T23:59:59.161982Z"), // Sunday
+			tp1: musTim("2023-10-02T00:00:00.000000Z"), // Monday
+		},
+		// Case 017
 		{
 			fmt: "week",
 			tm1: musTim("2023-09-25T00:00:00.000000Z"), // Monday
 			now: musTim("2023-10-01T14:23:24.161982Z"), // Sunday
 			tp1: musTim("2023-10-02T00:00:00.000000Z"), // Monday
 		},
-		// Case 013
+		// Case 018
+		{
+			fmt: "week",
+			tm1: musTim("2022-12-19T00:00:00.000000Z"), // week 51, Monday (week of previous year)
+			now: musTim("2022-12-26T00:00:00.000000Z"), // week 52, Monday (week of previous year)
+			tp1: musTim("2023-01-02T00:00:00.000000Z"), // week  1, Monday
+		},
+		// Case 019
+		{
+			fmt: "week",
+			tm1: musTim("2022-12-26T00:00:00.000000Z"), // week 52, Monday (week of previous year)
+			now: musTim("2022-12-26T00:00:00.161982Z"), // week 52, Monday (week of previous year)
+			tp1: musTim("2023-01-02T00:00:00.000000Z"), // week  1, Monday
+		},
+		// Case 020
+		{
+			fmt: "week",
+			tm1: musTim("2022-12-26T00:00:00.000000Z"), // week 52, Monday (week of previous year)
+			now: musTim("2022-12-26T14:23:24.161982Z"), // week 52, Monday (week of previous year)
+			tp1: musTim("2023-01-02T00:00:00.000000Z"), // week  1, Monday
+		},
+		// Case 021
+		{
+			fmt: "week",
+			tm1: musTim("2022-12-26T00:00:00.000000Z"), // week 52, Monday (week of previous year)
+			now: musTim("2023-01-01T23:59:59.161982Z"), // week  1, Sunday
+			tp1: musTim("2023-01-02T00:00:00.000000Z"), // week  1, Monday
+		},
+		// Case 022
+		{
+			fmt: "week",
+			tm1: musTim("2022-12-26T00:00:00.000000Z"), // week 52, Monday   (week of previous year)
+			now: musTim("2022-12-31T14:23:24.161982Z"), // week 52, Saturday (week of previous year)
+			tp1: musTim("2023-01-02T00:00:00.000000Z"), // week  1, Monday
+		},
+
+		//
+		// month
+		//
+
+		// Case 023
 		{
 			fmt: "month",
 			tm1: musTim("2023-08-01T00:00:00.000000Z"),
 			now: musTim("2023-09-01T00:00:00.000000Z"),
 			tp1: musTim("2023-10-01T00:00:00.000000Z"),
 		},
-		// Case 014
+		// Case 024
 		{
 			fmt: "month",
 			tm1: musTim("2023-12-01T00:00:00.000000Z"),
 			now: musTim("2024-01-01T00:00:00.000000Z"),
 			tp1: musTim("2024-02-01T00:00:00.000000Z"),
 		},
-		// Case 015
+		// Case 025
+		{
+			fmt: "month",
+			tm1: musTim("2023-12-01T00:00:00.000000Z"),
+			now: musTim("2023-12-01T00:00:00.161982Z"),
+			tp1: musTim("2024-01-01T00:00:00.000000Z"),
+		},
+		// Case 026
+		{
+			fmt: "month",
+			tm1: musTim("2023-12-01T00:00:00.000000Z"),
+			now: musTim("2023-12-31T00:00:00.000000Z"),
+			tp1: musTim("2024-01-01T00:00:00.000000Z"),
+		},
+		// Case 027
+		{
+			fmt: "month",
+			tm1: musTim("2023-12-01T00:00:00.000000Z"),
+			now: musTim("2023-12-31T23:59:59.161982Z"),
+			tp1: musTim("2024-01-01T00:00:00.000000Z"),
+		},
+		// Case 028
 		{
 			fmt: "month",
 			tm1: musTim("2023-09-01T00:00:00.000000Z"),
 			now: musTim("2023-09-28T14:23:24.161982Z"),
 			tp1: musTim("2023-10-01T00:00:00.000000Z"),
 		},
-		// Case 016
+		// Case 029
 		{
 			fmt: "month",
 			tm1: musTim("2023-12-01T00:00:00.000000Z"),
@@ -267,6 +383,11 @@ func Test_Ticker_Quantity_And_Unit(t *testing.T) {
 		now time.Time
 		tp1 time.Time
 	}{
+
+		//
+		// x minutes
+		//
+
 		// Case 000
 		{
 			fmt: "5 minutes",
@@ -299,136 +420,160 @@ func Test_Ticker_Quantity_And_Unit(t *testing.T) {
 		{
 			fmt: "5 minutes",
 			tm1: musTim("2023-09-28T23:55:00.000000Z"),
-			now: musTim("2023-09-28T23:59:24.161982Z"),
+			now: musTim("2023-09-28T23:55:00.161982Z"),
 			tp1: musTim("2023-09-29T00:00:00.000000Z"),
 		},
 		// Case 005
+		{
+			fmt: "5 minutes",
+			tm1: musTim("2023-09-28T23:55:00.000000Z"),
+			now: musTim("2023-09-28T23:59:59.161982Z"),
+			tp1: musTim("2023-09-29T00:00:00.000000Z"),
+		},
+		// Case 006
 		{
 			fmt: "5 minutes",
 			tm1: musTim("2023-09-28T14:00:00.000000Z"),
 			now: musTim("2023-09-28T14:00:24.161982Z"),
 			tp1: musTim("2023-09-28T14:05:00.000000Z"),
 		},
-		// Case 006
+
+		//
+		// x hours
+		//
+
+		// Case 007
 		{
 			fmt: "6 hours",
 			tm1: musTim("2023-09-28T06:00:00.000000Z"),
 			now: musTim("2023-09-28T12:00:00.000000Z"),
 			tp1: musTim("2023-09-28T18:00:00.000000Z"),
 		},
-		// Case 007
+		// Case 008
 		{
 			fmt: "6 hours",
 			tm1: musTim("2023-09-27T18:00:00.000000Z"),
 			now: musTim("2023-09-28T00:00:00.000000Z"),
 			tp1: musTim("2023-09-28T06:00:00.000000Z"),
 		},
-		// Case 008
+		// Case 009
 		{
 			fmt: "6 hours",
 			tm1: musTim("2023-09-28T00:00:00.000000Z"),
 			now: musTim("2023-09-28T04:23:24.161982Z"),
 			tp1: musTim("2023-09-28T06:00:00.000000Z"),
 		},
-		// Case 009
+		// Case 010
+		{
+			fmt: "6 hours",
+			tm1: musTim("2023-09-28T18:00:00.000000Z"),
+			now: musTim("2023-09-28T18:00:00.161982Z"),
+			tp1: musTim("2023-09-29T00:00:00.000000Z"),
+		},
+		// Case 011
 		{
 			fmt: "6 hours",
 			tm1: musTim("2023-09-28T12:00:00.000000Z"),
 			now: musTim("2023-09-28T14:23:24.161982Z"),
 			tp1: musTim("2023-09-28T18:00:00.000000Z"),
 		},
-		// Case 010
+		// Case 012
 		{
 			fmt: "6 hours",
 			tm1: musTim("2023-09-28T18:00:00.000000Z"),
 			now: musTim("2023-09-28T23:59:24.161982Z"),
 			tp1: musTim("2023-09-29T00:00:00.000000Z"),
 		},
-		// Case 011
+		// Case 013
 		{
 			fmt: "6 hours",
 			tm1: musTim("2023-09-28T00:00:00.000000Z"),
 			now: musTim("2023-09-28T00:23:24.161982Z"),
 			tp1: musTim("2023-09-28T06:00:00.000000Z"),
 		},
-		// Case 012
+
+		//
+		// x days
+		//
+
+		// Case 014
 		{
 			fmt: "3 days",
 			tm1: musTim("2023-09-26T00:00:00.000000Z"),
 			now: musTim("2023-09-27T00:00:00.000000Z"),
 			tp1: musTim("2023-09-29T00:00:00.000000Z"),
 		},
-		// Case 013
+		// Case 015
 		{
 			fmt: "3 days",
 			tm1: musTim("2023-09-26T00:00:00.000000Z"),
 			now: musTim("2023-09-28T00:00:00.000000Z"),
 			tp1: musTim("2023-09-29T00:00:00.000000Z"),
 		},
-		// Case 014
+		// Case 016
 		{
 			fmt: "3 days",
 			tm1: musTim("2023-09-26T00:00:00.000000Z"),
 			now: musTim("2023-09-29T00:00:00.000000Z"),
 			tp1: musTim("2023-10-02T00:00:00.000000Z"),
 		},
-		// Case 015
+		// Case 017
 		{
 			fmt: "3 days",
 			tm1: musTim("2023-09-29T00:00:00.000000Z"),
 			now: musTim("2023-09-29T00:00:00.161982Z"),
 			tp1: musTim("2023-10-02T00:00:00.000000Z"),
 		},
-		// Case 016
+		// Case 018
 		{
 			fmt: "3 days",
 			tm1: musTim("2023-09-29T00:00:00.000000Z"),
 			now: musTim("2023-09-29T14:23:24.161982Z"),
 			tp1: musTim("2023-10-02T00:00:00.000000Z"),
 		},
-		// Case 017
+		// Case 019
 		{
 			fmt: "3 days",
 			tm1: musTim("2023-09-29T00:00:00.000000Z"),
 			now: musTim("2023-10-01T00:00:00.000000Z"),
 			tp1: musTim("2023-10-02T00:00:00.000000Z"),
 		},
-		// Case 018
+		// Case 020
 		{
 			fmt: "3 days",
 			tm1: musTim("2023-09-26T00:00:00.000000Z"),
 			now: musTim("2023-09-28T14:23:24.161982Z"),
 			tp1: musTim("2023-09-29T00:00:00.000000Z"),
 		},
-		// Case 019
+		// Case 021
 		{
 			fmt: "3 days",
 			tm1: musTim("2023-09-26T00:00:00.000000Z"),
 			now: musTim("2023-09-28T00:00:00.161982Z"),
 			tp1: musTim("2023-09-29T00:00:00.000000Z"),
 		},
-		// Case 020
+		// Case 022
 		{
 			fmt: "3 days",
 			tm1: musTim("2023-10-02T00:00:00.000000Z"),
 			now: musTim("2023-10-02T23:59:24.161982Z"),
 			tp1: musTim("2023-10-05T00:00:00.000000Z"),
 		},
-		// Case 021
+		// Case 023
 		{
 			fmt: "3 days",
 			tm1: musTim("2023-09-29T00:00:00.000000Z"),
 			now: musTim("2023-09-30T00:00:24.161982Z"),
 			tp1: musTim("2023-10-02T00:00:00.000000Z"),
 		},
-		// Case 022
+		// Case 024
 		{
 			fmt: "3 days",
 			tm1: musTim("2023-09-29T00:00:00.000000Z"),
 			now: musTim("2023-10-01T23:59:24.161982Z"),
 			tp1: musTim("2023-10-02T00:00:00.000000Z"),
 		},
-		// Case 023 shows how multiple day schedules properly carry over
+		// Case 025 shows how multiple day schedules properly carry over
 		// continuously between the years. Using the first day of any given year or
 		// the first ISO week as the basis of multi day schedules does not carry
 		// over continuously between every year. Since we use the first unix time
@@ -439,7 +584,7 @@ func Test_Ticker_Quantity_And_Unit(t *testing.T) {
 			now: musTim("2022-12-31T14:23:24.161982Z"),
 			tp1: musTim("2023-01-02T00:00:00.000000Z"),
 		},
-		// Case 024 shows how multiple day schedules properly carry over
+		// Case 026 shows how multiple day schedules properly carry over
 		// continuously between the years. Using the first day of any given year or
 		// the first ISO week as the basis of multi day schedules does not carry
 		// over continuously between every year. Since we use the first unix time
@@ -450,7 +595,7 @@ func Test_Ticker_Quantity_And_Unit(t *testing.T) {
 			now: musTim("2023-01-01T00:00:00.000000Z"),
 			tp1: musTim("2023-01-02T00:00:00.000000Z"),
 		},
-		// Case 025 shows how multiple day schedules properly carry over
+		// Case 027 shows how multiple day schedules properly carry over
 		// continuously between the years. Using the first day of any given year or
 		// the first ISO week as the basis of multi day schedules does not carry
 		// over continuously between every year. Since we use the first unix time
@@ -461,46 +606,37 @@ func Test_Ticker_Quantity_And_Unit(t *testing.T) {
 			now: musTim("2023-01-01T14:23:24.161982Z"),
 			tp1: musTim("2023-01-02T00:00:00.000000Z"),
 		},
-		// Case 026
+		// Case 028
 		{
 			fmt: "7 days",
 			tm1: musTim("2023-09-28T00:00:00.000000Z"),
 			now: musTim("2023-09-28T14:23:24.161982Z"),
 			tp1: musTim("2023-10-05T00:00:00.000000Z"),
 		},
-		// Case 027
+		// Case 029
 		{
 			fmt: "7 days",
 			tm1: musTim("2023-09-28T00:00:00.000000Z"),
-			now: musTim("2023-09-29T14:23:24.161982Z"),
+			now: musTim("2023-10-01T00:00:00.000000Z"),
 			tp1: musTim("2023-10-05T00:00:00.000000Z"),
 		},
-		// Case 028
-		{
-			fmt: "2 weeks",
-			tm1: musTim("2023-09-18T00:00:00.000000Z"), // week 38, Monday
-			now: musTim("2023-09-28T14:23:24.161982Z"), // week 39, Thursday
-			tp1: musTim("2023-10-02T00:00:00.000000Z"), // week 40, Monday
-		},
-		// Case 029
-		{
-			fmt: "2 weeks",
-			tm1: musTim("2023-09-18T00:00:00.000000Z"), // week 38, Monday
-			now: musTim("2023-09-24T14:23:24.161982Z"), // week 38, Sunday
-			tp1: musTim("2023-10-02T00:00:00.000000Z"), // week 40, Monday
-		},
 		// Case 030
+		{
+			fmt: "7 days",
+			tm1: musTim("2023-09-28T00:00:00.000000Z"),
+			now: musTim("2023-10-04T23:59:59.161982Z"),
+			tp1: musTim("2023-10-05T00:00:00.000000Z"),
+		},
+
+		//
+		// x weeks
+		//
+
+		// Case 031
 		{
 			fmt: "2 weeks",
 			tm1: musTim("2023-09-04T00:00:00.000000Z"), // week 36, Monday
 			now: musTim("2023-09-18T00:00:00.000000Z"), // week 38, Monday
-			tp1: musTim("2023-10-02T00:00:00.000000Z"), // week 40, Monday
-		},
-		// Case 031
-		{
-			fmt: "2 weeks",
-			tm1: musTim("2023-09-18T00:00:00.000000Z"), // week 38, Monday
-			now: musTim("2023-09-18T14:23:24.161982Z"), // week 38, Monday
 			tp1: musTim("2023-10-02T00:00:00.000000Z"), // week 40, Monday
 		},
 		// Case 032
@@ -513,78 +649,181 @@ func Test_Ticker_Quantity_And_Unit(t *testing.T) {
 		// Case 033
 		{
 			fmt: "2 weeks",
+			tm1: musTim("2023-09-18T00:00:00.000000Z"), // week 38, Monday
+			now: musTim("2023-09-18T14:23:24.161982Z"), // week 38, Monday
+			tp1: musTim("2023-10-02T00:00:00.000000Z"), // week 40, Monday
+		},
+		// Case 034
+		{
+			fmt: "2 weeks",
+			tm1: musTim("2023-09-18T00:00:00.000000Z"), // week 38, Monday
+			now: musTim("2023-09-24T14:23:24.161982Z"), // week 38, Sunday
+			tp1: musTim("2023-10-02T00:00:00.000000Z"), // week 40, Monday
+		},
+		// Case 035
+		{
+			fmt: "2 weeks",
+			tm1: musTim("2023-09-18T00:00:00.000000Z"), // week 38, Monday
+			now: musTim("2023-09-28T14:23:24.161982Z"), // week 39, Thursday
+			tp1: musTim("2023-10-02T00:00:00.000000Z"), // week 40, Monday
+		},
+		// Case 036
+		{
+			fmt: "2 weeks",
+			tm1: musTim("2023-09-18T00:00:00.000000Z"), // week 38, Monday
+			now: musTim("2023-10-01T23:59:59.161982Z"), // week 39, Sunday
+			tp1: musTim("2023-10-02T00:00:00.000000Z"), // week 40, Monday
+		},
+		// Case 037
+		{
+			fmt: "2 weeks",
 			tm1: musTim("2022-12-12T00:00:00.000000Z"), // week 50, Monday (week of previous year)
 			now: musTim("2022-12-19T00:00:00.000000Z"), // week 51, Monday (week of previous year)
 			tp1: musTim("2022-12-26T00:00:00.000000Z"), // week 52, Monday (week of previous year)
 		},
-		// Case 034
+		// Case 038
 		{
 			fmt: "2 weeks",
 			tm1: musTim("2022-12-12T00:00:00.000000Z"), // week 50, Monday (week of previous year)
 			now: musTim("2022-12-19T14:23:24.161982Z"), // week 51, Monday (week of previous year)
 			tp1: musTim("2022-12-26T00:00:00.000000Z"), // week 52, Monday (week of previous year)
 		},
-		// Case 035
+		// Case 039
 		{
 			fmt: "2 weeks",
 			tm1: musTim("2022-12-12T00:00:00.000000Z"), // week 50, Monday (week of previous year)
 			now: musTim("2022-12-26T00:00:00.000000Z"), // week 52, Monday (week of previous year)
 			tp1: musTim("2023-01-09T00:00:00.000000Z"), // week  2, Monday
 		},
-		// Case 036
+		// Case 040
+		{
+			fmt: "2 weeks",
+			tm1: musTim("2022-12-26T00:00:00.000000Z"), // week 52, Monday (week of previous year)
+			now: musTim("2022-12-26T00:00:00.161982Z"), // week 52, Monday (week of previous year)
+			tp1: musTim("2023-01-09T00:00:00.000000Z"), // week  2, Monday
+		},
+		// Case 041
 		{
 			fmt: "2 weeks",
 			tm1: musTim("2022-12-26T00:00:00.000000Z"), // week 52, Monday (week of previous year)
 			now: musTim("2022-12-26T14:23:24.161982Z"), // week 52, Monday (week of previous year)
 			tp1: musTim("2023-01-09T00:00:00.000000Z"), // week  2, Monday
 		},
-		// Case 037
+		// Case 042
+		{
+			fmt: "2 weeks",
+			tm1: musTim("2022-12-26T00:00:00.000000Z"), // week 52, Monday   (week of previous year)
+			now: musTim("2022-12-31T23:59:59.161982Z"), // week 52, Saturday (week of previous year)
+			tp1: musTim("2023-01-09T00:00:00.000000Z"), // week  2, Monday
+		},
+		// Case 043
 		{
 			fmt: "2 weeks",
 			tm1: musTim("2022-12-26T00:00:00.000000Z"), // week 52, Monday (week of previous year)
 			now: musTim("2023-01-01T14:23:24.161982Z"), // week 52, Sunday (week of previous year)
 			tp1: musTim("2023-01-09T00:00:00.000000Z"), // week  2, Monday
 		},
-		// Case 038
+		// Case 044
 		{
 			fmt: "2 weeks",
 			tm1: musTim("2022-12-26T00:00:00.000000Z"), // week 52, Monday (week of previous year)
 			now: musTim("2023-01-08T14:23:24.161982Z"), // week  1, Sunday
 			tp1: musTim("2023-01-09T00:00:00.000000Z"), // week  2, Monday
 		},
-		// Case 039
+		// Case 045
 		{
-			fmt: "3 months",
-			tm1: musTim("2023-07-01T00:00:00.000000Z"),
-			now: musTim("2023-09-28T14:23:24.161982Z"),
-			tp1: musTim("2023-10-01T00:00:00.000000Z"),
+			fmt: "2 weeks",
+			tm1: musTim("2022-12-26T00:00:00.000000Z"), // week 52, Monday (week of previous year)
+			now: musTim("2023-01-08T23:59:59.161982Z"), // week  1, Sunday
+			tp1: musTim("2023-01-09T00:00:00.000000Z"), // week  2, Monday
 		},
-		// Case 040
-		{
-			fmt: "3 months",
-			tm1: musTim("2023-01-01T00:00:00.000000Z"),
-			now: musTim("2023-02-28T14:23:24.161982Z"),
-			tp1: musTim("2023-04-01T00:00:00.000000Z"),
-		},
-		// Case 041
+
+		//
+		// x months
+		//
+
+		// Case 046
 		{
 			fmt: "3 months",
 			tm1: musTim("2022-10-01T00:00:00.000000Z"),
 			now: musTim("2023-01-01T00:00:00.000000Z"),
 			tp1: musTim("2023-04-01T00:00:00.000000Z"),
 		},
-		// Case 042
+		// Case 047
+		{
+			fmt: "3 months",
+			tm1: musTim("2023-01-01T00:00:00.000000Z"),
+			now: musTim("2023-01-01T00:00:00.161982Z"),
+			tp1: musTim("2023-04-01T00:00:00.000000Z"),
+		},
+		// Case 048
+		{
+			fmt: "3 months",
+			tm1: musTim("2023-01-01T00:00:00.000000Z"),
+			now: musTim("2023-02-28T14:23:24.161982Z"),
+			tp1: musTim("2023-04-01T00:00:00.000000Z"),
+		},
+		// Case 049
+		{
+			fmt: "3 months",
+			tm1: musTim("2023-01-01T00:00:00.000000Z"),
+			now: musTim("2023-03-31T23:59:59.161982Z"),
+			tp1: musTim("2023-04-01T00:00:00.000000Z"),
+		},
+		// Case 050
+		{
+			fmt: "3 months",
+			tm1: musTim("2023-04-01T00:00:00.000000Z"),
+			now: musTim("2023-07-01T00:00:00.000000Z"),
+			tp1: musTim("2023-10-01T00:00:00.000000Z"),
+		},
+		// Case 051
+		{
+			fmt: "3 months",
+			tm1: musTim("2023-07-01T00:00:00.000000Z"),
+			now: musTim("2023-07-01T00:00:00.161982Z"),
+			tp1: musTim("2023-10-01T00:00:00.000000Z"),
+		},
+		// Case 052
+		{
+			fmt: "3 months",
+			tm1: musTim("2023-07-01T00:00:00.000000Z"),
+			now: musTim("2023-09-28T14:23:24.161982Z"),
+			tp1: musTim("2023-10-01T00:00:00.000000Z"),
+		},
+		// Case 053
+		{
+			fmt: "3 months",
+			tm1: musTim("2023-07-01T00:00:00.000000Z"),
+			now: musTim("2023-09-30T23:59:59.161982Z"),
+			tp1: musTim("2023-10-01T00:00:00.000000Z"),
+		},
+		// Case 054
 		{
 			fmt: "3 months",
 			tm1: musTim("2023-07-01T00:00:00.000000Z"),
 			now: musTim("2023-10-01T00:00:00.000000Z"),
 			tp1: musTim("2024-01-01T00:00:00.000000Z"),
 		},
-		// Case 043
+		// Case 055
+		{
+			fmt: "3 months",
+			tm1: musTim("2023-10-01T00:00:00.000000Z"),
+			now: musTim("2023-10-01T00:00:00.161982Z"),
+			tp1: musTim("2024-01-01T00:00:00.000000Z"),
+		},
+		// Case 056
 		{
 			fmt: "3 months",
 			tm1: musTim("2023-10-01T00:00:00.000000Z"),
 			now: musTim("2023-10-01T14:23:24.161982Z"),
+			tp1: musTim("2024-01-01T00:00:00.000000Z"),
+		},
+		// Case 057
+		{
+			fmt: "3 months",
+			tm1: musTim("2023-10-01T00:00:00.000000Z"),
+			now: musTim("2023-12-31T23:59:59.161982Z"),
 			tp1: musTim("2024-01-01T00:00:00.000000Z"),
 		},
 	}
