@@ -857,7 +857,7 @@ func Test_Ticker_Quantity_And_Unit(t *testing.T) {
 }
 
 func musTim(str string) time.Time {
-	tim, err := time.Parse("2006-01-02T15:04:05.999999Z", str)
+	tim, err := time.Parse(Layout, str)
 	if err != nil {
 		panic(err)
 	}

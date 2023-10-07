@@ -325,10 +325,10 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 
 	{
 		if len(lis) != 1 {
-			t.Fatal("expected 1 task listed")
+			t.Fatal("expected", 1, "got", len(lis))
 		}
 		if lis[0].Cron.Get().Aevery() != "hour" {
-			t.Fatal("scheduling failed")
+			t.Fatal("expected", "hour", "got", lis[0].Cron.Get().Aevery())
 		}
 		if !lis[0].Cron.Get().TickM1().Equal(musTim("2023-09-28T14:00:00.000000Z")) {
 			t.Fatal("scheduling failed")
@@ -338,6 +338,17 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 		}
 		if lis[0].Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
+		}
+	}
+
+	// Verify the raw string format to make sure the ticker layout is persisted as
+	// expected.
+	{
+		if lis[0].Cron.Map().TickM1() != "2023-09-28T14:00:00Z" {
+			t.Fatal("expected", "2023-09-28T14:00:00Z", "got", lis[0].Cron.Map().TickM1())
+		}
+		if lis[0].Cron.Map().TickP1() != "2023-09-28T15:00:00Z" {
+			t.Fatal("expected", "2023-09-28T15:00:00Z", "got", lis[0].Cron.Map().TickP1())
 		}
 	}
 
@@ -453,6 +464,17 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 		}
 	}
 
+	// Verify the raw string format to make sure the ticker layout is persisted as
+	// expected.
+	{
+		if lis[0].Cron.Map().TickM1() != "2023-09-28T14:00:00Z" {
+			t.Fatal("expected", "2023-09-28T14:00:00Z", "got", lis[0].Cron.Map().TickM1())
+		}
+		if lis[0].Cron.Map().TickP1() != "2023-09-28T16:00:00Z" {
+			t.Fatal("expected", "2023-09-28T16:00:00Z", "got", lis[0].Cron.Map().TickP1())
+		}
+	}
+
 	{
 		tas, err = etw.Search()
 		if err != nil {
@@ -512,6 +534,17 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 		}
 	}
 
+	// Verify the raw string format to make sure the ticker layout is persisted as
+	// expected.
+	{
+		if lis[0].Cron.Map().TickM1() != "2023-09-28T14:00:00Z" {
+			t.Fatal("expected", "2023-09-28T14:00:00Z", "got", lis[0].Cron.Map().TickM1())
+		}
+		if lis[0].Cron.Map().TickP1() != "2023-09-28T16:00:00Z" {
+			t.Fatal("expected", "2023-09-28T16:00:00Z", "got", lis[0].Cron.Map().TickP1())
+		}
+	}
+
 	{
 		tim.Setter(func() time.Time {
 			return musTim("2023-09-28T16:00:00.161982Z")
@@ -562,6 +595,17 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 		}
 		if lis[1].Root.Get(task.Object) != lis[0].Core.Map().Object() {
 			t.Fatal("scheduled task must define root for task template")
+		}
+	}
+
+	// Verify the raw string format to make sure the ticker layout is persisted as
+	// expected.
+	{
+		if lis[0].Cron.Map().TickM1() != "2023-09-28T14:00:00Z" {
+			t.Fatal("expected", "2023-09-28T14:00:00Z", "got", lis[0].Cron.Map().TickM1())
+		}
+		if lis[0].Cron.Map().TickP1() != "2023-09-28T17:00:00Z" {
+			t.Fatal("expected", "2023-09-28T17:00:00Z", "got", lis[0].Cron.Map().TickP1())
 		}
 	}
 
@@ -618,6 +662,17 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 		}
 	}
 
+	// Verify the raw string format to make sure the ticker layout is persisted as
+	// expected.
+	{
+		if lis[0].Cron.Map().TickM1() != "2023-09-28T14:00:00Z" {
+			t.Fatal("expected", "2023-09-28T14:00:00Z", "got", lis[0].Cron.Map().TickM1())
+		}
+		if lis[0].Cron.Map().TickP1() != "2023-09-28T18:00:00Z" {
+			t.Fatal("expected", "2023-09-28T18:00:00Z", "got", lis[0].Cron.Map().TickP1())
+		}
+	}
+
 	{
 		err = eon.Delete(tas)
 		if err != nil {
@@ -657,6 +712,17 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 		}
 		if lis[0].Root != nil {
 			t.Fatal("task template must not define root")
+		}
+	}
+
+	// Verify the raw string format to make sure the ticker layout is persisted as
+	// expected.
+	{
+		if lis[0].Cron.Map().TickM1() != "2023-09-28T17:00:00Z" {
+			t.Fatal("expected", "2023-09-28T17:00:00Z", "got", lis[0].Cron.Map().TickM1())
+		}
+		if lis[0].Cron.Map().TickP1() != "2023-09-28T18:00:00Z" {
+			t.Fatal("expected", "2023-09-28T18:00:00Z", "got", lis[0].Cron.Map().TickP1())
 		}
 	}
 }
