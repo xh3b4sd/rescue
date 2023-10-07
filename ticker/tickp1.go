@@ -2,15 +2,11 @@ package ticker
 
 import "time"
 
-func (t *Ticker) qnUnP1(qnt int, uni string) time.Time {
-	if qnt <= 1 {
-		return time.Time{}
-	}
-
-	if uni == "minutes" {
+func (t *Ticker) tickP1(qnt int, uni string) time.Time {
+	if uni == "minute" {
 		var tp1 time.Time
 		{
-			tp1 = t.qnUnM1(qnt, uni).Add(time.Duration(qnt) * time.Minute)
+			tp1 = t.tickM1(qnt, uni).Add(time.Duration(qnt) * time.Minute)
 		}
 
 		if tp1.Equal(t.tim) {
@@ -20,10 +16,10 @@ func (t *Ticker) qnUnP1(qnt int, uni string) time.Time {
 		return tp1
 	}
 
-	if uni == "hours" {
+	if uni == "hour" {
 		var tp1 time.Time
 		{
-			tp1 = t.qnUnM1(qnt, uni).Add(time.Duration(qnt) * time.Hour)
+			tp1 = t.tickM1(qnt, uni).Add(time.Duration(qnt) * time.Hour)
 		}
 
 		if tp1.Equal(t.tim) {
@@ -33,10 +29,10 @@ func (t *Ticker) qnUnP1(qnt int, uni string) time.Time {
 		return tp1
 	}
 
-	if uni == "days" {
+	if uni == "day" {
 		var tp1 time.Time
 		{
-			tp1 = t.qnUnM1(qnt, uni).AddDate(0, 0, qnt)
+			tp1 = t.tickM1(qnt, uni).AddDate(0, 0, qnt)
 		}
 
 		if tp1.Equal(t.tim) {
@@ -46,10 +42,10 @@ func (t *Ticker) qnUnP1(qnt int, uni string) time.Time {
 		return tp1
 	}
 
-	if uni == "weeks" {
+	if uni == "week" {
 		var tp1 time.Time
 		{
-			tp1 = t.qnUnM1(qnt, uni).AddDate(0, 0, qnt*7)
+			tp1 = t.tickM1(qnt, uni).AddDate(0, 0, qnt*7)
 		}
 
 		if tp1.Equal(t.tim) {
@@ -59,10 +55,10 @@ func (t *Ticker) qnUnP1(qnt int, uni string) time.Time {
 		return tp1
 	}
 
-	if uni == "months" {
+	if uni == "month" {
 		var tp1 time.Time
 		{
-			tp1 = t.qnUnM1(qnt, uni).AddDate(0, qnt, 0)
+			tp1 = t.tickM1(qnt, uni).AddDate(0, qnt, 0)
 		}
 
 		if tp1.Equal(t.tim) {

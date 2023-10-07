@@ -7,12 +7,17 @@ import (
 )
 
 type Ticker struct {
-	fld []string
-	fmt string
+	qnt int
 	tim time.Time
+	uni string
 }
 
 func New(fmt string, tim ...time.Time) *Ticker {
+	var fld []string
+	{
+		fld = strings.Fields(fmt)
+	}
+
 	var now time.Time
 	if len(tim) == 1 && !tim[0].IsZero() {
 		now = tim[0].UTC()
@@ -20,12 +25,24 @@ func New(fmt string, tim ...time.Time) *Ticker {
 		now = time.Now().UTC()
 	}
 
+	var qnt int
+	var uni string
+
+	switch len(fld) {
+	case 1:
+		qnt = 1
+		uni = fld[0]
+	case 2:
+		qnt = musNum(fld[0])
+		uni = fld[1]
+	}
+
 	var tic *Ticker
 	{
 		tic = &Ticker{
-			fld: strings.Fields(fmt),
-			fmt: fmt,
+			qnt: qnt,
 			tim: now,
+			uni: uni,
 		}
 	}
 
@@ -33,32 +50,24 @@ func New(fmt string, tim ...time.Time) *Ticker {
 }
 
 func (t *Ticker) TickM1() time.Time {
-	if len(t.fld) == 0 {
-		return time.Time{}
+	if t.qnt == 1 {
+		return t.tickM1(t.qnt, t.uni)
 	}
 
-	if len(t.fld) == 1 {
-		return t.onUnM1(t.fld[0])
-	}
-
-	if len(t.fld) == 2 {
-		return t.qnUnM1(musNum(t.fld[0]), t.fld[1])
+	if t.qnt >= 2 {
+		return t.tickM1(t.qnt, t.uni[:len(t.uni)-1])
 	}
 
 	return time.Time{}
 }
 
 func (t *Ticker) TickP1() time.Time {
-	if len(t.fld) == 0 {
-		return time.Time{}
+	if t.qnt == 1 {
+		return t.tickP1(t.qnt, t.uni)
 	}
 
-	if len(t.fld) == 1 {
-		return t.onUnP1(t.fld[0])
-	}
-
-	if len(t.fld) == 2 {
-		return t.qnUnP1(musNum(t.fld[0]), t.fld[1])
+	if t.qnt >= 2 {
+		return t.tickP1(t.qnt, t.uni[:len(t.uni)-1])
 	}
 
 	return time.Time{}

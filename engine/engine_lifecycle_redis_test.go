@@ -17,6 +17,187 @@ import (
 	"github.com/xh3b4sd/tracer"
 )
 
+func Test_Engine_Lifecycle_Cron_Weekday(t *testing.T) {
+	var err error
+
+	var red redigo.Interface
+	{
+		c := client.Config{
+			Kind: client.KindSingle,
+			Locker: client.ConfigLocker{
+				Budget: breaker.Default(),
+			},
+		}
+
+		red, err = client.New(c)
+		if err != nil {
+			t.Fatal("expected", true, "got", false)
+		}
+
+		err = red.Purge()
+		if err != nil {
+			t.Fatal("expected", true, "got", false)
+		}
+	}
+
+	var tim *timer.Timer
+	{
+		tim = timer.New()
+	}
+
+	var eon *Engine
+	{
+		eon = New(Config{
+			Logger: logger.Fake(),
+			Redigo: red,
+			Timer:  tim,
+			Worker: "eon",
+		})
+	}
+
+	// The engine and the ticker instances are configured with a time for the end
+	// of the year.
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2022-12-31T14:23:24.161982Z")
+		})
+	}
+
+	{
+		exi, err := eon.Exists(&task.Task{Cron: &task.Cron{task.Aevery: "*"}})
+		if err != nil {
+			t.Fatal("expected", true, "got", false)
+		}
+
+		if exi {
+			t.Fatal("expected", false, "got", true)
+		}
+	}
+
+	// We set the task template to schedule every 3 days, which from the point of
+	// view of "now" would imply the next tick to be the 2nd of January.
+	{
+		exi, err := eon.Exists(&task.Task{Cron: &task.Cron{task.Aevery: "3 days"}})
+		if err != nil {
+			t.Fatal("expected", true, "got", false)
+		}
+
+		if exi {
+			t.Fatal("expected", false, "got", true)
+		}
+	}
+
+	var tas *task.Task
+	{
+		tas = &task.Task{
+			Cron: &task.Cron{
+				task.Aevery: "3 days",
+			},
+			Meta: &task.Meta{
+				"test.api.io/key": "foo",
+			},
+		}
+	}
+
+	{
+		err = eon.Create(tas)
+		if err != nil {
+			t.Fatal("expected", true, "got", false)
+		}
+	}
+
+	{
+		exi, err := eon.Exists(&task.Task{Cron: &task.Cron{task.Aevery: "*"}})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if !exi {
+			t.Fatal("expected", true, "got", false)
+		}
+	}
+
+	{
+		exi, err := eon.Exists(&task.Task{Cron: &task.Cron{task.Aevery: "3 days"}})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if !exi {
+			t.Fatal("expected", true, "got", false)
+		}
+	}
+
+	var lis []*task.Task
+	{
+		lis, err = eon.Lister(&task.Task{Cron: tas.Cron.All(task.Aevery)})
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		if len(lis) != 1 {
+			t.Fatal("expected", 1, "got", len(lis))
+		}
+		if lis[0].Cron.Get().Aevery() != "3 days" {
+			t.Fatal("expected", "3 days", "got", lis[0].Cron.Get().Aevery())
+		}
+		if !lis[0].Cron.Get().TickM1().Equal(musTim("2022-12-30T00:00:00.000000Z")) {
+			t.Fatal("expected", "2022-12-30T00:00:00.000000Z", "got", lis[0].Cron.Map().TickM1())
+		}
+		if !lis[0].Cron.Get().TickP1().Equal(musTim("2023-01-02T00:00:00.000000Z")) {
+			t.Fatal("expected", "2023-01-02T00:00:00.000000Z", "got", lis[0].Cron.Map().TickP1())
+		}
+		if lis[0].Meta.Get("test.api.io/key") != "foo" {
+			t.Fatal("expected", "foo", "got", lis[0].Meta.Get("test.api.io/key"))
+		}
+	}
+
+	// The next ticker execution happens 1st of January. Here we will test for
+	// schedule continuation. Based on the previous year's ticker calculation, the
+	// current interval would end at the 2nd of January. Without carrying over
+	// properly, the new year's ticker on its own would calculate the end of the
+	// current interval to be on the 4th of January. And we do not want that.
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-01-01T14:23:24.161982Z")
+		})
+	}
+
+	{
+		err = eon.Ticker()
+		if err != nil {
+			t.Fatal("expected", nil, "got", err)
+		}
+	}
+
+	{
+		lis, err = eon.Lister(&task.Task{Cron: tas.Cron.All(task.Aevery)})
+		if err != nil {
+			t.Fatal("expected", nil, "got", err)
+		}
+	}
+
+	{
+		if len(lis) != 1 {
+			t.Fatal("expected", 1, "got", len(lis))
+		}
+		if lis[0].Cron.Get().Aevery() != "3 days" {
+			t.Fatal("expected", "3 days", "got", lis[0].Cron.Get().Aevery())
+		}
+		if !lis[0].Cron.Get().TickM1().Equal(musTim("2022-12-30T00:00:00.000000Z")) {
+			t.Fatal("expected", "2022-12-30T00:00:00.000000Z", "got", lis[0].Cron.Map().TickM1())
+		}
+		if !lis[0].Cron.Get().TickP1().Equal(musTim("2023-01-02T00:00:00.000000Z")) {
+			t.Fatal("expected", "2023-01-02T00:00:00.000000Z", "got", lis[0].Cron.Map().TickP1())
+		}
+		if lis[0].Meta.Get("test.api.io/key") != "foo" {
+			t.Fatal("expected", "foo", "got", lis[0].Meta.Get("test.api.io/key"))
+		}
+	}
+}
+
 func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 	var err error
 
