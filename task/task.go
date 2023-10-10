@@ -78,4 +78,15 @@ type Task struct {
 	//     x.api.io/object    1234
 	//
 	Root *Root `json:"root,omitempty"`
+
+	// Sync allows to manage task specific state across multiple scheduling cycles
+	// in combination with Task.Root. Any scheduled task may provide pointers to
+	// past state in order to inform task execution of future schedules.
+	// Internally the synced state will be persisted in the task templates
+	// defining Task.Cron upon deletion of scheduled tasks. The synced data will
+	// then be propagated to tasks scheduled on the next tick.
+	//
+	//     x.api.io/latest    1234
+	//
+	Sync *Sync `json:"sync,omitempty"`
 }

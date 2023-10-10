@@ -27,12 +27,12 @@ func Test_Engine_Lister(t *testing.T) {
 
 		red, err = client.New(c)
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 
 		err = red.Purge()
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -66,7 +66,7 @@ func Test_Engine_Lister(t *testing.T) {
 
 		err = eon.Create(tas)
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -81,7 +81,7 @@ func Test_Engine_Lister(t *testing.T) {
 
 		err = eon.Create(tas)
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -94,7 +94,7 @@ func Test_Engine_Lister(t *testing.T) {
 
 		err = etw.Create(tas)
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -108,7 +108,7 @@ func Test_Engine_Lister(t *testing.T) {
 
 		lis, err = eon.Lister(tas)
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 

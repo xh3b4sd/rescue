@@ -280,14 +280,14 @@ func Test_Engine_Exists(t *testing.T) {
 	{
 		err = eon.Delete(tas)
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
 	{
 		tas, err = eon.Search()
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 
 		if tas.Meta.Get("test.api.io/key") != "foo" {
@@ -301,14 +301,14 @@ func Test_Engine_Exists(t *testing.T) {
 	{
 		err = eon.Delete(tas)
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
 	{
 		tas, err = eon.Search()
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 
 		if tas.Meta.Get("test.api.io/key") != "baz" {
@@ -322,7 +322,7 @@ func Test_Engine_Exists(t *testing.T) {
 	{
 		err = eon.Delete(tas)
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 

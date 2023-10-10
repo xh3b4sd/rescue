@@ -1,6 +1,8 @@
 package engine
 
 import (
+	"strconv"
+
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/tracer"
 )
@@ -121,6 +123,49 @@ func (e *Engine) delete(tas *task.Task) error {
 	if !equ {
 		e.met.Task.Outdated.Inc()
 		return tracer.Mask(taskOutdatedError)
+	}
+
+	if tas.Root != nil && tas.Root.Exi(task.Object) && tas.Sync != nil && !tas.Sync.Emp() {
+		var tid int64
+		{
+			tid, err = strconv.ParseInt(tas.Root.Get(task.Object), 10, 64)
+			if err != nil {
+				return tracer.Mask(err)
+			}
+		}
+
+		var tmp *task.Task
+		{
+			k := e.Keyfmt()
+			s := float64(tid)
+
+			str, err := e.red.Sorted().Search().Score(k, s, s)
+			if err != nil {
+				return tracer.Mask(err)
+			}
+
+			if len(str) != 1 {
+				e.met.Task.NotFound.Inc()
+				return tracer.Mask(taskNotFoundError)
+			}
+
+			tmp = task.FromString(str[0])
+		}
+
+		{
+			tmp.Sync = tas.Sync
+		}
+
+		{
+			k := e.Keyfmt()
+			v := task.ToString(tmp)
+			s := float64(tmp.Core.Get().Object())
+
+			_, err := e.red.Sorted().Update().Score(k, v, s)
+			if err != nil {
+				return tracer.Mask(err)
+			}
+		}
 	}
 
 	{

@@ -168,14 +168,14 @@ func Test_Engine_Lifecycle_Cron_Weekday(t *testing.T) {
 	{
 		err = eon.Ticker()
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
 	{
 		lis, err = eon.Lister(&task.Task{Cron: tas.Cron.All(task.Aevery)})
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -355,18 +355,18 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 	{
 		err = eon.Ticker()
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 		err = eon.Ticker()
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
 	{
 		lis, err = eon.Lister(&task.Task{Cron: tas.Cron.All(task.Aevery)})
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -396,7 +396,7 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 	{
 		err = eon.Ticker()
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -414,7 +414,7 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 	{
 		lis, err = eon.Lister(&task.Task{Cron: tas.Cron.All(task.Aevery)})
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -427,7 +427,7 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 	{
 		lis, err = eon.Lister(All())
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -478,7 +478,7 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 	{
 		tas, err = etw.Search()
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -497,7 +497,7 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 	{
 		lis, err = eon.Lister(All())
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -561,7 +561,7 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 	{
 		lis, err = eon.Lister(All())
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -625,7 +625,7 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 	{
 		lis, err = eon.Lister(All())
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -812,6 +812,9 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 			},
+			Sync: &task.Sync{
+				"test.api.io/lat": "initial",
+			},
 		}
 	}
 
@@ -856,8 +859,11 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		if len(lis) != 1 {
 			t.Fatal("expected 1 task listed")
 		}
-		if lis[0].Cron.Get().Aevery() != "hour" {
+		if lis[0].Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
+		}
+		if lis[0].Cron.Get().Aevery() != "hour" {
+			t.Fatal("expected", "hour", "got", lis[0].Cron.Get().Aevery())
 		}
 		if !lis[0].Cron.Get().TickM1().Equal(musTim("2023-09-28T14:00:00.000000Z")) {
 			t.Fatal("scheduling failed")
@@ -865,26 +871,35 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		if !lis[0].Cron.Get().TickP1().Equal(musTim("2023-09-28T15:00:00.000000Z")) {
 			t.Fatal("scheduling failed")
 		}
-		if lis[0].Meta.Get("test.api.io/key") != "foo" {
-			t.Fatal("scheduling failed")
+		if lis[0].Root != nil {
+			t.Fatal("expected", nil, "got", lis[0].Root)
+		}
+		if lis[0].Sync == nil {
+			t.Fatal("expected", "Task.Sync to not be empty", "got", nil)
+		}
+		if !lis[0].Sync.Exi("test.api.io/lat") {
+			t.Fatal("expected", true, "got", false)
+		}
+		if lis[0].Sync.Get("test.api.io/lat") != "initial" {
+			t.Fatal("expected", "initial", "got", lis[0].Sync.Get("test.api.io/lat"))
 		}
 	}
 
 	{
 		err = eon.Ticker()
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 		err = eon.Ticker()
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
 	{
 		lis, err = eon.Lister(&task.Task{Cron: tas.Cron.All(task.Aevery)})
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -914,7 +929,7 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 	{
 		err = eon.Ticker()
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -932,7 +947,7 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 	{
 		lis, err = eon.Lister(&task.Task{Cron: tas.Cron.All(task.Aevery)})
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -945,7 +960,7 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 	{
 		lis, err = eon.Lister(All())
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -968,6 +983,15 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		if lis[0].Root != nil {
 			t.Fatal("expected", nil, "got", lis[0].Root)
 		}
+		if lis[0].Sync == nil {
+			t.Fatal("expected", "Task.Sync to not be empty", "got", nil)
+		}
+		if !lis[0].Sync.Exi("test.api.io/lat") {
+			t.Fatal("expected", true, "got", false)
+		}
+		if lis[0].Sync.Get("test.api.io/lat") != "initial" {
+			t.Fatal("expected", "initial", "got", lis[0].Sync.Get("test.api.io/lat"))
+		}
 		if lis[1].Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
 		}
@@ -980,12 +1004,21 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		if lis[1].Root.Get(task.Object) != lis[0].Core.Map().Object() {
 			t.Fatal("scheduled task must define root for task template")
 		}
+		if lis[1].Sync == nil {
+			t.Fatal("expected", "Task.Sync to not be empty", "got", nil)
+		}
+		if !lis[1].Sync.Exi("test.api.io/lat") {
+			t.Fatal("expected", true, "got", false)
+		}
+		if lis[1].Sync.Get("test.api.io/lat") != "initial" {
+			t.Fatal("expected", "initial", "got", lis[1].Sync.Get("test.api.io/lat"))
+		}
 	}
 
 	{
 		tas, err = etw.Search()
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -1004,7 +1037,7 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 	{
 		lis, err = eon.Lister(All())
 		if err != nil {
-			t.Fatal("expected", nil, "got", err)
+			t.Fatal(err)
 		}
 	}
 
@@ -1027,6 +1060,15 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		if lis[0].Root != nil {
 			t.Fatal("expected", nil, "got", lis[0].Root)
 		}
+		if lis[0].Sync == nil {
+			t.Fatal("expected", "Task.Sync to not be empty", "got", nil)
+		}
+		if !lis[0].Sync.Exi("test.api.io/lat") {
+			t.Fatal("expected", true, "got", false)
+		}
+		if lis[0].Sync.Get("test.api.io/lat") != "initial" {
+			t.Fatal("expected", "initial", "got", lis[0].Sync.Get("test.api.io/lat"))
+		}
 		if lis[1].Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
 		}
@@ -1039,6 +1081,22 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		if lis[1].Root.Get(task.Object) != lis[0].Core.Map().Object() {
 			t.Fatal("scheduled task must define root for task template")
 		}
+		if lis[1].Sync == nil {
+			t.Fatal("expected", "Task.Sync to not be empty", "got", nil)
+		}
+		if !lis[1].Sync.Exi("test.api.io/lat") {
+			t.Fatal("expected", true, "got", false)
+		}
+		if lis[1].Sync.Get("test.api.io/lat") != "initial" {
+			t.Fatal("expected", "initial", "got", lis[1].Sync.Get("test.api.io/lat"))
+		}
+	}
+
+	// We modify the data in Task.Sync to verify that the latest pointer of our
+	// scheduled task gets propagated to our task template upon deleting the
+	// scheduled task.
+	{
+		tas.Sync.Set("test.api.io/lat", "updated")
 	}
 
 	{
@@ -1079,7 +1137,16 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 			t.Fatal("scheduling failed")
 		}
 		if lis[0].Root != nil {
-			t.Fatal("task template must not define root")
+			t.Fatal("expected", nil, "got", lis[0].Root)
+		}
+		if lis[0].Sync == nil {
+			t.Fatal("expected", "Task.Sync to not be empty", "got", nil)
+		}
+		if !lis[0].Sync.Exi("test.api.io/lat") {
+			t.Fatal("expected", true, "got", false)
+		}
+		if lis[0].Sync.Get("test.api.io/lat") != "updated" {
+			t.Fatal("expected", "updated", "got", lis[0].Sync.Get("test.api.io/lat"))
 		}
 	}
 }
