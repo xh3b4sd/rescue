@@ -6,10 +6,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/xh3b4sd/budget/v3/pkg/breaker"
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/redigo"
-	"github.com/xh3b4sd/redigo/pkg/client"
 	"github.com/xh3b4sd/rescue/task"
 )
 
@@ -18,18 +16,10 @@ func Test_Engine_Create(t *testing.T) {
 
 	var red redigo.Interface
 	{
-		c := client.Config{
-			Kind: client.KindSingle,
-			Locker: client.ConfigLocker{
-				Budget: breaker.Default(),
-			},
-		}
+		red = redigo.Default()
+	}
 
-		red, err = client.New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
-
+	{
 		err = red.Purge()
 		if err != nil {
 			t.Fatal(err)
@@ -241,18 +231,10 @@ func Test_Engine_Create_Cron(t *testing.T) {
 
 	var red redigo.Interface
 	{
-		c := client.Config{
-			Kind: client.KindSingle,
-			Locker: client.ConfigLocker{
-				Budget: breaker.Default(),
-			},
-		}
+		red = redigo.Default()
+	}
 
-		red, err = client.New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
-
+	{
 		err = red.Purge()
 		if err != nil {
 			t.Fatal(err)
@@ -439,18 +421,10 @@ func Test_Engine_Create_Root_First(t *testing.T) {
 
 	var red redigo.Interface
 	{
-		c := client.Config{
-			Kind: client.KindSingle,
-			Locker: client.ConfigLocker{
-				Budget: breaker.Default(),
-			},
-		}
+		red = redigo.Default()
+	}
 
-		red, err = client.New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
-
+	{
 		err = red.Purge()
 		if err != nil {
 			t.Fatal(err)

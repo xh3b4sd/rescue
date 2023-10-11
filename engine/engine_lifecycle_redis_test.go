@@ -8,10 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/xh3b4sd/budget/v3/pkg/breaker"
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/redigo"
-	"github.com/xh3b4sd/redigo/pkg/client"
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/rescue/timer"
 	"github.com/xh3b4sd/tracer"
@@ -22,21 +20,13 @@ func Test_Engine_Lifecycle_Cron_Weekday(t *testing.T) {
 
 	var red redigo.Interface
 	{
-		c := client.Config{
-			Kind: client.KindSingle,
-			Locker: client.ConfigLocker{
-				Budget: breaker.Default(),
-			},
-		}
+		red = redigo.Default()
+	}
 
-		red, err = client.New(c)
-		if err != nil {
-			t.Fatal("expected", true, "got", false)
-		}
-
+	{
 		err = red.Purge()
 		if err != nil {
-			t.Fatal("expected", true, "got", false)
+			t.Fatal(err)
 		}
 	}
 
@@ -203,18 +193,10 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 
 	var red redigo.Interface
 	{
-		c := client.Config{
-			Kind: client.KindSingle,
-			Locker: client.ConfigLocker{
-				Budget: breaker.Default(),
-			},
-		}
+		red = redigo.Default()
+	}
 
-		red, err = client.New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
-
+	{
 		err = red.Purge()
 		if err != nil {
 			t.Fatal(err)
@@ -732,18 +714,10 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 
 	var red redigo.Interface
 	{
-		c := client.Config{
-			Kind: client.KindSingle,
-			Locker: client.ConfigLocker{
-				Budget: breaker.Default(),
-			},
-		}
+		red = redigo.Default()
+	}
 
-		red, err = client.New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
-
+	{
 		err = red.Purge()
 		if err != nil {
 			t.Fatal(err)
@@ -1156,18 +1130,10 @@ func Test_Engine_Lifecycle_Race(t *testing.T) {
 
 	var red redigo.Interface
 	{
-		c := client.Config{
-			Kind: client.KindSingle,
-			Locker: client.ConfigLocker{
-				Budget: breaker.Default(),
-			},
-		}
+		red = redigo.Default()
+	}
 
-		red, err = client.New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
-
+	{
 		err = red.Purge()
 		if err != nil {
 			t.Fatal(err)
@@ -1377,18 +1343,10 @@ func Test_Engine_Lifecycle_Sync(t *testing.T) {
 
 	var red redigo.Interface
 	{
-		c := client.Config{
-			Kind: client.KindSingle,
-			Locker: client.ConfigLocker{
-				Budget: breaker.Default(),
-			},
-		}
+		red = redigo.Default()
+	}
 
-		red, err = client.New(c)
-		if err != nil {
-			t.Fatal(err)
-		}
-
+	{
 		err = red.Purge()
 		if err != nil {
 			t.Fatal(err)
