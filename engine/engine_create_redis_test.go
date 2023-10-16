@@ -283,6 +283,28 @@ func Test_Engine_Create_Cron(t *testing.T) {
 			Meta: &task.Meta{
 				"test.api.io/key": "bar",
 			},
+			Gate: &task.Gate{
+				"test.api.io/k-0": task.Trigger,
+			},
+		}
+
+		err = eon.Create(tas)
+		if !IsLabelValue(err) {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		tas := &task.Task{
+			Cron: &task.Cron{
+				task.Aevery: "hour",
+			},
+			Meta: &task.Meta{
+				"test.api.io/key": "bar",
+			},
+			Gate: &task.Gate{
+				"test.api.io/k-0": task.Waiting,
+			},
 		}
 
 		err = eon.Create(tas)
@@ -301,19 +323,27 @@ func Test_Engine_Create_Cron(t *testing.T) {
 
 	{
 		if len(lis) != 2 {
-			t.Fatal("expected 2 tasks listed")
+			t.Fatal("expected", 2, "got", len(lis))
 		}
+
 		if lis[0].Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
 		}
 		if lis[0].Cron != nil {
-			t.Fatal("scheduling failed")
+			t.Fatal("expected", nil, "got", lis[0].Cron)
 		}
+		if lis[0].Gate != nil {
+			t.Fatal("expected", nil, "got", lis[0].Gate)
+		}
+
 		if lis[1].Meta.Get("test.api.io/key") != "bar" {
-			t.Fatal("scheduling failed")
+			t.Fatal("expected", "bar", "got", lis[1].Meta.Get("test.api.io/key"))
 		}
 		if lis[1].Cron.Get().Aevery() != "hour" {
-			t.Fatal("scheduling failed")
+			t.Fatal("expected", "hour", "got", lis[1].Cron.Get().Aevery())
+		}
+		if lis[1].Gate.Get("test.api.io/k-0") != task.Waiting {
+			t.Fatal("expected", task.Waiting, "got", lis[1].Gate.Get("test.api.io/k-0"))
 		}
 	}
 
