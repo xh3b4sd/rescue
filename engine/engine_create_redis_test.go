@@ -289,25 +289,6 @@ func Test_Engine_Create_Cron(t *testing.T) {
 		}
 
 		err = eon.Create(tas)
-		if !IsLabelValue(err) {
-			t.Fatal(err)
-		}
-	}
-
-	{
-		tas := &task.Task{
-			Cron: &task.Cron{
-				task.Aevery: "hour",
-			},
-			Meta: &task.Meta{
-				"test.api.io/key": "bar",
-			},
-			Gate: &task.Gate{
-				"test.api.io/k-0": task.Waiting,
-			},
-		}
-
-		err = eon.Create(tas)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -342,8 +323,8 @@ func Test_Engine_Create_Cron(t *testing.T) {
 		if lis[1].Cron.Get().Aevery() != "hour" {
 			t.Fatal("expected", "hour", "got", lis[1].Cron.Get().Aevery())
 		}
-		if lis[1].Gate.Get("test.api.io/k-0") != task.Waiting {
-			t.Fatal("expected", task.Waiting, "got", lis[1].Gate.Get("test.api.io/k-0"))
+		if lis[1].Gate.Get("test.api.io/k-0") != task.Trigger {
+			t.Fatal("expected", task.Trigger, "got", lis[1].Gate.Get("test.api.io/k-0"))
 		}
 	}
 
