@@ -52,22 +52,27 @@ type Task struct {
 	// processing. Consider task template x and many tasks y, where x is waiting
 	// for all y tasks to be finished in order to be triggered. Task template x
 	// would define the following label keys in Task.Gate, all provided with the
-	// initial value waiting.
+	// reserved value "waiting".
 	//
 	//     y.api.io/leaf-0    waiting
-	//     y.api.io/leaf-1    deleted
+	//     y.api.io/leaf-1    waiting
 	//     y.api.io/leaf-2    waiting
 	//
 	// Below are then all the many tasks y, each defining their own unique label
-	// key in Task.Meta with value trigger.
+	// key in Task.Gate with the reserved value "trigger".
 	//
 	//     y.api.io/leaf-0    trigger
 	//     y.api.io/leaf-1    trigger
 	//     y.api.io/leaf-2    trigger
 	//
-	// Inside the Task.Gate of task template x, the initial value waiting will be
-	// set to the value deleted as soon as any of the respective tasks y is being
-	// deleted after successful task execution.
+	// Inside the Task.Gate of task template x, the reserved value "waiting" will
+	// be set to the reserved value "deleted" as soon as any of the respective
+	// dependency tasks y is being deleted after successful task execution. As
+	// soon as all tracked labels inside Task.Gate flipped from "waiting" to
+	// "deleted", a new task will be emitted containing the task template's
+	// Task.Meta and Task.Sync. Consequently the reserved values inside Task.Gate
+	// of the task template will all be reset back to "waiting" for the next cycle
+	// to begin.
 	Gate *Gate `json:"gate,omitempty"`
 
 	// Meta contains task specific information defined by the user. Any worker
