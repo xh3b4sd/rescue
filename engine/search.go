@@ -68,15 +68,35 @@ func (e *Engine) search() (*task.Task, error) {
 		return nil, tracer.Mask(taskNotFoundError)
 	}
 
-	// Find all tasks that have a Task.Root defined. If the root task exists,
-	// delete the task that defines it, because the existing root task is meant to
-	// cover all the business logic that its nested tasks are responsible for.
-	// Note that we collect the list indices of the redundant tasks that we delete
-	// from the underlying sorted set.
+	// Filter all tasks that have Task.Cron, Task.Gate or Task.Root defined.
+	// Further, if the root task exists, delete the leaf task that defines it,
+	// because the existing root task is meant to cover all the business logic
+	// that its nested tasks are responsible for. Note that we collect the list
+	// indices of the redundant tasks that we want to delete from the underlying
+	// sorted set.
 	var rem []int
 	for i, x := range lis {
-		// Remove all scheduled task templates for further processing.
+		// Remove all scheduled task templates for further processing. Any task
+		// template defining Task.Cron is meant to trigger time based task
+		// scheduling for child tasks originating from that template. The template
+		// itself is not meant to be processed by workers.
 		if x.Cron != nil {
+			rem = append(rem, i)
+			continue
+		}
+
+		// Remove all trigger task templates for further processing. Any task
+		// template defining Task.Gate is meant to trigger event based task
+		// scheduling for child tasks originating from that template. The template
+		// itself is not meant to be processed by workers. Note that we are checking
+		// whether Task.Gate has not any value "trigger", which means that if
+		// Task.Gate is not empty, then its values can only either be "waiting" or
+		// "deleted", which defines the trigger templates. Scheduled tasks defining
+		// any value "trigger" in Task.Gate are the very tasks that workers should
+		// process, because completion of those processed trigger tasks is what
+		// causes the trigger template to create the gated task that is being onhold
+		// until all triggers completed.
+		if x.Gate != nil && !x.Gate.Has(Tri()) {
 			rem = append(rem, i)
 			continue
 		}
@@ -87,10 +107,10 @@ func (e *Engine) search() (*task.Task, error) {
 
 		// It is not permitted to set reserved labels to Task.Root from the outside.
 		// The system though does that for scheduled tasks that are emitted on the
-		// basis of task templates specifying Task.Cron. Scheduled tasks will
-		// contain the tree root's object ID, referencing the task template.
-		// Scheduled tasks are not obsolete based on their tree structure and
-		// template reference. So if we find a scheduled task we ignore them,
+		// basis of task templates specifying Task.Cron and Task.Gate. Scheduled
+		// tasks will contain the tree root's object ID, referencing the task
+		// template. Scheduled tasks are not obsolete based on their tree structure
+		// and template reference. So if we find a scheduled task we ignore them,
 		// because we do not want to delete those.
 		if x.Root.Len() == 1 && x.Root.Exi(task.Object) {
 			continue

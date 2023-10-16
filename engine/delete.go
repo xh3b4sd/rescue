@@ -1,7 +1,7 @@
 package engine
 
 import (
-	"strconv"
+	"time"
 
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/tracer"
@@ -125,45 +125,151 @@ func (e *Engine) delete(tas *task.Task) error {
 		return tracer.Mask(taskOutdatedError)
 	}
 
+	var lis []*task.Task
+	{
+		lis, err = e.searchAll()
+		if err != nil {
+			return tracer.Mask(err)
+		}
+	}
+
+	{
+		e.met.Task.Inactive.Set(float64(len(lis)))
+	}
+
+	// We want to update all the task templates that define matching keys for the
+	// given trigger task inside Task.Gate, but only if the given trigger task
+	// defines Task.Gate themselves. Any matching label key will have the
+	// corresponding reserved value of either "deleted" or "waiting".
+	if tas.Gate != nil && tas.Gate.Has(Tri()) {
+		for _, t := range lis {
+			// Any task that does not define Task.Gate is not a task template, and so
+			// we ignore it and move on to the next task.
+			if t.Gate == nil {
+				continue
+			}
+
+			// Any task that uses the reserved value "trigger" is not a task template,
+			// and so we ignore it and move on to the next task.
+			if t.Gate.Has(Tri()) {
+				continue
+			}
+
+			var gat []string
+			{
+				gat = t.Gate.Any(tas.Gate.Key()...).Key()
+			}
+
+			// Any task template that does not contain any of the given trigger task's
+			// label keys is not the associated task template that we are looking for,
+			// and so we ignore it and move on to the next task.
+			if len(gat) == 0 {
+				continue
+			}
+
+			// Since we found a matching task template that defines the given trigger
+			// task's label keys including their corresponding reserved values
+			// "waiting", we set the values of those keys to "deleted" and update the
+			// system state of the underlying sorted set below.
+			for _, x := range gat {
+				t.Gate.Set(x, task.Deleted)
+			}
+
+			if t.Sync != nil && tas.Sync != nil {
+				var syn []string
+				{
+					syn = t.Sync.Any(tas.Sync.Key()...).Key()
+				}
+
+				for _, x := range syn {
+					t.Sync.Set(x, tas.Sync.Get(x))
+				}
+			}
+
+			// Any task template that does not contain any reserved value "waiting"
+			// anymore does only contain reserved values "deleted". That means this
+			// task template can cause the creation of its trigger task, causing the
+			// task template to be reset for the next cycle.
+			if !t.Gate.Has(Wai()) {
+				var tri *task.Task
+				{
+					tri = &task.Task{
+						Meta: t.Meta,
+						Root: &task.Root{
+							task.Object: t.Core.Map().Object(),
+						},
+						Sync: t.Sync,
+					}
+				}
+
+				var tid int64
+				{
+					tid = time.Now().UTC().UnixNano()
+				}
+
+				{
+					tri.Core = &task.Core{}
+				}
+
+				{
+					tri.Core.Set().Object(tid)
+				}
+
+				{
+					k := e.Keyfmt()
+					v := task.ToString(tri)
+					s := float64(tid)
+
+					err = e.red.Sorted().Create().Score(k, v, s)
+					if err != nil {
+						return tracer.Mask(err)
+					}
+				}
+
+				// Once all reserved values flipped from "waiting" to "deleted" within a
+				// task template and the associated trigger task got created, reset all
+				// reserved values back to "waiting" for the next cycle to begin.
+				for _, x := range t.Gate.Key() {
+					t.Gate.Set(x, task.Waiting)
+				}
+			}
+
+			// Update the system state of the task template in the underlying sorted
+			// set.
+			{
+				k := e.Keyfmt()
+				v := task.ToString(t)
+				s := float64(t.Core.Get().Object())
+
+				_, err := e.red.Sorted().Update().Score(k, v, s)
+				if err != nil {
+					return tracer.Mask(err)
+				}
+			}
+		}
+	}
+
+	// Update any task template defining Task.Cron with the scheduled task data
+	// specified in Task.Sync, if such data exists.
 	if tas.Root != nil && tas.Root.Exi(task.Object) && tas.Sync != nil && !tas.Sync.Emp() {
-		var tid int64
-		{
-			tid, err = strconv.ParseInt(tas.Root.Get(task.Object), 10, 64)
-			if err != nil {
-				return tracer.Mask(err)
-			}
-		}
-
-		var tmp *task.Task
-		{
-			k := e.Keyfmt()
-			s := float64(tid)
-
-			str, err := e.red.Sorted().Search().Score(k, s, s)
-			if err != nil {
-				return tracer.Mask(err)
+		for _, t := range lis {
+			if t.Core.Map().Object() != tas.Root.Get(task.Object) {
+				continue
 			}
 
-			if len(str) != 1 {
-				e.met.Task.NotFound.Inc()
-				return tracer.Mask(taskNotFoundError)
+			{
+				t.Sync = tas.Sync
 			}
 
-			tmp = task.FromString(str[0])
-		}
+			{
+				k := e.Keyfmt()
+				v := task.ToString(t)
+				s := float64(t.Core.Get().Object())
 
-		{
-			tmp.Sync = tas.Sync
-		}
-
-		{
-			k := e.Keyfmt()
-			v := task.ToString(tmp)
-			s := float64(tmp.Core.Get().Object())
-
-			_, err := e.red.Sorted().Update().Score(k, v, s)
-			if err != nil {
-				return tracer.Mask(err)
+				_, err := e.red.Sorted().Update().Score(k, v, s)
+				if err != nil {
+					return tracer.Mask(err)
+				}
 			}
 		}
 	}

@@ -34,44 +34,11 @@ func (e *Engine) Create(tas *task.Task) error {
 func (e *Engine) create(tas *task.Task) error {
 	var err error
 
-	{
-		if tas == nil {
-			return tracer.Maskf(taskEmptyError, "Task must not be empty")
-		}
-		if tas.Core != nil {
-			return tracer.Maskf(taskCoreError, "Task.Core must be empty")
-		}
-		if tas.Meta == nil || tas.Meta.Emp() {
-			return tracer.Maskf(taskMetaEmptyError, "Task.Meta must not be empty")
-		}
-	}
-
 	var tic *ticker.Ticker
-	if tas.Cron != nil {
-		tic = ticker.New(tas.Cron.Get().Aevery(), e.tim.Create())
-	}
-
 	{
-		if tas.Cron != nil && tas.Root != nil {
-			return tracer.Maskf(taskCronError, "Task.Cron and Task.Root must not be configured together")
-		}
-		if tas.Cron != nil && len(*tas.Cron) != 1 {
-			return tracer.Maskf(taskCronError, "Task.Cron must only be configured with one valid format")
-		}
-		if tas.Cron != nil && tic.TickP1().IsZero() {
-			return tracer.Maskf(taskCronError, "Task.Cron format must be valid")
-		}
-	}
-
-	{
-		if tas.Cron != nil && tas.Meta.Has(Res()) {
-			return tracer.Maskf(labelReservedError, "Task.Cron must not contain reserved scheme rescue.io")
-		}
-		if tas.Meta != nil && tas.Meta.Has(Res()) {
-			return tracer.Maskf(labelReservedError, "Task.Meta must not contain reserved scheme rescue.io")
-		}
-		if tas.Root != nil && tas.Root.Has(Res()) {
-			return tracer.Maskf(labelReservedError, "Task.Root must not contain reserved scheme rescue.io")
+		tic, err = e.verCre(tas)
+		if err != nil {
+			return tracer.Mask(err)
 		}
 	}
 
@@ -124,4 +91,90 @@ func (e *Engine) create(tas *task.Task) error {
 	}
 
 	return nil
+}
+
+func (e *Engine) verCre(tas *task.Task) (*ticker.Ticker, error) {
+	{
+		if tas == nil {
+			return nil, tracer.Maskf(taskEmptyError, "Task must not be empty")
+		}
+		if tas.Core != nil {
+			return nil, tracer.Maskf(taskCoreError, "Task.Core must be empty")
+		}
+		if tas.Meta == nil || tas.Meta.Emp() {
+			return nil, tracer.Maskf(taskMetaEmptyError, "Task.Meta must not be empty")
+		}
+	}
+
+	{
+		if tas.Cron != nil && tas.Root != nil {
+			return nil, tracer.Maskf(taskCronError, "Task.Cron and Task.Root must not be configured together")
+		}
+		if tas.Cron != nil && tas.Gate != nil {
+			return nil, tracer.Maskf(taskCronError, "Task.Cron and Task.Gate must not be configured together")
+		}
+		if tas.Gate != nil && tas.Root != nil {
+			return nil, tracer.Maskf(taskCronError, "Task.Gate and Task.Root must not be configured together")
+		}
+	}
+
+	{
+		if tas.Cron != nil && tas.Cron.Len() != 1 {
+			return nil, tracer.Maskf(taskCronError, "Task.Cron must only be configured with one valid format")
+		}
+	}
+
+	var tic *ticker.Ticker
+	if tas.Cron != nil {
+		tic = ticker.New(tas.Cron.Get().Aevery(), e.tim.Create())
+	}
+
+	{
+		if tas.Cron != nil && tic.TickP1().IsZero() {
+			return nil, tracer.Maskf(taskCronError, "Task.Cron format must be valid")
+		}
+	}
+
+	if tas.Gate != nil {
+		if tas.Gate.Has(Del()) {
+			return nil, tracer.Maskf(labelReservedError, "Task.Gate must not contain reserved value [deleted]")
+		}
+
+		var tri bool
+		var wai bool
+		for _, v := range *tas.Gate {
+			if v == task.Trigger {
+				tri = true
+			}
+
+			if v == task.Waiting {
+				wai = true
+			}
+
+			if tri && wai {
+				return nil, tracer.Maskf(labelValueError, "Task.Gate must not contain both of the reserved values [trigger waiting] together")
+			}
+
+			if v != task.Trigger && v != task.Waiting {
+				return nil, tracer.Maskf(labelValueError, "Task.Gate must only contain one of the reserved values [trigger waiting]")
+			}
+		}
+	}
+
+	{
+		if tas.Gate != nil && tas.Gate.Has(Res()) {
+			return nil, tracer.Maskf(labelReservedError, "Task.Gate must not contain reserved scheme rescue.io")
+		}
+		if tas.Meta != nil && tas.Meta.Has(Res()) {
+			return nil, tracer.Maskf(labelReservedError, "Task.Meta must not contain reserved scheme rescue.io")
+		}
+		if tas.Root != nil && tas.Root.Has(Res()) {
+			return nil, tracer.Maskf(labelReservedError, "Task.Root must not contain reserved scheme rescue.io")
+		}
+		if tas.Sync != nil && tas.Sync.Has(Res()) {
+			return nil, tracer.Maskf(labelReservedError, "Task.Sync must not contain reserved scheme rescue.io")
+		}
+	}
+
+	return tic, nil
 }

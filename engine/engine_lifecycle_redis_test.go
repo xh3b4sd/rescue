@@ -788,6 +788,7 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 			},
 			Sync: &task.Sync{
 				"test.api.io/lat": "initial",
+				"test.api.io/foo": "should-not-change",
 			},
 		}
 	}
@@ -848,14 +849,14 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		if lis[0].Root != nil {
 			t.Fatal("expected", nil, "got", lis[0].Root)
 		}
-		if lis[0].Sync == nil {
-			t.Fatal("expected", "Task.Sync to not be empty", "got", nil)
-		}
-		if !lis[0].Sync.Exi("test.api.io/lat") {
-			t.Fatal("expected", true, "got", false)
+		if lis[0].Sync.Len() != 2 {
+			t.Fatal("expected", 2, "got", lis[0].Sync.Len())
 		}
 		if lis[0].Sync.Get("test.api.io/lat") != "initial" {
 			t.Fatal("expected", "initial", "got", lis[0].Sync.Get("test.api.io/lat"))
+		}
+		if lis[0].Sync.Get("test.api.io/foo") != "should-not-change" {
+			t.Fatal("expected", "should-not-change", "got", lis[0].Sync.Get("test.api.io/lat"))
 		}
 	}
 
@@ -942,6 +943,7 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		if len(lis) != 2 {
 			t.Fatal("expected", 2, "got", len(lis))
 		}
+
 		if lis[0].Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
 		}
@@ -957,15 +959,16 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		if lis[0].Root != nil {
 			t.Fatal("expected", nil, "got", lis[0].Root)
 		}
-		if lis[0].Sync == nil {
-			t.Fatal("expected", "Task.Sync to not be empty", "got", nil)
-		}
-		if !lis[0].Sync.Exi("test.api.io/lat") {
-			t.Fatal("expected", true, "got", false)
+		if lis[0].Sync.Len() != 2 {
+			t.Fatal("expected", 2, "got", lis[0].Sync.Len())
 		}
 		if lis[0].Sync.Get("test.api.io/lat") != "initial" {
 			t.Fatal("expected", "initial", "got", lis[0].Sync.Get("test.api.io/lat"))
 		}
+		if lis[0].Sync.Get("test.api.io/foo") != "should-not-change" {
+			t.Fatal("expected", "should-not-change", "got", lis[0].Sync.Get("test.api.io/lat"))
+		}
+
 		if lis[1].Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
 		}
@@ -978,14 +981,14 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		if lis[1].Root.Get(task.Object) != lis[0].Core.Map().Object() {
 			t.Fatal("scheduled task must define root for task template")
 		}
-		if lis[1].Sync == nil {
-			t.Fatal("expected", "Task.Sync to not be empty", "got", nil)
-		}
-		if !lis[1].Sync.Exi("test.api.io/lat") {
-			t.Fatal("expected", true, "got", false)
+		if lis[1].Sync.Len() != 2 {
+			t.Fatal("expected", 2, "got", lis[1].Sync.Len())
 		}
 		if lis[1].Sync.Get("test.api.io/lat") != "initial" {
 			t.Fatal("expected", "initial", "got", lis[1].Sync.Get("test.api.io/lat"))
+		}
+		if lis[1].Sync.Get("test.api.io/foo") != "should-not-change" {
+			t.Fatal("expected", "should-not-change", "got", lis[1].Sync.Get("test.api.io/lat"))
 		}
 	}
 
@@ -1034,15 +1037,16 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		if lis[0].Root != nil {
 			t.Fatal("expected", nil, "got", lis[0].Root)
 		}
-		if lis[0].Sync == nil {
-			t.Fatal("expected", "Task.Sync to not be empty", "got", nil)
-		}
-		if !lis[0].Sync.Exi("test.api.io/lat") {
-			t.Fatal("expected", true, "got", false)
+		if lis[0].Sync.Len() != 2 {
+			t.Fatal("expected", 2, "got", lis[0].Sync.Len())
 		}
 		if lis[0].Sync.Get("test.api.io/lat") != "initial" {
 			t.Fatal("expected", "initial", "got", lis[0].Sync.Get("test.api.io/lat"))
 		}
+		if lis[0].Sync.Get("test.api.io/foo") != "should-not-change" {
+			t.Fatal("expected", "should-not-change", "got", lis[0].Sync.Get("test.api.io/lat"))
+		}
+
 		if lis[1].Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("scheduling failed")
 		}
@@ -1055,14 +1059,14 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		if lis[1].Root.Get(task.Object) != lis[0].Core.Map().Object() {
 			t.Fatal("scheduled task must define root for task template")
 		}
-		if lis[1].Sync == nil {
-			t.Fatal("expected", "Task.Sync to not be empty", "got", nil)
-		}
-		if !lis[1].Sync.Exi("test.api.io/lat") {
-			t.Fatal("expected", true, "got", false)
+		if lis[1].Sync.Len() != 2 {
+			t.Fatal("expected", 2, "got", lis[1].Sync.Len())
 		}
 		if lis[1].Sync.Get("test.api.io/lat") != "initial" {
 			t.Fatal("expected", "initial", "got", lis[1].Sync.Get("test.api.io/lat"))
+		}
+		if lis[1].Sync.Get("test.api.io/foo") != "should-not-change" {
+			t.Fatal("expected", "should-not-change", "got", lis[1].Sync.Get("test.api.io/lat"))
 		}
 	}
 
@@ -1113,14 +1117,14 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		if lis[0].Root != nil {
 			t.Fatal("expected", nil, "got", lis[0].Root)
 		}
-		if lis[0].Sync == nil {
-			t.Fatal("expected", "Task.Sync to not be empty", "got", nil)
-		}
-		if !lis[0].Sync.Exi("test.api.io/lat") {
-			t.Fatal("expected", true, "got", false)
+		if lis[0].Sync.Len() != 2 {
+			t.Fatal("expected", 2, "got", lis[0].Sync.Len())
 		}
 		if lis[0].Sync.Get("test.api.io/lat") != "updated" {
 			t.Fatal("expected", "updated", "got", lis[0].Sync.Get("test.api.io/lat"))
+		}
+		if lis[0].Sync.Get("test.api.io/foo") != "should-not-change" {
+			t.Fatal("expected", "should-not-change", "got", lis[0].Sync.Get("test.api.io/lat"))
 		}
 	}
 }

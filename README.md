@@ -54,6 +54,33 @@ type Task struct {
 	// delay of a couple of seconds.
 	Cron *Cron `json:"cron,omitempty"`
 
+	// Gate allows to trigger tasks after a set of dependencies finished
+	// processing. Consider task template x and many tasks y, where x is waiting
+	// for all y tasks to be finished in order to be triggered. Task template x
+	// would define the following label keys in Task.Gate, all provided with the
+	// reserved value "waiting".
+	//
+	//     y.api.io/leaf-0    waiting
+	//     y.api.io/leaf-1    waiting
+	//     y.api.io/leaf-2    waiting
+	//
+	// Below are then all the many tasks y, each defining their own unique label
+	// key in Task.Gate with the reserved value "trigger".
+	//
+	//     y.api.io/leaf-0    trigger
+	//     y.api.io/leaf-1    trigger
+	//     y.api.io/leaf-2    trigger
+	//
+	// Inside the Task.Gate of task template x, the reserved value "waiting" will
+	// be set to the reserved value "deleted" as soon as any of the respective
+	// dependency tasks y is being deleted after successful task execution. As
+	// soon as all tracked labels inside Task.Gate flipped from "waiting" to
+	// "deleted", a new task will be emitted containing the task template's
+	// Task.Meta and Task.Sync. Consequently the reserved values inside Task.Gate
+	// of the task template will all be reset back to "waiting" for the next cycle
+	// to begin.
+	Gate *Gate `json:"gate,omitempty"`
+
 	// Meta contains task specific information defined by the user. Any worker
 	// should be able to identify whether they are able to execute on a task
 	// successfully, given the task metadata. Upon task creation, certain metadata
@@ -74,12 +101,12 @@ type Task struct {
 	//     └   y.api.io/object    3456
 	//     └   y.api.io/object    4567
 	//
-	// If a task for x is present it makes y obsolete. Scheduling and processing y
-	// if x is present may cause conflicts that are hard to resolve. So y may
-	// define x as root, causing Engine.Create and Engine.Search to neither
-	// schedule nor process y if x happens to exist. In the described example,
-	// task y may define x as root like shown below, for y to be discarded by the
-	// system, if it happens to exist alongside x.
+	// If task x is present it makes y obsolete. Scheduling and processing y if x
+	// is present may cause conflicts that are hard to resolve. So y may define x
+	// as root, causing Engine.Create and Engine.Search to neither schedule nor
+	// process y, if x happens to exist. In the described example, task y may
+	// define x as root like shown below, for y to be discarded by the system, if
+	// y happens to exist alongside x.
 	//
 	//     x.api.io/object    1234
 	//
@@ -129,11 +156,11 @@ if err != nil {
 `Engine.Delete` removes an existing task from the system. Tasks can only be
 deleted by the workers that own the task they have been assigned to. Task
 ownership cannot be cherry-picked. Deleting an expired task causes an error on
-the consumer side, because the worker falsely believing to still be the task
-owner, is operating based on an outdated copy of the task that changed meanwhile
-within the system. Note that task templates defining `Task.Cron` may be deleted
-by anyone using the bypass label, since those templates are never owned by any
-worker.
+the consumer side, because the worker falsely believing to still be the task's
+assigned worker, is operating based on an outdated copy of the task that changed
+meanwhile within the underlying system. Note that task templates defining
+`Task.Cron` or `Task.Gate` may be deleted by anyone using the bypass label,
+since those templates are never owned by any worker.
 
 ```go
 err := eng.Delete(tas)
@@ -236,12 +263,10 @@ func (w *Worker) Ensure(tas *task.Task) error {
 }
 
 func (w *Worker) Filter(tas *task.Task) bool {
-	met := map[string]string{
+	return tas.Meta.Has(map[string]string{
 		"test.api.io/action": "delete",
 		"test.api.io/object": "*",
-	}
-
-	return tas.Meta.Has(met)
+	})
 }
 ```
 

@@ -9,7 +9,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func Test_Task_Sync_Emp(t *testing.T) {
+func Test_Task_Gate_Emp(t *testing.T) {
 	testCases := []struct {
 		tas *Task
 		emp bool
@@ -29,14 +29,14 @@ func Test_Task_Sync_Emp(t *testing.T) {
 		// Case 002
 		{
 			tas: &Task{
-				Sync: &Sync{},
+				Gate: &Gate{},
 			},
 			emp: true,
 		},
 		// Case 003
 		{
 			tas: &Task{
-				Sync: &Sync{"foo": "bar"},
+				Gate: &Gate{"foo": "bar"},
 			},
 			emp: false,
 		},
@@ -58,7 +58,7 @@ func Test_Task_Sync_Emp(t *testing.T) {
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
-			emp := tc.tas.Sync.Emp()
+			emp := tc.tas.Gate.Emp()
 
 			if emp != tc.emp {
 				t.Fatalf("\n\n%s\n", cmp.Diff(tc.emp, emp))
@@ -67,7 +67,7 @@ func Test_Task_Sync_Emp(t *testing.T) {
 	}
 }
 
-func Test_Task_Sync_Exi(t *testing.T) {
+func Test_Task_Gate_Exi(t *testing.T) {
 	testCases := []struct {
 		tas *Task
 		exi bool
@@ -87,14 +87,14 @@ func Test_Task_Sync_Exi(t *testing.T) {
 		// Case 002
 		{
 			tas: &Task{
-				Sync: &Sync{},
+				Gate: &Gate{},
 			},
 			exi: false,
 		},
 		// Case 003
 		{
 			tas: &Task{
-				Sync: &Sync{"foo": "bar"},
+				Gate: &Gate{"foo": "bar"},
 			},
 			exi: true,
 		},
@@ -116,7 +116,7 @@ func Test_Task_Sync_Exi(t *testing.T) {
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
-			exi := tc.tas.Sync.Exi("foo")
+			exi := tc.tas.Gate.Exi("foo")
 
 			if exi != tc.exi {
 				t.Fatalf("\n\n%s\n", cmp.Diff(tc.exi, exi))
@@ -125,7 +125,7 @@ func Test_Task_Sync_Exi(t *testing.T) {
 	}
 }
 
-func Test_Task_Sync_Get(t *testing.T) {
+func Test_Task_Gate_Get(t *testing.T) {
 	testCases := []struct {
 		tas *Task
 		get string
@@ -145,14 +145,14 @@ func Test_Task_Sync_Get(t *testing.T) {
 		// Case 002
 		{
 			tas: &Task{
-				Sync: &Sync{},
+				Gate: &Gate{},
 			},
 			get: "",
 		},
 		// Case 003
 		{
 			tas: &Task{
-				Sync: &Sync{"foo": "bar"},
+				Gate: &Gate{"foo": "bar"},
 			},
 			get: "bar",
 		},
@@ -174,7 +174,7 @@ func Test_Task_Sync_Get(t *testing.T) {
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
-			get := tc.tas.Sync.Get("foo")
+			get := tc.tas.Gate.Get("foo")
 
 			if get != tc.get {
 				t.Fatalf("\n\n%s\n", cmp.Diff(tc.get, get))
@@ -183,7 +183,7 @@ func Test_Task_Sync_Get(t *testing.T) {
 	}
 }
 
-func Test_Task_Sync_Key(t *testing.T) {
+func Test_Task_Gate_Key(t *testing.T) {
 	testCases := []struct {
 		tas *Task
 		key []string
@@ -205,7 +205,7 @@ func Test_Task_Sync_Key(t *testing.T) {
 		// Case 002
 		{
 			tas: &Task{
-				Sync: &Sync{
+				Gate: &Gate{
 					"foo": "bar",
 				},
 			},
@@ -216,7 +216,7 @@ func Test_Task_Sync_Key(t *testing.T) {
 		// Case 003
 		{
 			tas: &Task{
-				Sync: &Sync{
+				Gate: &Gate{
 					"foo": "bar",
 					"baz": "foo",
 					"key": "baz",
@@ -232,7 +232,7 @@ func Test_Task_Sync_Key(t *testing.T) {
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
-			key := tc.tas.Sync.Key()
+			key := tc.tas.Gate.Key()
 
 			slices.Sort(key)
 			slices.Sort(tc.key)
@@ -244,7 +244,7 @@ func Test_Task_Sync_Key(t *testing.T) {
 	}
 }
 
-func Test_Task_Sync_Set(t *testing.T) {
+func Test_Task_Gate_Set(t *testing.T) {
 	testCases := []struct {
 		tas *Task
 		key string
@@ -254,30 +254,30 @@ func Test_Task_Sync_Set(t *testing.T) {
 		// Case 000
 		{
 			tas: &Task{
-				Sync: &Sync{"foo": "bar"},
+				Gate: &Gate{"foo": "bar"},
 			},
 			key: "foo",
 			val: "zap",
 			set: &Task{
-				Sync: &Sync{"foo": "zap"},
+				Gate: &Gate{"foo": "zap"},
 			},
 		},
 		// Case 001
 		{
 			tas: &Task{
-				Sync: &Sync{"foo": "bar", "one": "two"},
+				Gate: &Gate{"foo": "bar", "one": "two"},
 			},
 			key: "one",
 			val: "thr",
 			set: &Task{
-				Sync: &Sync{"foo": "bar", "one": "thr"},
+				Gate: &Gate{"foo": "bar", "one": "thr"},
 			},
 		},
 	}
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
-			tc.tas.Sync.Set(tc.key, tc.val)
+			tc.tas.Gate.Set(tc.key, tc.val)
 
 			set := tc.set
 

@@ -38,6 +38,20 @@ func (s *Sync) Has(lab map[string]string) bool {
 	return Has(*s, lab)
 }
 
+func (s *Sync) Key() []string {
+	if s == nil {
+		return nil
+	}
+
+	var key []string
+
+	for k := range *s {
+		key = append(key, k)
+	}
+
+	return key
+}
+
 func (s *Sync) Len() int {
 	if s == nil {
 		return 0

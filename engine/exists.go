@@ -36,10 +36,21 @@ func (e *Engine) exists(tas *task.Task) (bool, error) {
 		if tas == nil {
 			return false, tracer.Maskf(taskEmptyError, "Task must not be empty")
 		}
-		if tas.Core.Emp() && tas.Cron.Emp() && tas.Meta.Emp() && tas.Root.Emp() {
-			return false, tracer.Maskf(taskMetaEmptyError, "at least one of Task.[Core Cron Meta Root] must be configured")
-		}
+	}
 
+	{
+		cor := tas.Core.Emp()
+		crn := tas.Cron.Emp()
+		gat := tas.Gate.Emp()
+		met := tas.Meta.Emp()
+		roo := tas.Root.Emp()
+
+		if cor && crn && gat && met && roo {
+			return false, tracer.Maskf(taskMetaEmptyError, "at least one of [Task.Core Task.Cron Task.Gate Task.Meta Task.Root] must be given")
+		}
+	}
+
+	{
 		if tas.Meta != nil && tas.Meta.Has(Res()) {
 			return false, tracer.Maskf(labelReservedError, "Task.Meta must not contain reserved scheme rescue.io")
 		}
@@ -82,10 +93,11 @@ func (e *Engine) exists(tas *task.Task) (bool, error) {
 	for _, t := range lis {
 		cor := tas.Core.Emp() || (t.Core != nil && t.Core.Has(*tas.Core))
 		crn := tas.Cron.Emp() || (t.Cron != nil && t.Cron.Has(*tas.Cron))
+		gat := tas.Gate.Emp() || (t.Gate != nil && t.Gate.Has(*tas.Gate))
 		met := tas.Meta.Emp() || (t.Meta != nil && t.Meta.Has(*tas.Meta))
 		roo := tas.Root.Emp() || (t.Root != nil && t.Root.Has(*tas.Root))
 
-		if cor && crn && met && roo {
+		if cor && crn && gat && met && roo {
 			return true, nil
 		}
 	}

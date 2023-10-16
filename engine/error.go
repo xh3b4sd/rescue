@@ -14,6 +14,14 @@ func IsLabelReserved(err error) bool {
 	return errors.Is(err, labelReservedError)
 }
 
+var labelValueError = &tracer.Error{
+	Kind: "labelValueError",
+}
+
+func IsLabelValue(err error) bool {
+	return errors.Is(err, labelValueError)
+}
+
 var taskCoreError = &tracer.Error{
 	Kind: "taskCoreError",
 }

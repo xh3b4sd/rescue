@@ -50,3 +50,34 @@ const (
 	// interval of tick+1, regardless of the conditions in the underlying system.
 	TickP1 = "time.rescue.io/tick+1"
 )
+
+const (
+	// Deleted is a reserved Task.Gate value that the system applies internally to
+	// task templates. Any trigger task carrying a matching Task.Gate key will
+	// update the accounting of the task template's watchlist. So upon trigger
+	// task completion, the matching label flips from "waiting" to "deleted" as
+	// soon as the "trigger" value was received for a given Task.Gate key.
+	Deleted = "deleted"
+
+	// Trigger is a reserved Task.Gate value specified by trigger tasks. Any
+	// trigger task defining Task.Gate may define any key with the corresponding
+	// reserved value "trigger".
+	//
+	// The keys defined by task templates may correspond with keys defined by
+	// trigger task definitions of Task.Gate. If the corresponding reserved values
+	// "trigger" and "waiting" match based on the keys of task templates and
+	// trigger tasks, then the task template's value flips from "waiting" to
+	// "deleted".
+	Trigger = "trigger"
+
+	// Waiting is a reserved Task.Gate value specified by trigger tasks. Any task
+	// template defining Task.Gate may define any key with the corresponding
+	// reserved value "waiting".
+	//
+	// The keys defined by task templates may correspond with keys defined by
+	// trigger task definitions of Task.Gate. If the corresponding reserved values
+	// "trigger" and "waiting" match based on the keys of task templates and
+	// trigger tasks, then the task template's value flips from "waiting" to
+	// "deleted".
+	Waiting = "waiting"
+)
