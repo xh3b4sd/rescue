@@ -20,6 +20,20 @@ func (c *Cron) Has(lab map[string]string) bool {
 	return Has(*c, lab)
 }
 
+func (c *Cron) Key() []string {
+	if c == nil {
+		return nil
+	}
+
+	var key []string
+
+	for k := range *c {
+		key = append(key, k)
+	}
+
+	return key
+}
+
 func (c *Cron) Len() int {
 	if c == nil {
 		return 0

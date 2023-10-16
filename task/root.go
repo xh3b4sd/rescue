@@ -38,6 +38,20 @@ func (r *Root) Has(lab map[string]string) bool {
 	return Has(*r, lab)
 }
 
+func (r *Root) Key() []string {
+	if r == nil {
+		return nil
+	}
+
+	var key []string
+
+	for k := range *r {
+		key = append(key, k)
+	}
+
+	return key
+}
+
 func (r *Root) Len() int {
 	if r == nil {
 		return 0

@@ -38,6 +38,20 @@ func (m *Meta) Has(lab map[string]string) bool {
 	return Has(*m, lab)
 }
 
+func (m *Meta) Key() []string {
+	if m == nil {
+		return nil
+	}
+
+	var key []string
+
+	for k := range *m {
+		key = append(key, k)
+	}
+
+	return key
+}
+
 func (m *Meta) Len() int {
 	if m == nil {
 		return 0

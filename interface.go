@@ -15,18 +15,18 @@ type Interface interface {
 	// Delete removes an existing task from the system. Tasks can only be deleted
 	// by the workers that own the task they have been assigned to. Task ownership
 	// cannot be cherry-picked. Deleting an expired task causes an error on the
-	// consumer side, because the worker falsely believing to still be the task
-	// owner, is operating based on an outdated copy of the task that changed
-	// meanwhile within the system. within the system. Note that task templates
-	// defining Task.Cron may be deleted by anyone using the bypass label, since
-	// those templates are never owned by any worker.
+	// consumer side, because the worker falsely believing to still be the task's
+	// assigned worker, is operating based on an outdated copy of the task that
+	// changed meanwhile within the underlying system. Note that task templates
+	// defining Task.Cron or Task.Gate may be deleted by anyone using the bypass
+	// label, since those templates are never owned by any worker.
 	Delete(tas *task.Task) error
 
 	// Exists expresses whether a task with the given label set exists within the
 	// underlying queue. Given a task was created with metadata a, b and c, Exists
 	// will return true if called with metadata b and c. If workers would want to
 	// verify whether they still own a task, they could do the following call.
-	// Basically, calling `tas.Core.All` returns a label set that matches all the
+	// Basically, calling tas.Core.All returns a label set that matches all the
 	// given label keys. That selective label set is then used by Exists to find
 	// any task that matches the given query.
 	//

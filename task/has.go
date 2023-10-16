@@ -44,6 +44,10 @@ func Has(all map[string]string, sub map[string]string) bool {
 }
 
 func has(all map[string]string, k string) (map[string]string, bool) {
+	if k == "*" {
+		return all, true
+	}
+
 	{
 		k = strings.TrimPrefix(k, "*")
 		k = strings.TrimSuffix(k, "*")

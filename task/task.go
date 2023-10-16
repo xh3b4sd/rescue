@@ -48,6 +48,28 @@ type Task struct {
 	// delay of a couple of seconds.
 	Cron *Cron `json:"cron,omitempty"`
 
+	// Gate allows to trigger tasks after a set of dependencies finished
+	// processing. Consider task template x and many tasks y, where x is waiting
+	// for all y tasks to be finished in order to be triggered. Task template x
+	// would define the following label keys in Task.Gate, all provided with the
+	// initial value waiting.
+	//
+	//     y.api.io/leaf-0    waiting
+	//     y.api.io/leaf-1    deleted
+	//     y.api.io/leaf-2    waiting
+	//
+	// Below are then all the many tasks y, each defining their own unique label
+	// key in Task.Meta with value trigger.
+	//
+	//     y.api.io/leaf-0    trigger
+	//     y.api.io/leaf-1    trigger
+	//     y.api.io/leaf-2    trigger
+	//
+	// Inside the Task.Gate of task template x, the initial value waiting will be
+	// set to the value deleted as soon as any of the respective tasks y is being
+	// deleted after successful task execution.
+	Gate *Gate `json:"gate,omitempty"`
+
 	// Meta contains task specific information defined by the user. Any worker
 	// should be able to identify whether they are able to execute on a task
 	// successfully, given the task metadata. Upon task creation, certain metadata
@@ -68,12 +90,12 @@ type Task struct {
 	//     └   y.api.io/object    3456
 	//     └   y.api.io/object    4567
 	//
-	// If a task for x is present it makes y obsolete. Scheduling and processing y
-	// if x is present may cause conflicts that are hard to resolve. So y may
-	// define x as root, causing Engine.Create and Engine.Search to neither
-	// schedule nor process y if x happens to exist. In the described example,
-	// task y may define x as root like shown below, for y to be discarded by the
-	// system, if it happens to exist alongside x.
+	// If task x is present it makes y obsolete. Scheduling and processing y if x
+	// is present may cause conflicts that are hard to resolve. So y may define x
+	// as root, causing Engine.Create and Engine.Search to neither schedule nor
+	// process y, if x happens to exist. In the described example, task y may
+	// define x as root like shown below, for y to be discarded by the system, if
+	// y happens to exist alongside x.
 	//
 	//     x.api.io/object    1234
 	//

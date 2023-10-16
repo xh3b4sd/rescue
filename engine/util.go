@@ -1,27 +1,5 @@
 package engine
 
-import "github.com/xh3b4sd/rescue/task"
-
-func All() *task.Task {
-	return &task.Task{
-		Meta: &task.Meta{
-			"*": "*",
-		},
-	}
-}
-
-func Obj() map[string]string {
-	return map[string]string{
-		task.Object: "*",
-	}
-}
-
-func Res() map[string]string {
-	return map[string]string{
-		"*rescue.io*": "*",
-	}
-}
-
 func contains(lis []string, itm string) bool {
 	for _, l := range lis {
 		if l == itm {

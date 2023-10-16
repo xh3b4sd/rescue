@@ -20,6 +20,20 @@ func (c *Core) Has(lab map[string]string) bool {
 	return Has(*c, lab)
 }
 
+func (c *Core) Key() []string {
+	if c == nil {
+		return nil
+	}
+
+	var key []string
+
+	for k := range *c {
+		key = append(key, k)
+	}
+
+	return key
+}
+
 func (c *Core) Len() int {
 	if c == nil {
 		return 0

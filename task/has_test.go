@@ -110,24 +110,23 @@ func Test_Task_Has(t *testing.T) {
 			},
 			has: true,
 		},
-		// Case 011 ensures that the catch all returns true for empty metadat.
+		// Case 011 ensures that the catch all returns true for any metadat.
+		{
+			all: map[string]string{
+				"key": "val",
+				"one": "val",
+				"baz": "val",
+			},
+			sub: map[string]string{
+				"*": "val",
+			},
+			has: true,
+		},
+		// Case 012 ensures that the catch all returns true for empty metadat.
 		{
 			all: map[string]string{},
 			sub: map[string]string{
 				"*": "*",
-			},
-			has: true,
-		},
-		// Case 012
-		{
-			all: map[string]string{
-				"key": "val",
-				"one": "two",
-				"baz": "zap",
-			},
-			sub: map[string]string{
-				"key": "*",
-				"one": "two",
 			},
 			has: true,
 		},
@@ -140,7 +139,7 @@ func Test_Task_Has(t *testing.T) {
 			},
 			sub: map[string]string{
 				"key": "*",
-				"one": "*",
+				"*":   "two",
 			},
 			has: true,
 		},
@@ -152,12 +151,50 @@ func Test_Task_Has(t *testing.T) {
 				"baz": "zap",
 			},
 			sub: map[string]string{
-				"foo": "*",
+				"key": "*",
 				"one": "two",
+			},
+			has: true,
+		},
+		// Case 015
+		{
+			all: map[string]string{
+				"key": "val",
+				"one": "two",
+				"baz": "zap",
+			},
+			sub: map[string]string{
+				"key": "*",
+				"one": "*",
+			},
+			has: true,
+		},
+		// Case 016
+		{
+			all: map[string]string{
+				"key": "val",
+				"one": "two",
+				"baz": "zap",
+			},
+			sub: map[string]string{
+				"*": "bar",
 			},
 			has: false,
 		},
-		// Case 015
+		// Case 017
+		{
+			all: map[string]string{
+				"key": "val",
+				"one": "two",
+				"baz": "zap",
+			},
+			sub: map[string]string{
+				"foo": "*",
+				"*":   "bar",
+			},
+			has: false,
+		},
+		// Case 018
 		{
 			all: map[string]string{
 				"some.key.io": "val",
@@ -169,7 +206,7 @@ func Test_Task_Has(t *testing.T) {
 			},
 			has: true,
 		},
-		// Case 016
+		// Case 019
 		{
 			all: map[string]string{
 				"some.key.io": "val",
@@ -182,7 +219,7 @@ func Test_Task_Has(t *testing.T) {
 			},
 			has: true,
 		},
-		// Case 017
+		// Case 020
 		{
 			all: map[string]string{
 				"some.key.io": "val",
@@ -195,7 +232,7 @@ func Test_Task_Has(t *testing.T) {
 			},
 			has: false,
 		},
-		// Case 018
+		// Case 021
 		{
 			all: map[string]string{
 				"test.api.io/num": "3",
@@ -205,7 +242,7 @@ func Test_Task_Has(t *testing.T) {
 			},
 			has: false,
 		},
-		// Case 019
+		// Case 022
 		{
 			all: map[string]string{
 				"test.rescue.io/num": "3",
