@@ -148,9 +148,6 @@ func (e *Engine) verCre(tas *task.Task) (*ticker.Ticker, error) {
 				wai = true
 			}
 
-			if tri && tas.Cron != nil {
-				return nil, tracer.Maskf(labelValueError, "Task.Gate must not contain reserved value [trigger] if Task.Cron is configured")
-			}
 			if tri && wai {
 				return nil, tracer.Maskf(labelValueError, "Task.Gate must not contain both of the reserved values [trigger waiting] together")
 			}
