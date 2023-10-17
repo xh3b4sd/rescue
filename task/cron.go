@@ -16,6 +16,10 @@ func (c *Cron) Emp() bool {
 	return c.Len() == 0
 }
 
+func (c *Cron) Eql(x *Cron) bool {
+	return c != nil && x != nil && c.Len() == x.Len() && c.Has(*x)
+}
+
 func (c *Cron) Has(lab map[string]string) bool {
 	return Has(*c, lab)
 }

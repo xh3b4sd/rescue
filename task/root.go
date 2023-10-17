@@ -16,6 +16,10 @@ func (r *Root) Emp() bool {
 	return r.Len() == 0
 }
 
+func (r *Root) Eql(x *Root) bool {
+	return r != nil && x != nil && r.Len() == x.Len() && r.Has(*x)
+}
+
 func (r *Root) Exi(key string) bool {
 	if r == nil {
 		return false

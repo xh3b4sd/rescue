@@ -67,6 +67,101 @@ func Test_Task_Sync_Emp(t *testing.T) {
 	}
 }
 
+func Test_Task_Sync_Eql(t *testing.T) {
+	testCases := []struct {
+		tas *Task
+		syn *Sync
+		eql bool
+	}{
+		// Case 000
+		{
+			tas: &Task{},
+			syn: nil,
+			eql: false,
+		},
+		// Case 001
+		{
+			tas: &Task{},
+			syn: &Sync{},
+			eql: false,
+		},
+		// Case 002
+		{
+			tas: &Task{
+				Sync: &Sync{"foo": "bar"},
+			},
+			syn: &Sync{},
+			eql: false,
+		},
+		// Case 003
+		{
+			tas: &Task{
+				Core: &Core{"foo": "bar"},
+			},
+			syn: &Sync{"foo": "bar"},
+			eql: false,
+		},
+		// Case 004
+		{
+			tas: &Task{
+				Sync: &Sync{"foo": "bar"},
+			},
+			syn: &Sync{"foo": "bar"},
+			eql: true,
+		},
+		// Case 005
+		{
+			tas: &Task{
+				Sync: &Sync{"foo": "bar", "baz": "zap"},
+			},
+			syn: &Sync{"foo": "bar"},
+			eql: false,
+		},
+		// Case 006
+		{
+			tas: &Task{
+				Sync: &Sync{"foo": "bar", "baz": "zap"},
+			},
+			syn: &Sync{"baz": "zap"},
+			eql: false,
+		},
+		// Case 007
+		{
+			tas: &Task{
+				Sync: &Sync{"foo": "bar", "baz": "zap"},
+			},
+			syn: &Sync{"foo": "bar", "baz": "zap"},
+			eql: true,
+		},
+		// Case 008
+		{
+			tas: &Task{
+				Sync: &Sync{"foo": "", "baz": "zap"},
+			},
+			syn: &Sync{"foo": "", "baz": "zap"},
+			eql: true,
+		},
+		// Case 009
+		{
+			tas: &Task{
+				Sync: &Sync{"foo": "", "baz": "zap"},
+			},
+			syn: &Sync{"foo": "bar", "baz": ""},
+			eql: false,
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
+			eql := tc.tas.Sync.Eql(tc.syn)
+
+			if eql != tc.eql {
+				t.Fatalf("\n\n%s\n", cmp.Diff(tc.eql, eql))
+			}
+		})
+	}
+}
+
 func Test_Task_Sync_Exi(t *testing.T) {
 	testCases := []struct {
 		tas *Task

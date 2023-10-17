@@ -208,6 +208,7 @@ func (e *Engine) ticker() error {
 			var t *task.Task
 			{
 				t = &task.Task{
+					Gate: x.Gate,
 					Meta: x.Meta,
 					Root: &task.Root{
 						task.Object: x.Core.Map().Object(),

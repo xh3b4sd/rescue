@@ -16,6 +16,10 @@ func (g *Gate) Emp() bool {
 	return g.Len() == 0
 }
 
+func (g *Gate) Eql(x *Gate) bool {
+	return g != nil && x != nil && g.Len() == x.Len() && g.Has(*x)
+}
+
 func (g *Gate) Exi(key string) bool {
 	if g == nil {
 		return false

@@ -67,6 +67,101 @@ func Test_Task_Cron_Emp(t *testing.T) {
 	}
 }
 
+func Test_Task_Cron_Eql(t *testing.T) {
+	testCases := []struct {
+		tas *Task
+		crn *Cron
+		eql bool
+	}{
+		// Case 000
+		{
+			tas: &Task{},
+			crn: nil,
+			eql: false,
+		},
+		// Case 001
+		{
+			tas: &Task{},
+			crn: &Cron{},
+			eql: false,
+		},
+		// Case 002
+		{
+			tas: &Task{
+				Cron: &Cron{"foo": "bar"},
+			},
+			crn: &Cron{},
+			eql: false,
+		},
+		// Case 003
+		{
+			tas: &Task{
+				Meta: &Meta{"foo": "bar"},
+			},
+			crn: &Cron{"foo": "bar"},
+			eql: false,
+		},
+		// Case 004
+		{
+			tas: &Task{
+				Cron: &Cron{"foo": "bar"},
+			},
+			crn: &Cron{"foo": "bar"},
+			eql: true,
+		},
+		// Case 005
+		{
+			tas: &Task{
+				Cron: &Cron{"foo": "bar", "baz": "zap"},
+			},
+			crn: &Cron{"foo": "bar"},
+			eql: false,
+		},
+		// Case 006
+		{
+			tas: &Task{
+				Cron: &Cron{"foo": "bar", "baz": "zap"},
+			},
+			crn: &Cron{"baz": "zap"},
+			eql: false,
+		},
+		// Case 007
+		{
+			tas: &Task{
+				Cron: &Cron{"foo": "bar", "baz": "zap"},
+			},
+			crn: &Cron{"foo": "bar", "baz": "zap"},
+			eql: true,
+		},
+		// Case 008
+		{
+			tas: &Task{
+				Cron: &Cron{"foo": "", "baz": "zap"},
+			},
+			crn: &Cron{"foo": "", "baz": "zap"},
+			eql: true,
+		},
+		// Case 009
+		{
+			tas: &Task{
+				Cron: &Cron{"foo": "", "baz": "zap"},
+			},
+			crn: &Cron{"foo": "bar", "baz": ""},
+			eql: false,
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
+			eql := tc.tas.Cron.Eql(tc.crn)
+
+			if eql != tc.eql {
+				t.Fatalf("\n\n%s\n", cmp.Diff(tc.eql, eql))
+			}
+		})
+	}
+}
+
 func Test_Task_Cron_Key(t *testing.T) {
 	testCases := []struct {
 		tas *Task

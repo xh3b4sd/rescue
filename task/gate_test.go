@@ -67,6 +67,101 @@ func Test_Task_Gate_Emp(t *testing.T) {
 	}
 }
 
+func Test_Task_Gate_Eql(t *testing.T) {
+	testCases := []struct {
+		tas *Task
+		gat *Gate
+		eql bool
+	}{
+		// Case 000
+		{
+			tas: &Task{},
+			gat: nil,
+			eql: false,
+		},
+		// Case 001
+		{
+			tas: &Task{},
+			gat: &Gate{},
+			eql: false,
+		},
+		// Case 002
+		{
+			tas: &Task{
+				Gate: &Gate{"foo": "bar"},
+			},
+			gat: &Gate{},
+			eql: false,
+		},
+		// Case 003
+		{
+			tas: &Task{
+				Core: &Core{"foo": "bar"},
+			},
+			gat: &Gate{"foo": "bar"},
+			eql: false,
+		},
+		// Case 004
+		{
+			tas: &Task{
+				Gate: &Gate{"foo": "bar"},
+			},
+			gat: &Gate{"foo": "bar"},
+			eql: true,
+		},
+		// Case 005
+		{
+			tas: &Task{
+				Gate: &Gate{"foo": "bar", "baz": "zap"},
+			},
+			gat: &Gate{"foo": "bar"},
+			eql: false,
+		},
+		// Case 006
+		{
+			tas: &Task{
+				Gate: &Gate{"foo": "bar", "baz": "zap"},
+			},
+			gat: &Gate{"baz": "zap"},
+			eql: false,
+		},
+		// Case 007
+		{
+			tas: &Task{
+				Gate: &Gate{"foo": "bar", "baz": "zap"},
+			},
+			gat: &Gate{"foo": "bar", "baz": "zap"},
+			eql: true,
+		},
+		// Case 008
+		{
+			tas: &Task{
+				Gate: &Gate{"foo": "", "baz": "zap"},
+			},
+			gat: &Gate{"foo": "", "baz": "zap"},
+			eql: true,
+		},
+		// Case 009
+		{
+			tas: &Task{
+				Gate: &Gate{"foo": "", "baz": "zap"},
+			},
+			gat: &Gate{"foo": "bar", "baz": ""},
+			eql: false,
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
+			eql := tc.tas.Gate.Eql(tc.gat)
+
+			if eql != tc.eql {
+				t.Fatalf("\n\n%s\n", cmp.Diff(tc.eql, eql))
+			}
+		})
+	}
+}
+
 func Test_Task_Gate_Exi(t *testing.T) {
 	testCases := []struct {
 		tas *Task

@@ -4,10 +4,12 @@ package engine
 
 import (
 	"fmt"
+	"reflect"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/redigo"
 	"github.com/xh3b4sd/rescue/task"
@@ -786,6 +788,9 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 			},
+			Gate: &task.Gate{
+				"test.api.io/k-1": task.Trigger,
+			},
 			Sync: &task.Sync{
 				"test.api.io/lat": "initial",
 				"test.api.io/foo": "should-not-change",
@@ -1022,51 +1027,75 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		if len(lis) != 2 {
 			t.Fatal("expected", 2, "got", len(lis))
 		}
-		if lis[0].Meta.Get("test.api.io/key") != "foo" {
-			t.Fatal("scheduling failed")
-		}
-		if lis[0].Cron.Get().Aevery() != "hour" {
-			t.Fatal("scheduling failed")
-		}
-		if !lis[0].Cron.Get().TickM1().Equal(musTim("2023-09-28T14:00:00.000000Z")) {
-			t.Fatal("scheduling failed")
-		}
-		if !lis[0].Cron.Get().TickP1().Equal(musTim("2023-09-28T16:00:00.000000Z")) {
-			t.Fatal("scheduling failed")
-		}
-		if lis[0].Root != nil {
-			t.Fatal("expected", nil, "got", lis[0].Root)
-		}
-		if lis[0].Sync.Len() != 2 {
-			t.Fatal("expected", 2, "got", lis[0].Sync.Len())
-		}
-		if lis[0].Sync.Get("test.api.io/lat") != "initial" {
-			t.Fatal("expected", "initial", "got", lis[0].Sync.Get("test.api.io/lat"))
-		}
-		if lis[0].Sync.Get("test.api.io/foo") != "should-not-change" {
-			t.Fatal("expected", "should-not-change", "got", lis[0].Sync.Get("test.api.io/lat"))
+	}
+
+	{
+		var tas *task.Task
+		{
+			tas = lis[0]
 		}
 
-		if lis[1].Meta.Get("test.api.io/key") != "foo" {
-			t.Fatal("scheduling failed")
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Cron: &task.Cron{
+					task.Aevery: "hour",
+					task.TickM1: "2023-09-28T14:00:00Z",
+					task.TickP1: "2023-09-28T16:00:00Z",
+				},
+				Gate: &task.Gate{
+					"test.api.io/k-1": task.Trigger,
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+				Sync: &task.Sync{
+					"test.api.io/foo": "should-not-change",
+					"test.api.io/lat": "initial",
+				},
+			}
 		}
-		if !lis[1].Core.Exi().Worker() {
-			t.Fatal("scheduling failed")
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
 		}
-		if lis[1].Cron != nil {
-			t.Fatal("scheduling failed")
+	}
+
+	// Verify the scheduled task that should contain Task.Gate, Task.Root and
+	// Task.Sync according to the task template emitting it.
+	{
+		var tas *task.Task
+		{
+			tas = lis[1]
 		}
-		if lis[1].Root.Get(task.Object) != lis[0].Core.Map().Object() {
-			t.Fatal("scheduled task must define root for task template")
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Gate: &task.Gate{
+					"test.api.io/k-1": task.Trigger,
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+				Root: &task.Root{
+					task.Object: lis[0].Core.Map().Object(),
+				},
+				Sync: &task.Sync{
+					"test.api.io/foo": "should-not-change",
+					"test.api.io/lat": "initial",
+				},
+			}
 		}
-		if lis[1].Sync.Len() != 2 {
-			t.Fatal("expected", 2, "got", lis[1].Sync.Len())
-		}
-		if lis[1].Sync.Get("test.api.io/lat") != "initial" {
-			t.Fatal("expected", "initial", "got", lis[1].Sync.Get("test.api.io/lat"))
-		}
-		if lis[1].Sync.Get("test.api.io/foo") != "should-not-change" {
-			t.Fatal("expected", "should-not-change", "got", lis[1].Sync.Get("test.api.io/lat"))
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
 		}
 	}
 
@@ -1100,31 +1129,42 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 
 	{
 		if len(lis) != 1 {
-			t.Fatal("expected 1 task listed")
+			t.Fatal("expected", 1, "got", len(lis))
 		}
-		if lis[0].Meta.Get("test.api.io/key") != "foo" {
-			t.Fatal("scheduling failed")
+	}
+
+	{
+		var tas *task.Task
+		{
+			tas = lis[0]
 		}
-		if lis[0].Cron.Get().Aevery() != "hour" {
-			t.Fatal("scheduling failed")
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Cron: &task.Cron{
+					task.Aevery: "hour",
+					task.TickM1: "2023-09-28T15:00:00Z",
+					task.TickP1: "2023-09-28T16:00:00Z",
+				},
+				Gate: &task.Gate{
+					"test.api.io/k-1": task.Trigger,
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+				Sync: &task.Sync{
+					"test.api.io/foo": "should-not-change",
+					"test.api.io/lat": "updated",
+				},
+			}
 		}
-		if !lis[0].Cron.Get().TickM1().Equal(musTim("2023-09-28T15:00:00.000000Z")) {
-			t.Fatal("scheduling failed")
-		}
-		if !lis[0].Cron.Get().TickP1().Equal(musTim("2023-09-28T16:00:00.000000Z")) {
-			t.Fatal("scheduling failed")
-		}
-		if lis[0].Root != nil {
-			t.Fatal("expected", nil, "got", lis[0].Root)
-		}
-		if lis[0].Sync.Len() != 2 {
-			t.Fatal("expected", 2, "got", lis[0].Sync.Len())
-		}
-		if lis[0].Sync.Get("test.api.io/lat") != "updated" {
-			t.Fatal("expected", "updated", "got", lis[0].Sync.Get("test.api.io/lat"))
-		}
-		if lis[0].Sync.Get("test.api.io/foo") != "should-not-change" {
-			t.Fatal("expected", "should-not-change", "got", lis[0].Sync.Get("test.api.io/lat"))
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
 		}
 	}
 }
