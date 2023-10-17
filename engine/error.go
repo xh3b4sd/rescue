@@ -46,6 +46,14 @@ func IsTaskEmpty(err error) bool {
 	return errors.Is(err, taskEmptyError)
 }
 
+var taskGateError = &tracer.Error{
+	Kind: "taskGateError",
+}
+
+func IsTaskGate(err error) bool {
+	return errors.Is(err, taskGateError)
+}
+
 var taskMetaEmptyError = &tracer.Error{
 	Kind: "taskMetaEmptyError",
 }

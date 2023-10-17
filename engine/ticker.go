@@ -200,11 +200,11 @@ func (e *Engine) ticker() error {
 		// still exist, then we cannot schedule another one. Regardless, we have to
 		// update the task template's tick+1 below.
 		if !exi {
-			// Create a new scheduled task with the template's Task.Meta, Task.Root
-			// and Task.Sync reference. Note that scheduled tasks have a reserved
-			// label reference of the parents object ID in their root directory,
-			// pointing to the task template that defines their job description and
-			// scheduling information.
+			// Create a new scheduled task with the template's Task.Gate, Task.Meta,
+			// Task.Root and Task.Sync reference. Note that scheduled tasks have a
+			// reserved label reference of the parents object ID in their root
+			// directory, pointing to the task template that defines their job
+			// description and scheduling information.
 			var t *task.Task
 			{
 				t = &task.Task{

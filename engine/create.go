@@ -111,7 +111,7 @@ func (e *Engine) verCre(tas *task.Task) (*ticker.Ticker, error) {
 			return nil, tracer.Maskf(taskCronError, "Task.Cron and Task.Root must not be configured together")
 		}
 		if tas.Gate != nil && tas.Root != nil {
-			return nil, tracer.Maskf(taskCronError, "Task.Gate and Task.Root must not be configured together")
+			return nil, tracer.Maskf(taskGateError, "Task.Gate and Task.Root must not be configured together")
 		}
 	}
 
@@ -151,7 +151,9 @@ func (e *Engine) verCre(tas *task.Task) (*ticker.Ticker, error) {
 			if tri && wai {
 				return nil, tracer.Maskf(labelValueError, "Task.Gate must not contain both of the reserved values [trigger waiting] together")
 			}
-
+			if wai && tas.Cron != nil {
+				return nil, tracer.Maskf(labelValueError, "Task.Gate must not contain the reserved value [waiting] if Task.Cron is configured")
+			}
 			if v != task.Trigger && v != task.Waiting {
 				return nil, tracer.Maskf(labelValueError, "Task.Gate must only contain one of the reserved values [trigger waiting]")
 			}

@@ -54,7 +54,25 @@ func Test_Engine_Create_Gate_No_Error(t *testing.T) {
 				},
 			},
 		},
-		// Case 001 ensures that trigger tasks can define a multiple trigger labels.
+		// Case 001 ensures that task templates defining Task.Cron can schedule
+		// trigger tasks with Task.Gate definitions containing the reserved value
+		// "trigger".
+		{
+			tas: &task.Task{
+				Cron: &task.Cron{
+					task.Aevery: "hour",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+				Gate: &task.Gate{
+					"foo": task.Trigger,
+					"bar": task.Trigger,
+					"baz": task.Trigger,
+				},
+			},
+		},
+		// Case 002 ensures that trigger tasks can define a multiple trigger labels.
 		{
 			tas: &task.Task{
 				Meta: &task.Meta{
@@ -67,7 +85,7 @@ func Test_Engine_Create_Gate_No_Error(t *testing.T) {
 				},
 			},
 		},
-		// Case 002 ensures that task templates can define a single waiting label.
+		// Case 003 ensures that task templates can define a single waiting label.
 		{
 			tas: &task.Task{
 				Meta: &task.Meta{
@@ -78,7 +96,7 @@ func Test_Engine_Create_Gate_No_Error(t *testing.T) {
 				},
 			},
 		},
-		// Case 003 ensures that task templates can define a multiple waiting
+		// Case 004 ensures that task templates can define a multiple waiting
 		// labels.
 		{
 			tas: &task.Task{
@@ -257,6 +275,21 @@ func Test_Engine_Create_Gate_Error(t *testing.T) {
 				Gate: &task.Gate{
 					"foo": task.Trigger,
 					"baz": "zap",
+				},
+			},
+		},
+		// Case 012 ensures that the reserved value "waiting" in Task.Gate cannot be
+		// used together with task.Cron.
+		{
+			tas: &task.Task{
+				Cron: &task.Cron{
+					task.Aevery: "hour",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+				Gate: &task.Gate{
+					"baz": task.Waiting,
 				},
 			},
 		},
