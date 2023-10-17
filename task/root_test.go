@@ -67,6 +67,101 @@ func Test_Task_Root_Emp(t *testing.T) {
 	}
 }
 
+func Test_Task_Root_Eql(t *testing.T) {
+	testCases := []struct {
+		tas *Task
+		roo *Root
+		eql bool
+	}{
+		// Case 000
+		{
+			tas: &Task{},
+			roo: nil,
+			eql: false,
+		},
+		// Case 001
+		{
+			tas: &Task{},
+			roo: &Root{},
+			eql: false,
+		},
+		// Case 002
+		{
+			tas: &Task{
+				Root: &Root{"foo": "bar"},
+			},
+			roo: &Root{},
+			eql: false,
+		},
+		// Case 003
+		{
+			tas: &Task{
+				Core: &Core{"foo": "bar"},
+			},
+			roo: &Root{"foo": "bar"},
+			eql: false,
+		},
+		// Case 004
+		{
+			tas: &Task{
+				Root: &Root{"foo": "bar"},
+			},
+			roo: &Root{"foo": "bar"},
+			eql: true,
+		},
+		// Case 005
+		{
+			tas: &Task{
+				Root: &Root{"foo": "bar", "baz": "zap"},
+			},
+			roo: &Root{"foo": "bar"},
+			eql: false,
+		},
+		// Case 006
+		{
+			tas: &Task{
+				Root: &Root{"foo": "bar", "baz": "zap"},
+			},
+			roo: &Root{"baz": "zap"},
+			eql: false,
+		},
+		// Case 007
+		{
+			tas: &Task{
+				Root: &Root{"foo": "bar", "baz": "zap"},
+			},
+			roo: &Root{"foo": "bar", "baz": "zap"},
+			eql: true,
+		},
+		// Case 008
+		{
+			tas: &Task{
+				Root: &Root{"foo": "", "baz": "zap"},
+			},
+			roo: &Root{"foo": "", "baz": "zap"},
+			eql: true,
+		},
+		// Case 009
+		{
+			tas: &Task{
+				Root: &Root{"foo": "", "baz": "zap"},
+			},
+			roo: &Root{"foo": "bar", "baz": ""},
+			eql: false,
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
+			eql := tc.tas.Root.Eql(tc.roo)
+
+			if eql != tc.eql {
+				t.Fatalf("\n\n%s\n", cmp.Diff(tc.eql, eql))
+			}
+		})
+	}
+}
+
 func Test_Task_Root_Exi(t *testing.T) {
 	testCases := []struct {
 		tas *Task

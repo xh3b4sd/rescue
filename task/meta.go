@@ -16,6 +16,10 @@ func (m *Meta) Emp() bool {
 	return m.Len() == 0
 }
 
+func (m *Meta) Eql(x *Meta) bool {
+	return m != nil && x != nil && m.Len() == x.Len() && m.Has(*x)
+}
+
 func (m *Meta) Exi(key string) bool {
 	if m == nil {
 		return false

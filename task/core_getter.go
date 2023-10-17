@@ -3,6 +3,8 @@ package task
 import (
 	"strconv"
 	"time"
+
+	"github.com/xh3b4sd/rescue/ticker"
 )
 
 type getcor struct {
@@ -42,17 +44,12 @@ func (g *getcor) Cycles() int64 {
 }
 
 func (g *getcor) Expiry() time.Time {
-	var tim *time.Time
-	{
-		tim = &time.Time{}
-	}
-
-	err := tim.UnmarshalJSON([]byte(g.Labl[Expiry]))
+	tim, err := time.Parse(ticker.Layout, g.Labl[Expiry])
 	if err != nil {
 		panic(err)
 	}
 
-	return *tim
+	return tim
 }
 
 func (g *getcor) Object() int64 {

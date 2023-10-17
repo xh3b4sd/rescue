@@ -3,6 +3,8 @@ package task
 import (
 	"strconv"
 	"time"
+
+	"github.com/xh3b4sd/rescue/ticker"
 )
 
 type setcor struct {
@@ -24,12 +26,7 @@ func (s *setcor) Cycles(x int64) {
 }
 
 func (s *setcor) Expiry(x time.Time) {
-	byt, err := x.MarshalJSON()
-	if err != nil {
-		panic(err)
-	}
-
-	s.Labl[Expiry] = string(byt)
+	s.Labl[Expiry] = x.Format(ticker.Layout)
 }
 
 func (s *setcor) Object(x int64) {

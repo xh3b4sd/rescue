@@ -16,6 +16,10 @@ func (c *Core) Emp() bool {
 	return c.Len() == 0
 }
 
+func (c *Core) Eql(x *Core) bool {
+	return c != nil && x != nil && c.Len() == x.Len() && c.Has(*x)
+}
+
 func (c *Core) Has(lab map[string]string) bool {
 	return Has(*c, lab)
 }

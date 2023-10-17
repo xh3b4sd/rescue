@@ -67,6 +67,101 @@ func Test_Task_Meta_Emp(t *testing.T) {
 	}
 }
 
+func Test_Task_Meta_Eql(t *testing.T) {
+	testCases := []struct {
+		tas *Task
+		met *Meta
+		eql bool
+	}{
+		// Case 000
+		{
+			tas: &Task{},
+			met: nil,
+			eql: false,
+		},
+		// Case 001
+		{
+			tas: &Task{},
+			met: &Meta{},
+			eql: false,
+		},
+		// Case 002
+		{
+			tas: &Task{
+				Meta: &Meta{"foo": "bar"},
+			},
+			met: &Meta{},
+			eql: false,
+		},
+		// Case 003
+		{
+			tas: &Task{
+				Core: &Core{"foo": "bar"},
+			},
+			met: &Meta{"foo": "bar"},
+			eql: false,
+		},
+		// Case 004
+		{
+			tas: &Task{
+				Meta: &Meta{"foo": "bar"},
+			},
+			met: &Meta{"foo": "bar"},
+			eql: true,
+		},
+		// Case 005
+		{
+			tas: &Task{
+				Meta: &Meta{"foo": "bar", "baz": "zap"},
+			},
+			met: &Meta{"foo": "bar"},
+			eql: false,
+		},
+		// Case 006
+		{
+			tas: &Task{
+				Meta: &Meta{"foo": "bar", "baz": "zap"},
+			},
+			met: &Meta{"baz": "zap"},
+			eql: false,
+		},
+		// Case 007
+		{
+			tas: &Task{
+				Meta: &Meta{"foo": "bar", "baz": "zap"},
+			},
+			met: &Meta{"foo": "bar", "baz": "zap"},
+			eql: true,
+		},
+		// Case 008
+		{
+			tas: &Task{
+				Meta: &Meta{"foo": "", "baz": "zap"},
+			},
+			met: &Meta{"foo": "", "baz": "zap"},
+			eql: true,
+		},
+		// Case 009
+		{
+			tas: &Task{
+				Meta: &Meta{"foo": "", "baz": "zap"},
+			},
+			met: &Meta{"foo": "bar", "baz": ""},
+			eql: false,
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
+			eql := tc.tas.Meta.Eql(tc.met)
+
+			if eql != tc.eql {
+				t.Fatalf("\n\n%s\n", cmp.Diff(tc.eql, eql))
+			}
+		})
+	}
+}
+
 func Test_Task_Meta_Exi(t *testing.T) {
 	testCases := []struct {
 		tas *Task

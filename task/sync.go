@@ -16,6 +16,10 @@ func (s *Sync) Emp() bool {
 	return s.Len() == 0
 }
 
+func (s *Sync) Eql(x *Sync) bool {
+	return s != nil && x != nil && s.Len() == x.Len() && s.Has(*x)
+}
+
 func (s *Sync) Exi(key string) bool {
 	if s == nil {
 		return false
