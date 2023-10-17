@@ -1064,8 +1064,8 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		}
 	}
 
-	// Verify the scheduled task that should contain Task.Gate, Task.Root and
-	// Task.Sync according to the task template emitting it.
+	// Verify the scheduled task that should contain Task.Gate, Task.Meta,
+	// Task.Root and Task.Sync according to the task template emitting it.
 	{
 		var tas *task.Task
 		{
