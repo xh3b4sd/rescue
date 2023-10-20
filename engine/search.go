@@ -1,6 +1,8 @@
 package engine
 
 import (
+	"time"
+
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/tracer"
 )
@@ -68,6 +70,109 @@ func (e *Engine) search() (*task.Task, error) {
 		return nil, tracer.Mask(taskNotFoundError)
 	}
 
+	// Search for any task that defines the task delivery method "all". Such tasks
+	// are meant to be processed by every worker within the network. We prioritize
+	// such tasks and return them first, if we find them.
+	for _, x := range lis {
+		// Skip all scheduled task templates for further processing. Any task
+		// template defining Task.Cron is meant to trigger time based task
+		// scheduling for child tasks originating from that template. The template
+		// itself is not meant to be processed by workers.
+		if x.Cron != nil {
+			continue
+		}
+
+		// Skip all trigger task templates for further processing. Any task
+		// template defining Task.Gate is meant to trigger event based task
+		// scheduling for child tasks originating from that template. The template
+		// itself is not meant to be processed by workers. Note that we are checking
+		// whether Task.Gate has not any value "trigger", which means that if
+		// Task.Gate is not empty, then its values can only either be "waiting" or
+		// "deleted", which defines the trigger templates. Scheduled tasks defining
+		// any value "trigger" in Task.Gate are the very tasks that workers should
+		// process, because completion of those processed trigger tasks is what
+		// causes the trigger template to create the gated task that is being onhold
+		// until all triggers completed.
+		if x.Gate != nil && !x.Gate.Has(Tri()) {
+			continue
+		}
+
+		// Skip any task that does not define the task delivery method "all".
+		if x.Core.Get().Method() != task.MthdAll {
+			continue
+		}
+
+		var tim time.Time
+		{
+			tim = created(x.Core.Get().Object())
+		}
+
+		// Any task with delivery method "all" is removed from the internal state
+		// once it is older than 1 week. This is just a random guess on what is
+		// sensible, and since we want to do some house keeping in order to prevent
+		// unnecessary state bloat, we just get rid of it. The assumption here right
+		// now is that tasks to be processed by all workers within the network are
+		// either already being processed, or not relevant anymore beyond 1 week of
+		// creation.
+		if e.tim.Search().Sub(tim) > Week {
+			// Remove the purged task from memory, if any.
+			{
+				delete(e.loc, x.Core.Map().Object())
+			}
+
+			{
+				k := e.Keyfmt()
+				s := float64(x.Core.Get().Object())
+
+				err = e.red.Sorted().Delete().Score(k, s)
+				if err != nil {
+					return nil, tracer.Mask(err)
+				}
+			}
+		}
+
+		var loc *local
+		{
+			loc = e.loc[x.Core.Map().Object()]
+		}
+
+		// Skip any task from our local copy that we already processed.
+		if loc != nil && loc.don {
+			continue
+		}
+
+		// Skip any task that got created before this worker started to participate
+		// within the network. Engine.pnt is the point in time at which the worker
+		// process came online. If that pointer is after the creation time of the
+		// current task, then our rule is to not process it. And so we skip the task
+		// that got created before the current worker came online, and move on to
+		// the next task.
+		if loc == nil && !e.pnt.Before(tim) {
+			continue
+		}
+
+		var now time.Time
+		{
+			now = e.tim.Search()
+		}
+
+		// Skip any task that we are already processing within its specified time of
+		// expiry.
+		if loc != nil && loc.exp.After(now) {
+			continue
+		}
+
+		// Remember the broadcasted task that this worker is processing right now
+		// without assigning worker ownership within the underlying system. Also
+		// remember the current time of receiving the broadcasted task, so that we
+		// can expire it locally and retry if necessary.
+		{
+			e.loc[x.Core.Map().Object()] = &local{exp: e.tim.Search().Add(e.exp)}
+		}
+
+		return x, nil
+	}
+
 	// Filter all tasks that have Task.Cron, Task.Gate or Task.Root defined.
 	// Further, if the root task exists, delete the leaf task that defines it,
 	// because the existing root task is meant to cover all the business logic
@@ -76,6 +181,13 @@ func (e *Engine) search() (*task.Task, error) {
 	// sorted set.
 	var rem []int
 	for i, x := range lis {
+		// Remove all broadcasted tasks for further processing. Any task defining
+		// delivery method "all" must have been addressed already above.
+		if x.Core.Get().Method() == task.MthdAll {
+			rem = append(rem, i)
+			continue
+		}
+
 		// Remove all scheduled task templates for further processing. Any task
 		// template defining Task.Cron is meant to trigger time based task
 		// scheduling for child tasks originating from that template. The template
@@ -110,7 +222,7 @@ func (e *Engine) search() (*task.Task, error) {
 		// basis of task templates specifying Task.Cron and Task.Gate. Scheduled
 		// tasks will contain the tree root's object ID, referencing the task
 		// template. Scheduled tasks are not obsolete based on their tree structure
-		// and template reference. So if we find a scheduled task we ignore them,
+		// and template reference. So if we find a scheduled task we ignore it,
 		// because we do not want to delete those.
 		if x.Root.Len() == 1 && x.Root.Exi(task.Object) {
 			continue

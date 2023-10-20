@@ -1,14 +1,16 @@
 package task
 
+import "github.com/xh3b4sd/rescue/matcher"
+
 type Cron map[string]string
 
 func (c *Cron) All(key ...string) *Cron {
-	crn := Cron(All(*c, key...))
+	crn := Cron(matcher.All(*c, key...))
 	return &crn
 }
 
 func (c *Cron) Any(key ...string) *Cron {
-	crn := Cron(Any(*c, key...))
+	crn := Cron(matcher.Any(*c, key...))
 	return &crn
 }
 
@@ -21,7 +23,7 @@ func (c *Cron) Eql(x *Cron) bool {
 }
 
 func (c *Cron) Has(lab map[string]string) bool {
-	return Has(*c, lab)
+	return matcher.Has(*c, lab)
 }
 
 func (c *Cron) Key() []string {

@@ -17,7 +17,7 @@ import (
 	"github.com/xh3b4sd/tracer"
 )
 
-func Test_Engine_Lifecycle_Cron_Weekday(t *testing.T) {
+func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 	var err error
 
 	var red redigo.Interface
@@ -37,6 +37,14 @@ func Test_Engine_Lifecycle_Cron_Weekday(t *testing.T) {
 		tim = timer.New()
 	}
 
+	// The engine and the ticker instances are configured with a time for the end
+	// of the year.
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2022-12-31T14:23:24.161982Z")
+		})
+	}
+
 	var eon *Engine
 	{
 		eon = New(Config{
@@ -44,14 +52,6 @@ func Test_Engine_Lifecycle_Cron_Weekday(t *testing.T) {
 			Redigo: red,
 			Timer:  tim,
 			Worker: "eon",
-		})
-	}
-
-	// The engine and the ticker instances are configured with a time for the end
-	// of the year.
-	{
-		tim.Setter(func() time.Time {
-			return musTim("2022-12-31T14:23:24.161982Z")
 		})
 	}
 
@@ -82,6 +82,9 @@ func Test_Engine_Lifecycle_Cron_Weekday(t *testing.T) {
 	var tas *task.Task
 	{
 		tas = &task.Task{
+			Core: &task.Core{
+				task.Method: task.MthdAll,
+			},
 			Cron: &task.Cron{
 				task.Aevery: "3 days",
 			},
@@ -120,6 +123,7 @@ func Test_Engine_Lifecycle_Cron_Weekday(t *testing.T) {
 		}
 	}
 
+	// Search for all task templates defining Task.Cron.
 	var lis []*task.Task
 	{
 		lis, err = eon.Lister(&task.Task{Cron: tas.Cron.All(task.Aevery)})
@@ -132,17 +136,38 @@ func Test_Engine_Lifecycle_Cron_Weekday(t *testing.T) {
 		if len(lis) != 1 {
 			t.Fatal("expected", 1, "got", len(lis))
 		}
-		if lis[0].Cron.Get().Aevery() != "3 days" {
-			t.Fatal("expected", "3 days", "got", lis[0].Cron.Get().Aevery())
+	}
+
+	// Ensure the task template defining Task.Cron contains the correct scheduling
+	// information. Also ensure that the delivery method is set to "all".
+	{
+		var tas *task.Task
+		{
+			tas = lis[0]
 		}
-		if !lis[0].Cron.Get().TickM1().Equal(musTim("2022-12-30T00:00:00.000000Z")) {
-			t.Fatal("expected", "2022-12-30T00:00:00.000000Z", "got", lis[0].Cron.Map().TickM1())
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Cron: &task.Cron{
+					task.Aevery: "3 days",
+					task.TickM1: "2022-12-30T00:00:00Z",
+					task.TickP1: "2023-01-02T00:00:00Z",
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+			}
 		}
-		if !lis[0].Cron.Get().TickP1().Equal(musTim("2023-01-02T00:00:00.000000Z")) {
-			t.Fatal("expected", "2023-01-02T00:00:00.000000Z", "got", lis[0].Cron.Map().TickP1())
-		}
-		if lis[0].Meta.Get("test.api.io/key") != "foo" {
-			t.Fatal("expected", "foo", "got", lis[0].Meta.Get("test.api.io/key"))
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAll {
+				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
+			}
 		}
 	}
 
@@ -165,7 +190,7 @@ func Test_Engine_Lifecycle_Cron_Weekday(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(&task.Task{Cron: tas.Cron.All(task.Aevery)})
+		lis, err = eon.Lister(All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -175,17 +200,127 @@ func Test_Engine_Lifecycle_Cron_Weekday(t *testing.T) {
 		if len(lis) != 1 {
 			t.Fatal("expected", 1, "got", len(lis))
 		}
-		if lis[0].Cron.Get().Aevery() != "3 days" {
-			t.Fatal("expected", "3 days", "got", lis[0].Cron.Get().Aevery())
+	}
+
+	// After moving forward into the next year, the schedule continues properly
+	// and did so far not change.
+	{
+		var tas *task.Task
+		{
+			tas = lis[0]
 		}
-		if !lis[0].Cron.Get().TickM1().Equal(musTim("2022-12-30T00:00:00.000000Z")) {
-			t.Fatal("expected", "2022-12-30T00:00:00.000000Z", "got", lis[0].Cron.Map().TickM1())
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Cron: &task.Cron{
+					task.Aevery: "3 days",
+					task.TickM1: "2022-12-30T00:00:00Z",
+					task.TickP1: "2023-01-02T00:00:00Z",
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+			}
 		}
-		if !lis[0].Cron.Get().TickP1().Equal(musTim("2023-01-02T00:00:00.000000Z")) {
-			t.Fatal("expected", "2023-01-02T00:00:00.000000Z", "got", lis[0].Cron.Map().TickP1())
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAll {
+				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
+			}
 		}
-		if lis[0].Meta.Get("test.api.io/key") != "foo" {
-			t.Fatal("expected", "foo", "got", lis[0].Meta.Get("test.api.io/key"))
+	}
+
+	// Move past tick+1 in order to emit the new scheduled task.
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-01-02T00:00:00.161982Z")
+		})
+	}
+
+	{
+		err = eon.Ticker()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		lis, err = eon.Lister(All())
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		if len(lis) != 2 {
+			t.Fatal("expected", 2, "got", len(lis))
+		}
+	}
+
+	{
+		var tas *task.Task
+		{
+			tas = lis[0]
+		}
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Cron: &task.Cron{
+					task.Aevery: "3 days",
+					task.TickM1: "2023-01-02T00:00:00Z",
+					task.TickP1: "2023-01-05T00:00:00Z",
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAll {
+				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	// Ensure the scheduled task is delivered to all workers within the network as
+	// defined by the delivery method "all".
+	{
+		var tas *task.Task
+		{
+			tas = lis[1]
+		}
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+				Root: &task.Root{
+					task.Object: lis[0].Core.Map().Object(),
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAll {
+				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
+			}
 		}
 	}
 }
@@ -1061,11 +1196,15 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
 			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
 		}
 	}
 
 	// Verify the scheduled task that should contain Task.Gate, Task.Meta,
-	// Task.Root and Task.Sync according to the task template emitting it.
+	// Task.Root and Task.Sync according to the task template emitting it. Also
+	// ensure that the default delivery method "any" is set.
 	{
 		var tas *task.Task
 		{
@@ -1095,6 +1234,9 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -1165,6 +1307,326 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
 			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+}
+
+func Test_Engine_Lifecycle_Method_All_Failure(t *testing.T) {
+	var err error
+
+	var red redigo.Interface
+	{
+		red = redigo.Default()
+	}
+
+	{
+		err = red.Purge()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	var tim *timer.Timer
+	{
+		tim = timer.New()
+	}
+
+	// The engine is configured with a particular time. This point in time will be
+	// set inside the worker process as the pointer for when it started processing
+	// tasks.
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:00Z")
+		})
+	}
+
+	var eon *Engine
+	{
+		eon = New(Config{
+			Logger: logger.Fake(),
+			Redigo: red,
+			Timer:  tim,
+		})
+	}
+
+	// Time advances by 1 minute. So the first task "foo" got created at minute
+	// one.
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:01:00Z")
+		})
+	}
+
+	{
+		tas := &task.Task{
+			Core: &task.Core{
+				task.Method: task.MthdAll,
+			},
+			Meta: &task.Meta{
+				"test.api.io/key": "foo",
+			},
+		}
+
+		err = eon.Create(tas)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Time advances by 1 more minute. So the second task "bar" got created at
+	// minute two.
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:02:00Z")
+		})
+	}
+
+	{
+		tas := &task.Task{
+			Core: &task.Core{
+				task.Method: task.MthdAll,
+			},
+			Meta: &task.Meta{
+				"test.api.io/key": "bar",
+			},
+		}
+
+		err = eon.Create(tas)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// The worker looks for new tasks and finds task one.
+	var tas *task.Task
+	{
+		tas, err = eon.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAll {
+				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	// For the test here we pretend task one gets stuck or fails for whatever
+	// reason, it will expire locally for the worker in memory.
+
+	// The worker looks for another task and finds task two.
+	{
+		tas, err = eon.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "bar",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAll {
+				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	// Time advances some 10 seconds. So task two gets completed without issues.
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:02:10Z")
+		})
+	}
+
+	{
+		fmt.Printf("delete %#v\n", 11111111)
+		err = eon.Delete(tas)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	var etw *Engine
+	{
+		etw = New(Config{
+			Logger: logger.Fake(),
+			Redigo: red,
+			Timer:  tim,
+		})
+	}
+
+	// A new worker, engine two, came online just now. It cannot find any task
+	// available, since all created tasks got created before it came online.
+	{
+		_, err = etw.Search()
+		if !IsTaskNotFound(err) {
+			t.Fatal("expected", taskNotFoundError, "got", err)
+		}
+	}
+
+	// Now the failing task one can still not be received because of its internal
+	// expiry.
+	{
+		tas, err = eon.Search()
+		if !IsTaskNotFound(err) {
+			t.Fatal("expected", taskNotFoundError, "got", err)
+		}
+	}
+
+	// Time advances by another 25 seconds. So task one expired in worker memory
+	// and should be receivable again.
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:02:35Z")
+		})
+	}
+
+	{
+		tas, err = eon.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Engine two can never receive any task because no new tasks got created
+	// since it came online.
+	{
+		_, err = etw.Search()
+		if !IsTaskNotFound(err) {
+			t.Fatal("expected", taskNotFoundError, "got", err)
+		}
+	}
+
+	{
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAll {
+				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	// Time advances by some 5 more seconds. So this time around the worker
+	// completed task one, which was failing earlier.
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:02:40Z")
+		})
+	}
+
+	{
+		err = eon.Delete(tas)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Since the worker completed all two broadcasted tasks there should not be
+	// any more tasks to be received.
+	{
+		_, err = eon.Search()
+		if !IsTaskNotFound(err) {
+			t.Fatal("expected", taskNotFoundError, "got", err)
+		}
+	}
+
+	// Engine two can never receive any task because no new tasks got created
+	// since it came online.
+	{
+		_, err = etw.Search()
+		if !IsTaskNotFound(err) {
+			t.Fatal("expected", taskNotFoundError, "got", err)
+		}
+	}
+
+	// Time advances by 6 hours. Even here no more tasks should be available for
+	// the worker.
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T06:02:40Z")
+		})
+	}
+
+	{
+		_, err = eon.Search()
+		if !IsTaskNotFound(err) {
+			t.Fatal("expected", taskNotFoundError, "got", err)
+		}
+	}
+
+	// Engine two can never receive any task because no new tasks got created
+	// since it came online.
+	{
+		_, err = etw.Search()
+		if !IsTaskNotFound(err) {
+			t.Fatal("expected", taskNotFoundError, "got", err)
+		}
+	}
+
+	// Time advances by 9 days. Even here no more tasks should be available for
+	// the worker.
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-29T06:02:40Z")
+		})
+	}
+
+	{
+		_, err = eon.Search()
+		if !IsTaskNotFound(err) {
+			t.Fatal("expected", taskNotFoundError, "got", err)
+		}
+	}
+
+	// Engine two can never receive any task because no new tasks got created
+	// since it came online.
+	{
+		_, err = etw.Search()
+		if !IsTaskNotFound(err) {
+			t.Fatal("expected", taskNotFoundError, "got", err)
 		}
 	}
 }
@@ -1362,13 +1824,13 @@ func Test_Engine_Lifecycle_Race(t *testing.T) {
 		{
 			_, err = eon.Search()
 			if !IsTaskNotFound(err) {
-				erc <- fmt.Errorf("queue must be empty")
+				erc <- fmt.Errorf("%s %#v %s %#v", "expected", taskNotFoundError, "got", err)
 				return
 			}
 
 			_, err = etw.Search()
 			if !IsTaskNotFound(err) {
-				erc <- fmt.Errorf("queue must be empty")
+				erc <- fmt.Errorf("%s %#v %s %#v", "expected", taskNotFoundError, "got", err)
 				return
 			}
 		}
@@ -1644,14 +2106,14 @@ func Test_Engine_Lifecycle_Sync(t *testing.T) {
 	{
 		_, err = eon.Search()
 		if !IsTaskNotFound(err) {
-			t.Fatal("queue must be empty")
+			t.Fatal("expected", taskNotFoundError, "got", err)
 		}
 	}
 
 	{
 		_, err = etw.Search()
 		if !IsTaskNotFound(err) {
-			t.Fatal("queue must be empty")
+			t.Fatal("expected", taskNotFoundError, "got", err)
 		}
 	}
 }

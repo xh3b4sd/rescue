@@ -1,14 +1,16 @@
 package task
 
+import "github.com/xh3b4sd/rescue/matcher"
+
 type Gate map[string]string
 
 func (g *Gate) All(key ...string) *Gate {
-	gat := Gate(All(*g, key...))
+	gat := Gate(matcher.All(*g, key...))
 	return &gat
 }
 
 func (g *Gate) Any(key ...string) *Gate {
-	gat := Gate(Any(*g, key...))
+	gat := Gate(matcher.Any(*g, key...))
 	return &gat
 }
 
@@ -39,7 +41,7 @@ func (g *Gate) Get(key string) string {
 }
 
 func (g *Gate) Has(lab map[string]string) bool {
-	return Has(*g, lab)
+	return matcher.Has(*g, lab)
 }
 
 func (g *Gate) Key() []string {

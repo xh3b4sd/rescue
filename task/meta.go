@@ -1,14 +1,16 @@
 package task
 
+import "github.com/xh3b4sd/rescue/matcher"
+
 type Meta map[string]string
 
 func (m *Meta) All(key ...string) *Meta {
-	met := Meta(All(*m, key...))
+	met := Meta(matcher.All(*m, key...))
 	return &met
 }
 
 func (m *Meta) Any(key ...string) *Meta {
-	met := Meta(Any(*m, key...))
+	met := Meta(matcher.Any(*m, key...))
 	return &met
 }
 
@@ -39,7 +41,7 @@ func (m *Meta) Get(key string) string {
 }
 
 func (m *Meta) Has(lab map[string]string) bool {
-	return Has(*m, lab)
+	return matcher.Has(*m, lab)
 }
 
 func (m *Meta) Key() []string {

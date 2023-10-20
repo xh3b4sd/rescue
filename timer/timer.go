@@ -18,6 +18,14 @@ func (t *Timer) Create() time.Time {
 	return t.fac()
 }
 
+func (t *Timer) Delete() time.Time {
+	return t.fac()
+}
+
+func (t *Timer) Engine() time.Time {
+	return t.fac()
+}
+
 func (t *Timer) Expire() time.Time {
 	return t.fac()
 }

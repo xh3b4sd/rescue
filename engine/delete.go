@@ -1,8 +1,6 @@
 package engine
 
 import (
-	"time"
-
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/tracer"
 )
@@ -59,6 +57,42 @@ func (e *Engine) delete(tas *task.Task) error {
 				e.lerror(tracer.Mask(err))
 			}
 		}()
+	}
+
+	var loc *local
+	{
+		loc = e.loc[tas.Core.Map().Object()]
+	}
+
+	// Allow the local deletion of any broadcasted task that is not a task
+	// template.
+	if loc != nil {
+		crn := tas.Cron == nil
+		gat := tas.Gate == nil
+		all := tas.Core.Get().Method() == task.MthdAll
+		byp := tas.Core.Exi().Bypass()
+
+		if all && !byp && crn && gat {
+			// Since this worker did its part in processing the broadcasted task, we
+			// can set its internal time pointer to the processed task's creation
+			// time. Any more broadcasted tasks defining the delivery method "all" may
+			// be processed as well if they got created after the task that we just
+			// completed.
+			{
+				e.pnt = first(unix(values(e.loc)))
+			}
+
+			// Mark the local copy is done. These tasks have been processed already.
+			{
+				loc.don = true
+			}
+
+			{
+				e.loc[tas.Core.Map().Object()] = loc
+			}
+
+			return nil
+		}
 	}
 
 	var cur *task.Task
@@ -142,22 +176,22 @@ func (e *Engine) delete(tas *task.Task) error {
 	// defines Task.Gate themselves. Any matching label key will have the
 	// corresponding reserved value of either "deleted" or "waiting".
 	if tas.Gate != nil && tas.Gate.Has(Tri()) {
-		for _, t := range lis {
+		for _, x := range lis {
 			// Any task that does not define Task.Gate is not a task template, and so
 			// we ignore it and move on to the next task.
-			if t.Gate == nil {
+			if x.Gate == nil {
 				continue
 			}
 
 			// Any task that uses the reserved value "trigger" is not a task template,
 			// and so we ignore it and move on to the next task.
-			if t.Gate.Has(Tri()) {
+			if x.Gate.Has(Tri()) {
 				continue
 			}
 
 			var gat []string
 			{
-				gat = t.Gate.Any(tas.Gate.Key()...).Key()
+				gat = x.Gate.Any(tas.Gate.Key()...).Key()
 			}
 
 			// Any task template that does not contain any of the given trigger task's
@@ -171,18 +205,18 @@ func (e *Engine) delete(tas *task.Task) error {
 			// task's label keys including their corresponding reserved values
 			// "waiting", we set the values of those keys to "deleted" and update the
 			// system state of the underlying sorted set below.
-			for _, x := range gat {
-				t.Gate.Set(x, task.Deleted)
+			for _, y := range gat {
+				x.Gate.Set(y, task.Deleted)
 			}
 
-			if t.Sync != nil && tas.Sync != nil {
+			if x.Sync != nil && tas.Sync != nil {
 				var syn []string
 				{
-					syn = t.Sync.Any(tas.Sync.Key()...).Key()
+					syn = x.Sync.Any(tas.Sync.Key()...).Key()
 				}
 
-				for _, x := range syn {
-					t.Sync.Set(x, tas.Sync.Get(x))
+				for _, y := range syn {
+					x.Sync.Set(y, tas.Sync.Get(y))
 				}
 			}
 
@@ -190,34 +224,44 @@ func (e *Engine) delete(tas *task.Task) error {
 			// anymore does only contain reserved values "deleted". That means this
 			// task template can cause the creation of its trigger task, causing the
 			// task template to be reset for the next cycle.
-			if !t.Gate.Has(Wai()) {
-				var tri *task.Task
+			if !x.Gate.Has(Wai()) {
+				var t *task.Task
 				{
-					tri = &task.Task{
-						Meta: t.Meta,
+					t = &task.Task{
+						Meta: x.Meta,
 						Root: &task.Root{
-							task.Object: t.Core.Map().Object(),
+							task.Object: x.Core.Map().Object(),
 						},
-						Sync: t.Sync,
+						Sync: x.Sync,
 					}
+				}
+
+				var met string
+				if x.Core != nil {
+					met = x.Core.Get().Method()
+				}
+
+				if met == "" {
+					met = task.MthdAny
 				}
 
 				var tid int64
 				{
-					tid = time.Now().UTC().UnixNano()
+					tid = e.tim.Delete().UnixNano()
 				}
 
 				{
-					tri.Core = &task.Core{}
+					t.Core = &task.Core{}
 				}
 
 				{
-					tri.Core.Set().Object(tid)
+					t.Core.Set().Method(met)
+					t.Core.Set().Object(tid)
 				}
 
 				{
 					k := e.Keyfmt()
-					v := task.ToString(tri)
+					v := task.ToString(t)
 					s := float64(tid)
 
 					err = e.red.Sorted().Create().Score(k, v, s)
@@ -229,8 +273,8 @@ func (e *Engine) delete(tas *task.Task) error {
 				// Once all reserved values flipped from "waiting" to "deleted" within a
 				// task template and the associated trigger task got created, reset all
 				// reserved values back to "waiting" for the next cycle to begin.
-				for _, x := range t.Gate.Key() {
-					t.Gate.Set(x, task.Waiting)
+				for _, y := range x.Gate.Key() {
+					x.Gate.Set(y, task.Waiting)
 				}
 			}
 
@@ -238,8 +282,8 @@ func (e *Engine) delete(tas *task.Task) error {
 			// set.
 			{
 				k := e.Keyfmt()
-				v := task.ToString(t)
-				s := float64(t.Core.Get().Object())
+				v := task.ToString(x)
+				s := float64(x.Core.Get().Object())
 
 				_, err := e.red.Sorted().Update().Score(k, v, s)
 				if err != nil {
@@ -252,19 +296,19 @@ func (e *Engine) delete(tas *task.Task) error {
 	// Update any task template defining Task.Cron with the scheduled task data
 	// specified in Task.Sync, if such data exists.
 	if tas.Root != nil && tas.Root.Exi(task.Object) && tas.Sync != nil && !tas.Sync.Emp() {
-		for _, t := range lis {
-			if t.Core.Map().Object() != tas.Root.Get(task.Object) {
+		for _, x := range lis {
+			if x.Core.Map().Object() != tas.Root.Get(task.Object) {
 				continue
 			}
 
 			{
-				t.Sync = tas.Sync
+				x.Sync = tas.Sync
 			}
 
 			{
 				k := e.Keyfmt()
-				v := task.ToString(t)
-				s := float64(t.Core.Get().Object())
+				v := task.ToString(x)
+				s := float64(x.Core.Get().Object())
 
 				_, err := e.red.Sorted().Update().Score(k, v, s)
 				if err != nil {

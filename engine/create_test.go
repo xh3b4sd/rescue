@@ -8,6 +8,131 @@ import (
 	"github.com/xh3b4sd/rescue/task"
 )
 
+func Test_Engine_Create_Core_Error(t *testing.T) {
+	testCases := []struct {
+		tas *task.Task
+	}{
+		// Case 000
+		{
+			tas: &task.Task{
+				Core: &task.Core{
+					task.Method: "foo",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+		// Case 001
+		{
+			tas: &task.Task{
+				Core: &task.Core{
+					task.Object: "bar",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+		// Case 002
+		{
+			tas: &task.Task{
+				Core: &task.Core{
+					task.Worker: "baz",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+		// Case 003
+		{
+			tas: &task.Task{
+				Core: &task.Core{
+					task.Method: task.MthdAll,
+					task.Worker: "baz",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+		// Case 004
+		{
+			tas: &task.Task{
+				Core: &task.Core{
+					task.Method: task.MthdAny,
+					task.Object: "bar",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
+			var e *Engine
+			{
+				e = New(Config{
+					Redigo: redigo.Fake(),
+				})
+			}
+
+			err := e.Create(tc.tas)
+			if err == nil {
+				t.Fatal("expected", "error", "got", nil)
+			}
+		})
+	}
+}
+
+func Test_Engine_Create_Core_No_Error(t *testing.T) {
+	testCases := []struct {
+		tas *task.Task
+	}{
+		// Case 000
+		{
+			tas: &task.Task{
+				Core: &task.Core{
+					task.Method: task.MthdAll,
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+		// Case 001
+		{
+			tas: &task.Task{
+				Core: &task.Core{
+					task.Method: task.MthdAny,
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
+			var e *Engine
+			{
+				e = New(Config{
+					Redigo: redigo.Fake(),
+				})
+			}
+
+			err := e.Create(tc.tas)
+			if err != nil {
+				t.Fatal("expected", nil, "got", err)
+			}
+		})
+	}
+}
+
 func Test_Engine_Create_Meta_No_Error(t *testing.T) {
 	testCases := []struct {
 		tas *task.Task
@@ -279,7 +404,7 @@ func Test_Engine_Create_Gate_Error(t *testing.T) {
 			},
 		},
 		// Case 012 ensures that the reserved value "waiting" in Task.Gate cannot be
-		// used together with task.Cron.
+		// used together with Task.Cron.
 		{
 			tas: &task.Task{
 				Cron: &task.Cron{

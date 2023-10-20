@@ -1,8 +1,6 @@
 package engine
 
 import (
-	"time"
-
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/rescue/ticker"
 	"github.com/xh3b4sd/tracer"
@@ -61,16 +59,26 @@ func (e *Engine) create(tas *task.Task) error {
 		}()
 	}
 
-	var tid int64
-	{
-		tid = time.Now().UTC().UnixNano()
+	var met string
+	if tas.Core != nil {
+		met = tas.Core.Get().Method()
 	}
 
+	if met == "" {
+		met = task.MthdAny
+	}
+
+	var tid int64
 	{
+		tid = e.tim.Create().UnixNano()
+	}
+
+	if tas.Core == nil {
 		tas.Core = &task.Core{}
 	}
 
 	{
+		tas.Core.Set().Method(met)
 		tas.Core.Set().Object(tid)
 	}
 
@@ -98,11 +106,19 @@ func (e *Engine) verCre(tas *task.Task) (*ticker.Ticker, error) {
 		if tas == nil {
 			return nil, tracer.Maskf(taskEmptyError, "Task must not be empty")
 		}
-		if tas.Core != nil {
-			return nil, tracer.Maskf(taskCoreError, "Task.Core must be empty")
-		}
 		if tas.Meta == nil || tas.Meta.Emp() {
 			return nil, tracer.Maskf(taskMetaEmptyError, "Task.Meta must not be empty")
+		}
+	}
+
+	if tas.Core != nil {
+		for k, v := range *tas.Core {
+			if k != task.Method {
+				return nil, tracer.Maskf(taskCoreError, "Task.Core can only contain one of the reserved labels [%s]", task.Method)
+			}
+			if v != task.MthdAll && v != task.MthdAny {
+				return nil, tracer.Maskf(labelValueError, "Task.Core must only contain one of the reserved values [all any]")
+			}
 		}
 	}
 

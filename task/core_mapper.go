@@ -1,31 +1,35 @@
 package task
 
 type mapcor struct {
-	Labl map[string]string
+	labl map[string]string
 }
 
 func (c *Core) Map() *mapcor {
 	return &mapcor{
-		Labl: *c,
+		labl: *c,
 	}
 }
 
 func (m *mapcor) Bypass() string {
-	return m.Labl[Bypass]
+	return m.labl[Bypass]
 }
 
 func (m *mapcor) Cycles() string {
-	return m.Labl[Cycles]
+	return m.labl[Cycles]
 }
 
 func (m *mapcor) Expiry() string {
-	return m.Labl[Expiry]
+	return m.labl[Expiry]
+}
+
+func (m *mapcor) Method() string {
+	return m.labl[Method]
 }
 
 func (m *mapcor) Object() string {
-	return m.Labl[Object]
+	return m.labl[Object]
 }
 
 func (m *mapcor) Worker() string {
-	return m.Labl[Worker]
+	return m.labl[Worker]
 }

@@ -7,23 +7,23 @@ import (
 )
 
 type setcrn struct {
-	Labl map[string]string
+	labl map[string]string
 }
 
 func (c *Cron) Set() *setcrn {
 	return &setcrn{
-		Labl: *c,
+		labl: *c,
 	}
 }
 
 func (s *setcrn) Aevery(x string) {
-	s.Labl[Aevery] = x
+	s.labl[Aevery] = x
 }
 
 func (s *setcrn) TickM1(x time.Time) {
-	s.Labl[TickM1] = x.Format(ticker.Layout)
+	s.labl[TickM1] = x.Format(ticker.Layout)
 }
 
 func (s *setcrn) TickP1(x time.Time) {
-	s.Labl[TickP1] = x.Format(ticker.Layout)
+	s.labl[TickP1] = x.Format(ticker.Layout)
 }

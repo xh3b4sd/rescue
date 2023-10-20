@@ -1,4 +1,4 @@
-package task
+package matcher
 
 import (
 	"fmt"
@@ -25,14 +25,14 @@ func Test_Task_All(t *testing.T) {
 			lab: map[string]string{},
 			key: []string{
 				"foo",
-				Object,
+				"test.api.io/object",
 			},
 			all: nil,
 		},
 		// Case 002
 		{
 			lab: map[string]string{
-				Object: "1",
+				"test.api.io/object": "1",
 			},
 			key: []string{
 				"foo",
@@ -42,54 +42,54 @@ func Test_Task_All(t *testing.T) {
 		// Case 003
 		{
 			lab: map[string]string{
-				Object: "1",
+				"test.api.io/object": "1",
 			},
 			key: []string{
 				"foo", // foo not in lab
-				Object,
+				"test.api.io/object",
 			},
 			all: nil,
 		},
 		// Case 004
 		{
 			lab: map[string]string{
-				Object: "1",
+				"test.api.io/object": "1",
 			},
 			key: []string{
-				Object,
+				"test.api.io/object",
 			},
 			all: map[string]string{
-				Object: "1",
+				"test.api.io/object": "1",
 			},
 		},
 		// Case 005
 		{
 			lab: map[string]string{
-				Cycles: "5",
-				Object: "1",
-				Worker: "a",
+				"test.api.io/cycles": "5",
+				"test.api.io/object": "1",
+				"test.api.io/worker": "a",
 			},
 			key: []string{
-				Object,
+				"test.api.io/object",
 			},
 			all: map[string]string{
-				Object: "1",
+				"test.api.io/object": "1",
 			},
 		},
 		// Case 006
 		{
 			lab: map[string]string{
-				Cycles: "5",
-				Object: "1",
-				Worker: "a",
+				"test.api.io/cycles": "5",
+				"test.api.io/object": "1",
+				"test.api.io/worker": "a",
 			},
 			key: []string{
-				Object,
-				Worker,
+				"test.api.io/object",
+				"test.api.io/worker",
 			},
 			all: map[string]string{
-				Object: "1",
-				Worker: "a",
+				"test.api.io/object": "1",
+				"test.api.io/worker": "a",
 			},
 		},
 	}

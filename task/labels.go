@@ -24,6 +24,17 @@ const (
 	// fact and stop executing on the expired task.
 	Expiry = "task.rescue.io/expiry"
 
+	// Method is the addressing strategy to deliver a task within the network of
+	// worker nodes. Every single task may be processed with varying guarantees of
+	// delivery, but always at-least-once.
+	//
+	//     all    delivered to all workers within the network (timeline based)
+	//     any    delivered to any worker within the network (default method)
+	//     mny    delivered to many specific workers within the network (not implemented)
+	//     uni    delivered to a single specific worker within the network (not implemented)
+	//
+	Method = "task.rescue.io/method"
+
 	// Object is the identifier of the task within the queue.
 	Object = "task.rescue.io/object"
 
@@ -49,6 +60,25 @@ const (
 	// scheduled task may be created again. TickP1 is always updated to the next
 	// interval of tick+1, regardless of the conditions in the underlying system.
 	TickP1 = "time.rescue.io/tick+1"
+)
+
+const (
+	// MthdAll is the addressing method to deliver a task to every worker within
+	// the network at the time of that particular task creation. Consider workers
+	// A, B and C participating in the network at any point in time. Consider task
+	// T to be delivered to A, B and C at point in time X. Workers A and B have
+	// been online before time X. As soon as workers A and B see task T, they will
+	// process it, because their local pointers are before time X. Once workers A
+	// and B processed task T, they will update their local pointers and know that
+	// their part was done. Worker C comes online after time X and does not need
+	// to process task T.
+	MthdAll = "all"
+
+	// MthdAny is the addressing method to deliver a task to any worker within the
+	// network. It does not matter which worker is processing the given task, as
+	// long as it is being processed. This is the default method and does not have
+	// to be specified.
+	MthdAny = "any"
 )
 
 const (

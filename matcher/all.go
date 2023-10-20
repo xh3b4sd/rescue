@@ -1,4 +1,4 @@
-package task
+package matcher
 
 // All returns a label set that matches all the given label keys. If any of the
 // given label keys does not match, nil is returned. That means that the

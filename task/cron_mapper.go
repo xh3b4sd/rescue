@@ -1,23 +1,23 @@
 package task
 
 type mapcrn struct {
-	Labl map[string]string
+	labl map[string]string
 }
 
 func (c *Cron) Map() *mapcrn {
 	return &mapcrn{
-		Labl: *c,
+		labl: *c,
 	}
 }
 
 func (m *mapcrn) Aevery() string {
-	return m.Labl[Aevery]
+	return m.labl[Aevery]
 }
 
 func (m *mapcrn) TickM1() string {
-	return m.Labl[TickM1]
+	return m.labl[TickM1]
 }
 
 func (m *mapcrn) TickP1() string {
-	return m.Labl[TickP1]
+	return m.labl[TickP1]
 }

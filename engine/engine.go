@@ -18,6 +18,11 @@ const (
 	Expiry = 30 * time.Second
 )
 
+const (
+	// Week is the time.Duration of 7 days.
+	Week = 7 * 24 * time.Hour
+)
+
 type Config struct {
 	Balancer balancer.Interface
 	Expiry   time.Duration
@@ -34,8 +39,17 @@ type Engine struct {
 	bal balancer.Interface
 	ctx context.Context
 	exp time.Duration
+	// loc is the local lookup table for tasks that have been chosen to be
+	// processed without assigning direct ownership to this particular worker
+	// process. An example of necessary mappings we need to track for workers are
+	// all tasks defining the delivery method "all".
+	loc map[string]*local
 	log logger.Interface
 	met *metric.Collection
+	// pnt is the local point in time at which this worker became operational.
+	// This pointer will be used to decide whether to process broadcasted tasks
+	// declared with method "all".
+	pnt time.Time
 	que string
 	red redigo.Interface
 	sep string
@@ -76,8 +90,10 @@ func New(config Config) *Engine {
 		bal: config.Balancer,
 		ctx: context.Background(),
 		exp: config.Expiry,
+		loc: map[string]*local{},
 		log: config.Logger,
 		met: config.Metric,
+		pnt: config.Timer.Engine(),
 		que: config.Queue,
 		red: config.Redigo,
 		sep: config.Sepkey,

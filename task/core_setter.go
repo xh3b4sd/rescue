@@ -8,31 +8,35 @@ import (
 )
 
 type setcor struct {
-	Labl map[string]string
+	labl map[string]string
 }
 
 func (c *Core) Set() *setcor {
 	return &setcor{
-		Labl: *c,
+		labl: *c,
 	}
 }
 
 func (s *setcor) Bypass(x bool) {
-	s.Labl[Bypass] = strconv.FormatBool(x)
+	s.labl[Bypass] = strconv.FormatBool(x)
 }
 
 func (s *setcor) Cycles(x int64) {
-	s.Labl[Cycles] = strconv.FormatInt(x, 10)
+	s.labl[Cycles] = strconv.FormatInt(x, 10)
 }
 
 func (s *setcor) Expiry(x time.Time) {
-	s.Labl[Expiry] = x.Format(ticker.Layout)
+	s.labl[Expiry] = x.Format(ticker.Layout)
+}
+
+func (s *setcor) Method(x string) {
+	s.labl[Method] = x
 }
 
 func (s *setcor) Object(x int64) {
-	s.Labl[Object] = strconv.FormatInt(x, 10)
+	s.labl[Object] = strconv.FormatInt(x, 10)
 }
 
 func (s *setcor) Worker(x string) {
-	s.Labl[Worker] = x
+	s.labl[Worker] = x
 }

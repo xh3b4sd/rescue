@@ -1,14 +1,16 @@
 package task
 
+import "github.com/xh3b4sd/rescue/matcher"
+
 type Sync map[string]string
 
 func (s *Sync) All(key ...string) *Sync {
-	syn := Sync(All(*s, key...))
+	syn := Sync(matcher.All(*s, key...))
 	return &syn
 }
 
 func (s *Sync) Any(key ...string) *Sync {
-	syn := Sync(Any(*s, key...))
+	syn := Sync(matcher.Any(*s, key...))
 	return &syn
 }
 
@@ -39,7 +41,7 @@ func (s *Sync) Get(key string) string {
 }
 
 func (s *Sync) Has(lab map[string]string) bool {
-	return Has(*s, lab)
+	return matcher.Has(*s, lab)
 }
 
 func (s *Sync) Key() []string {
