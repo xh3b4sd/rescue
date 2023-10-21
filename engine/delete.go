@@ -67,22 +67,25 @@ func (e *Engine) delete(tas *task.Task) error {
 	// Allow the local deletion of any broadcasted task that is not a task
 	// template.
 	if loc != nil {
-		crn := tas.Cron == nil
-		gat := tas.Gate == nil
 		all := tas.Core.Get().Method() == task.MthdAll
 		byp := tas.Core.Exi().Bypass()
+		crn := tas.Cron == nil
+		gat := tas.Gate == nil
 
 		if all && !byp && crn && gat {
-			// Since this worker did its part in processing the broadcasted task, we
-			// can set its internal time pointer to the processed task's creation
-			// time. Any more broadcasted tasks defining the delivery method "all" may
-			// be processed as well if they got created after the task that we just
-			// completed.
+			// We set this worker's internal time pointer to the expiry of the oldest
+			// local task that we track internally. We do this to respect the expiry
+			// of broadcasted tasks indexed locally. Tasks may fail and have to be
+			// picked up again. Any more broadcasted tasks defining the delivery
+			// method "all" may be processed as well if they got created after the
+			// task that we just completed, because we are processing everything in
+			// first-in-first-out fashion.
 			{
-				e.pnt = first(unix(values(e.loc)))
+				e.pnt = first(unix(expiry(e.loc)))
 			}
 
-			// Mark the local copy is done. These tasks have been processed already.
+			// Since this worker did its part in processing the broadcasted task, we
+			// can mark this task's local copy as done.
 			{
 				loc.don = true
 			}

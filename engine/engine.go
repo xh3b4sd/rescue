@@ -47,8 +47,9 @@ type Engine struct {
 	log logger.Interface
 	met *metric.Collection
 	// pnt is the local point in time at which this worker became operational.
-	// This pointer will be used to decide whether to process broadcasted tasks
-	// declared with method "all".
+	// Further, this pointer will move forward with every broadcasted task that
+	// got completed locally. This pointer will be used to e.g. decide whether to
+	// process broadcasted tasks declared with method "all".
 	pnt time.Time
 	que string
 	red redigo.Interface

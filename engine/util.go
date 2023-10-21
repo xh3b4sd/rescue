@@ -32,6 +32,18 @@ func ensure(l []string, s ...string) []string {
 	return append(remove(l, s...), s...)
 }
 
+func expiry(m map[string]*local) []time.Time {
+	var val []time.Time
+
+	for _, v := range m {
+		if !v.exp.IsZero() {
+			val = append(val, v.exp)
+		}
+	}
+
+	return val
+}
+
 func first(l []int64) time.Time {
 	slices.Sort(l)
 	return created(l[0])
@@ -83,16 +95,4 @@ func sum(m map[string]int) int {
 	}
 
 	return sum
-}
-
-func values(m map[string]*local) []time.Time {
-	var val []time.Time
-
-	for _, v := range m {
-		if !v.exp.IsZero() {
-			val = append(val, v.exp)
-		}
-	}
-
-	return val
 }

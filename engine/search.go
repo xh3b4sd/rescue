@@ -102,6 +102,7 @@ func (e *Engine) search() (*task.Task, error) {
 			continue
 		}
 
+		// Derive this task's creation timestamp from its object ID.
 		var tim time.Time
 		{
 			tim = created(x.Core.Get().Object())
@@ -110,16 +111,17 @@ func (e *Engine) search() (*task.Task, error) {
 		// Any task with delivery method "all" is removed from the internal state
 		// once it is older than 1 week. This is just a random guess on what is
 		// sensible, and since we want to do some house keeping in order to prevent
-		// unnecessary state bloat, we just get rid of it. The assumption here right
-		// now is that tasks to be processed by all workers within the network are
-		// either already being processed, or not relevant anymore beyond 1 week of
-		// creation.
+		// unnecessary state bloat, we just get rid of it eventually. The assumption
+		// here right now is that tasks to be processed by all workers within the
+		// network are either already processed, or not relevant anymore beyond 1
+		// week of creation.
 		if e.tim.Search().Sub(tim) > Week {
 			// Remove the purged task from memory, if any.
 			{
 				delete(e.loc, x.Core.Map().Object())
 			}
 
+			// Remove the purged task from the underlying queue.
 			{
 				k := e.Keyfmt()
 				s := float64(x.Core.Get().Object())
@@ -142,11 +144,13 @@ func (e *Engine) search() (*task.Task, error) {
 		}
 
 		// Skip any task that got created before this worker started to participate
-		// within the network. Engine.pnt is the point in time at which the worker
-		// process came online. If that pointer is after the creation time of the
-		// current task, then our rule is to not process it. And so we skip the task
-		// that got created before the current worker came online, and move on to
-		// the next task.
+		// within the network. Engine.pnt is the earliest point in time at which the
+		// worker process came online, or the latest point in time of having
+		// processed the oldest task broadcasted througout the network. If that
+		// pointer is equal to, or after the creation time of the current task that
+		// we do not track in our local cache already, then our rule is to not
+		// process it. And so we skip the task that got created before the current
+		// worker came online, and move on to the next task.
 		if loc == nil && !e.pnt.Before(tim) {
 			continue
 		}
@@ -157,15 +161,16 @@ func (e *Engine) search() (*task.Task, error) {
 		}
 
 		// Skip any task that we are already processing within its specified time of
-		// expiry.
+		// expiry. The tasks we are skipping here are either still being processed,
+		// or failed, in which case we will pick them up again after local expiry.
 		if loc != nil && loc.exp.After(now) {
 			continue
 		}
 
 		// Remember the broadcasted task that this worker is processing right now
 		// without assigning worker ownership within the underlying system. Also
-		// remember the current time of receiving the broadcasted task, so that we
-		// can expire it locally and retry if necessary.
+		// remember the current expiry of this broadcasted task, so that we can
+		// expire it locally and retry if necessary.
 		{
 			e.loc[x.Core.Map().Object()] = &local{exp: e.tim.Search().Add(e.exp)}
 		}
