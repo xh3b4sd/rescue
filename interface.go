@@ -81,7 +81,7 @@ type Interface interface {
 	// in order to keep scheduling recurring tasks for anyone to work on.
 	Ticker() error
 
-	// Worker returns the this worker's identifier, which may be used for unicast
+	// Worker returns this worker's identifier, which may be used for unicast
 	// style task delivery.
 	Worker() string
 }
