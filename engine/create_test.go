@@ -69,6 +69,40 @@ func Test_Engine_Create_Core_Error(t *testing.T) {
 				},
 			},
 		},
+		// Case 005
+		{
+			tas: &task.Task{
+				Core: &task.Core{
+					task.Method: task.MthdAll,
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+		// Case 006
+		{
+			tas: &task.Task{
+				Core: &task.Core{
+					task.Method: task.MthdAny,
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+		// Case 007
+		{
+			tas: &task.Task{
+				Core: &task.Core{
+					task.Method: task.MthdUni,
+					task.Worker: "bar",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
 	}
 
 	for i, tc := range testCases {
@@ -88,14 +122,128 @@ func Test_Engine_Create_Core_Error(t *testing.T) {
 	}
 }
 
-func Test_Engine_Create_Core_No_Error(t *testing.T) {
+func Test_Engine_Create_Host_Error(t *testing.T) {
 	testCases := []struct {
 		tas *task.Task
 	}{
 		// Case 000
 		{
 			tas: &task.Task{
+				Host: &task.Host{
+					task.Method: "foo",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+		// Case 001
+		{
+			tas: &task.Task{
+				Host: &task.Host{
+					task.Object: "bar",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+		// Case 002
+		{
+			tas: &task.Task{
+				Host: &task.Host{
+					task.Worker: "baz",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+		// Case 003
+		{
+			tas: &task.Task{
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+					task.Worker: "baz",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+		// Case 004
+		{
+			tas: &task.Task{
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+					task.Object: "bar",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+		// Case 005
+		{
+			tas: &task.Task{
 				Core: &task.Core{
+					task.Method: task.MthdAny,
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+		// Case 006
+		{
+			tas: &task.Task{
+				Host: &task.Host{
+					task.Method: task.MthdUni,
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+		// Case 007
+		{
+			tas: &task.Task{
+				Host: &task.Host{
+					task.Method: task.MthdUni,
+					task.Object: "foo",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
+			var e *Engine
+			{
+				e = New(Config{
+					Redigo: redigo.Fake(),
+				})
+			}
+
+			err := e.Create(tc.tas)
+			if err == nil {
+				t.Fatal("expected", "error", "got", nil)
+			}
+		})
+	}
+}
+
+func Test_Engine_Create_Host_No_Error(t *testing.T) {
+	testCases := []struct {
+		tas *task.Task
+	}{
+		// Case 000
+		{
+			tas: &task.Task{
+				Host: &task.Host{
 					task.Method: task.MthdAll,
 				},
 				Meta: &task.Meta{
@@ -106,8 +254,20 @@ func Test_Engine_Create_Core_No_Error(t *testing.T) {
 		// Case 001
 		{
 			tas: &task.Task{
-				Core: &task.Core{
+				Host: &task.Host{
 					task.Method: task.MthdAny,
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+		// Case 002
+		{
+			tas: &task.Task{
+				Host: &task.Host{
+					task.Method: task.MthdUni,
+					task.Worker: "foo",
 				},
 				Meta: &task.Meta{
 					"foo": "bar",

@@ -353,11 +353,11 @@ func Test_Engine_Lister_Gate(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Meta{
-				"test.api.io/key": "foo",
-			},
 			Gate: &task.Gate{
 				"test.api.io/k-0": task.Trigger,
+			},
+			Meta: &task.Meta{
+				"test.api.io/key": "foo",
 			},
 			Sync: &task.Sync{
 				"test.api.io/zer": "0",
@@ -372,11 +372,11 @@ func Test_Engine_Lister_Gate(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Meta{
-				"test.api.io/key": "foo",
-			},
 			Gate: &task.Gate{
 				"test.api.io/k-1": task.Trigger,
+			},
+			Meta: &task.Meta{
+				"test.api.io/key": "foo",
 			},
 		}
 
@@ -388,12 +388,12 @@ func Test_Engine_Lister_Gate(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Meta{
-				"test.api.io/key": "bar",
-			},
 			Gate: &task.Gate{
 				"test.api.io/k-0": task.Waiting,
 				"test.api.io/k-1": task.Waiting,
+			},
+			Meta: &task.Meta{
+				"test.api.io/key": "bar",
 			},
 			Sync: &task.Sync{
 				"test.api.io/zer": "n/a",
@@ -717,12 +717,15 @@ func Test_Engine_Lister_Gate(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Meta: &task.Meta{
-					"test.api.io/key": "bar",
-				},
 				Gate: &task.Gate{
 					"test.api.io/k-0": task.Waiting,
 					"test.api.io/k-1": task.Waiting,
+				},
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "bar",
 				},
 				Sync: &task.Sync{
 					"test.api.io/zer": "0",
@@ -734,9 +737,6 @@ func Test_Engine_Lister_Gate(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -752,6 +752,9 @@ func Test_Engine_Lister_Gate(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
 				},
@@ -768,9 +771,6 @@ func Test_Engine_Lister_Gate(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -815,11 +815,11 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Meta{
-				"test.api.io/key": "foo",
-			},
 			Gate: &task.Gate{
 				"test.api.io/k-0": task.Trigger,
+			},
+			Meta: &task.Meta{
+				"test.api.io/key": "foo",
 			},
 			Sync: &task.Sync{
 				"test.api.io/zer": "0",
@@ -834,11 +834,11 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Meta: &task.Meta{
-				"test.api.io/key": "foo",
-			},
 			Gate: &task.Gate{
 				"test.api.io/k-1": task.Trigger,
+			},
+			Meta: &task.Meta{
+				"test.api.io/key": "foo",
 			},
 		}
 
@@ -850,15 +850,15 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Core: &task.Core{
+			Gate: &task.Gate{
+				"test.api.io/k-0": task.Waiting,
+				"test.api.io/k-1": task.Waiting,
+			},
+			Host: &task.Host{
 				task.Method: task.MthdAll,
 			},
 			Meta: &task.Meta{
 				"test.api.io/key": "bar",
-			},
-			Gate: &task.Gate{
-				"test.api.io/k-0": task.Waiting,
-				"test.api.io/k-1": task.Waiting,
 			},
 			Sync: &task.Sync{
 				"test.api.io/zer": "n/a",
@@ -895,11 +895,14 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Meta: &task.Meta{
-					"test.api.io/key": "foo",
-				},
 				Gate: &task.Gate{
 					"test.api.io/k-0": task.Trigger,
+				},
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
 				},
 				Sync: &task.Sync{
 					"test.api.io/zer": "0",
@@ -910,9 +913,6 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -927,11 +927,14 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Meta: &task.Meta{
-					"test.api.io/key": "foo",
-				},
 				Gate: &task.Gate{
 					"test.api.io/k-1": task.Trigger,
+				},
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
 				},
 			}
 		}
@@ -939,9 +942,6 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -956,12 +956,15 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Meta: &task.Meta{
-					"test.api.io/key": "bar",
-				},
 				Gate: &task.Gate{
 					"test.api.io/k-0": task.Waiting,
 					"test.api.io/k-1": task.Waiting,
+				},
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "bar",
 				},
 				Sync: &task.Sync{
 					"test.api.io/zer": "n/a",
@@ -973,9 +976,6 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -993,11 +993,14 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Meta: &task.Meta{
-					"test.api.io/key": "foo",
-				},
 				Gate: &task.Gate{
 					"test.api.io/k-0": task.Trigger,
+				},
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
 				},
 				Sync: &task.Sync{
 					"test.api.io/zer": "0",
@@ -1008,9 +1011,6 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -1045,11 +1045,14 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Meta: &task.Meta{
-					"test.api.io/key": "foo",
-				},
 				Gate: &task.Gate{
 					"test.api.io/k-1": task.Trigger,
+				},
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
 				},
 			}
 		}
@@ -1057,9 +1060,6 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -1076,12 +1076,15 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Meta: &task.Meta{
-					"test.api.io/key": "bar",
-				},
 				Gate: &task.Gate{
 					"test.api.io/k-0": task.Deleted,
 					"test.api.io/k-1": task.Waiting,
+				},
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "bar",
 				},
 				Sync: &task.Sync{
 					"test.api.io/zer": "0",
@@ -1093,9 +1096,6 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -1112,11 +1112,14 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Meta: &task.Meta{
-					"test.api.io/key": "foo",
-				},
 				Gate: &task.Gate{
 					"test.api.io/k-1": task.Trigger,
+				},
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
 				},
 			}
 		}
@@ -1124,9 +1127,6 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -1152,6 +1152,9 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
 				},
@@ -1168,9 +1171,6 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -1201,12 +1201,15 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Meta: &task.Meta{
-					"test.api.io/key": "bar",
-				},
 				Gate: &task.Gate{
 					"test.api.io/k-0": task.Waiting,
 					"test.api.io/k-1": task.Waiting,
+				},
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "bar",
 				},
 				Sync: &task.Sync{
 					"test.api.io/zer": "0",
@@ -1218,9 +1221,6 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -1238,6 +1238,9 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
 				},
@@ -1254,9 +1257,6 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}

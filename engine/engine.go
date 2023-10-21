@@ -25,6 +25,7 @@ const (
 
 type Config struct {
 	Balancer balancer.Interface
+	Cleanup  time.Duration
 	Expiry   time.Duration
 	Logger   logger.Interface
 	Metric   *metric.Collection
@@ -37,6 +38,7 @@ type Config struct {
 
 type Engine struct {
 	bal balancer.Interface
+	cln time.Duration
 	ctx context.Context
 	exp time.Duration
 	// loc is the local lookup table for tasks that have been chosen to be
@@ -55,12 +57,16 @@ type Engine struct {
 	red redigo.Interface
 	sep string
 	tim *timer.Timer
+	// wrk is the identifier of this worker process.
 	wrk string
 }
 
 func New(config Config) *Engine {
 	if config.Balancer == nil {
 		config.Balancer = balancer.Default()
+	}
+	if config.Cleanup == 0 {
+		config.Cleanup = Week
 	}
 	if config.Expiry == 0 {
 		config.Expiry = Expiry
@@ -89,6 +95,7 @@ func New(config Config) *Engine {
 
 	e := &Engine{
 		bal: config.Balancer,
+		cln: config.Cleanup,
 		ctx: context.Background(),
 		exp: config.Expiry,
 		loc: map[string]*local{},

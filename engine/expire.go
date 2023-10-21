@@ -73,11 +73,42 @@ func (e *Engine) expire() error {
 		cur[l.Core.Get().Worker()]++
 	}
 
-	for _, t := range lis {
+	for _, x := range lis {
+		// Derive this task's creation timestamp from its object ID.
+		var tim time.Time
+		{
+			tim = created(x.Core.Get().Object())
+		}
+
+		// Any lingering task is removed from the internal state once it is older
+		// the configured retention period, which defaults to 1 week. This is just a
+		// random guess on what is sensible, and since we want to do some house
+		// keeping in order to prevent unnecessary state bloat, we just get rid of
+		// it eventually. The assumption here right now is that tasks to be
+		// processed by all workers within the network are either already processed,
+		// or not relevant anymore beyond 1 week of creation.
+		if e.tim.Search().Sub(tim) > e.cln {
+			// Remove the irrelevant task from memory, if any.
+			{
+				delete(e.loc, x.Core.Map().Object())
+			}
+
+			// Remove the irrelevant task from the underlying queue.
+			{
+				k := e.Keyfmt()
+				s := float64(x.Core.Get().Object())
+
+				err = e.red.Sorted().Delete().Score(k, s)
+				if err != nil {
+					return tracer.Mask(err)
+				}
+			}
+		}
+
 		// We are looking for tasks which have an owner. So if there is no
 		// owner assigned we ignore the task and move on to find another
 		// one.
-		if t.Core.Get().Worker() == "" {
+		if x.Core.Get().Worker() == "" {
 			continue
 		}
 
@@ -85,9 +116,9 @@ func (e *Engine) expire() error {
 		var now time.Time
 		var wrk string
 		{
-			exp = t.Core.Get().Expiry()
+			exp = x.Core.Get().Expiry()
 			now = e.tim.Expire()
-			wrk = t.Core.Get().Worker()
+			wrk = x.Core.Get().Worker()
 		}
 
 		// We are looking for tasks which are expired already. So if the task we
@@ -100,15 +131,15 @@ func (e *Engine) expire() error {
 		}
 
 		{
-			t.Core.Prg().Expiry()
-			t.Core.Prg().Worker()
-			t.Core.Set().Cycles(t.Core.Get().Cycles() + 1)
+			x.Core.Prg().Expiry()
+			x.Core.Prg().Worker()
+			x.Core.Set().Cycles(x.Core.Get().Cycles() + 1)
 		}
 
 		{
 			k := e.Keyfmt()
-			v := task.ToString(t)
-			s := float64(t.Core.Get().Object())
+			v := task.ToString(x)
+			s := float64(x.Core.Get().Object())
 
 			_, err := e.red.Sorted().Update().Score(k, v, s)
 			if err != nil {
@@ -135,12 +166,12 @@ func (e *Engine) expire() error {
 		dev = e.bal.Dev(cur, des)
 	}
 
-	for _, t := range lis {
+	for _, x := range lis {
 		// We are looking for tasks which have an owner that is supposed to
 		// revoke their ownership. So if there is no revocation indicated
 		// for the current owner we ignore the task and move on to find
 		// another one.
-		if dev[t.Core.Get().Worker()] == 0 {
+		if dev[x.Core.Get().Worker()] == 0 {
 			continue
 		}
 
@@ -148,9 +179,9 @@ func (e *Engine) expire() error {
 		var now time.Time
 		var wrk string
 		{
-			exp = t.Core.Get().Expiry()
+			exp = x.Core.Get().Expiry()
 			now = e.tim.Expire()
-			wrk = t.Core.Get().Worker()
+			wrk = x.Core.Get().Worker()
 		}
 
 		// We are looking for tasks which are expired already. So if the task we
@@ -163,15 +194,15 @@ func (e *Engine) expire() error {
 		}
 
 		{
-			t.Core.Prg().Expiry()
-			t.Core.Prg().Worker()
-			t.Core.Set().Cycles(t.Core.Get().Cycles() + 1)
+			x.Core.Prg().Expiry()
+			x.Core.Prg().Worker()
+			x.Core.Set().Cycles(x.Core.Get().Cycles() + 1)
 		}
 
 		{
 			k := e.Keyfmt()
-			v := task.ToString(t)
-			s := float64(t.Core.Get().Object())
+			v := task.ToString(x)
+			s := float64(x.Core.Get().Object())
 
 			_, err := e.red.Sorted().Update().Score(k, v, s)
 			if err != nil {

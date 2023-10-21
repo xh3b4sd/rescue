@@ -16,6 +16,12 @@ func Del() map[string]string {
 	}
 }
 
+func Met() map[string]string {
+	return map[string]string{
+		task.Method: "*",
+	}
+}
+
 func Obj() map[string]string {
 	return map[string]string{
 		task.Object: "*",

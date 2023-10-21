@@ -29,10 +29,6 @@ func (s *setcor) Expiry(x time.Time) {
 	s.labl[Expiry] = x.Format(ticker.Layout)
 }
 
-func (s *setcor) Method(x string) {
-	s.labl[Method] = x
-}
-
 func (s *setcor) Object(x int64) {
 	s.labl[Object] = strconv.FormatInt(x, 10)
 }

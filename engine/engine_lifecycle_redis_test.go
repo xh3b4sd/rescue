@@ -82,11 +82,11 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 	var tas *task.Task
 	{
 		tas = &task.Task{
-			Core: &task.Core{
-				task.Method: task.MthdAll,
-			},
 			Cron: &task.Cron{
 				task.Aevery: "3 days",
+			},
+			Host: &task.Host{
+				task.Method: task.MthdAll,
 			},
 			Meta: &task.Meta{
 				"test.api.io/key": "foo",
@@ -155,6 +155,9 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 					task.TickM1: "2022-12-30T00:00:00Z",
 					task.TickP1: "2023-01-02T00:00:00Z",
 				},
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
 				},
@@ -164,9 +167,6 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -219,6 +219,9 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 					task.TickM1: "2022-12-30T00:00:00Z",
 					task.TickP1: "2023-01-02T00:00:00Z",
 				},
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
 				},
@@ -228,9 +231,6 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -277,6 +277,9 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 					task.TickM1: "2023-01-02T00:00:00Z",
 					task.TickP1: "2023-01-05T00:00:00Z",
 				},
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
 				},
@@ -286,9 +289,6 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -305,6 +305,9 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
 				},
@@ -317,9 +320,6 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -1182,6 +1182,9 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 				Gate: &task.Gate{
 					"test.api.io/k-1": task.Trigger,
 				},
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
 				},
@@ -1195,9 +1198,6 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -1221,6 +1221,9 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
 				},
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
 				Root: &task.Root{
 					task.Object: lis[0].Core.Map().Object(),
 				},
@@ -1234,9 +1237,6 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -1293,6 +1293,9 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 				Gate: &task.Gate{
 					"test.api.io/k-1": task.Trigger,
 				},
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
 				},
@@ -1306,9 +1309,6 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -1362,7 +1362,7 @@ func Test_Engine_Lifecycle_Method_All_Failure(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Core: &task.Core{
+			Host: &task.Host{
 				task.Method: task.MthdAll,
 			},
 			Meta: &task.Meta{
@@ -1386,7 +1386,7 @@ func Test_Engine_Lifecycle_Method_All_Failure(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Core: &task.Core{
+			Host: &task.Host{
 				task.Method: task.MthdAll,
 			},
 			Meta: &task.Meta{
@@ -1414,6 +1414,9 @@ func Test_Engine_Lifecycle_Method_All_Failure(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
 				},
@@ -1423,9 +1426,6 @@ func Test_Engine_Lifecycle_Method_All_Failure(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -1446,6 +1446,9 @@ func Test_Engine_Lifecycle_Method_All_Failure(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
 				},
@@ -1455,9 +1458,6 @@ func Test_Engine_Lifecycle_Method_All_Failure(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -1470,7 +1470,6 @@ func Test_Engine_Lifecycle_Method_All_Failure(t *testing.T) {
 	}
 
 	{
-		fmt.Printf("delete %#v\n", 11111111)
 		err = eon.Delete(tas)
 		if err != nil {
 			t.Fatal(err)
@@ -1533,6 +1532,9 @@ func Test_Engine_Lifecycle_Method_All_Failure(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
 				},
@@ -1542,9 +1544,6 @@ func Test_Engine_Lifecycle_Method_All_Failure(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}

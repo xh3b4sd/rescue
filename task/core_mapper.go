@@ -22,10 +22,6 @@ func (m *mapcor) Expiry() string {
 	return m.labl[Expiry]
 }
 
-func (m *mapcor) Method() string {
-	return m.labl[Method]
-}
-
 func (m *mapcor) Object() string {
 	return m.labl[Object]
 }

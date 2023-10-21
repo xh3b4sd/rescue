@@ -22,10 +22,6 @@ func (e *exicor) Expiry() bool {
 	return e.labl[Expiry] != ""
 }
 
-func (e *exicor) Method() bool {
-	return e.labl[Method] != ""
-}
-
 func (e *exicor) Object() bool {
 	return e.labl[Object] != ""
 }

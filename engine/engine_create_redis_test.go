@@ -124,6 +124,9 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
 				},
@@ -133,9 +136,6 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -150,6 +150,9 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "zap",
 				},
@@ -162,9 +165,6 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -179,6 +179,9 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
 				},
@@ -191,9 +194,6 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -211,6 +211,9 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
 				},
@@ -220,9 +223,6 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -254,6 +254,9 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
 				},
@@ -263,9 +266,6 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -280,6 +280,9 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
 				},
@@ -292,9 +295,6 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -318,6 +318,9 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
 				},
@@ -330,9 +333,6 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -360,6 +360,9 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
 				},
@@ -372,9 +375,6 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -657,7 +657,7 @@ func Test_Engine_Create_Method_All(t *testing.T) {
 	// of creation.
 	{
 		tas := &task.Task{
-			Core: &task.Core{
+			Host: &task.Host{
 				task.Method: task.MthdAll,
 			},
 			Meta: &task.Meta{
@@ -685,6 +685,9 @@ func Test_Engine_Create_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "sec",
 				},
@@ -697,9 +700,6 @@ func Test_Engine_Create_Method_All(t *testing.T) {
 			}
 			if tas.Core.Exi().Worker() {
 				t.Fatal("expected", false, "got", true)
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -717,6 +717,9 @@ func Test_Engine_Create_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "sec",
 				},
@@ -729,9 +732,6 @@ func Test_Engine_Create_Method_All(t *testing.T) {
 			}
 			if tas.Core.Exi().Worker() {
 				t.Fatal("expected", false, "got", true)
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -749,6 +749,9 @@ func Test_Engine_Create_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "sec",
 				},
@@ -761,9 +764,6 @@ func Test_Engine_Create_Method_All(t *testing.T) {
 			}
 			if tas.Core.Exi().Worker() {
 				t.Fatal("expected", false, "got", true)
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -783,6 +783,9 @@ func Test_Engine_Create_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAny,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "fir",
 				},
@@ -792,9 +795,6 @@ func Test_Engine_Create_Method_All(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAny {
-				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
 			}
 		}
 	}
