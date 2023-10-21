@@ -208,6 +208,8 @@ func (e *Engine) ticker() error {
 			var t *task.Task
 			{
 				t = &task.Task{
+					Core: &task.Core{},
+					Host: x.Host,
 					Gate: x.Gate,
 					Meta: x.Meta,
 					Root: &task.Root{
@@ -217,27 +219,21 @@ func (e *Engine) ticker() error {
 				}
 			}
 
-			var met string
-			if x.Core != nil {
-				met = x.Core.Get().Method()
-			}
-
-			if met == "" {
-				met = task.MthdAny
-			}
-
 			var tid int64
 			{
 				tid = e.tim.Ticker().UnixNano()
 			}
 
 			{
-				t.Core = &task.Core{}
+				t.Core.Set().Object(tid)
 			}
 
-			{
-				t.Core.Set().Method(met)
-				t.Core.Set().Object(tid)
+			if t.Host == nil {
+				t.Host = &task.Host{}
+			}
+
+			if t.Host.Get(task.Method) == "" {
+				t.Host.Set(task.Method, task.MthdAny)
 			}
 
 			{
@@ -274,7 +270,7 @@ func (e *Engine) ticker() error {
 		// means there is no completion or acknowledgement for scheduled tasks if
 		// they are delivered to all workers. We just fire at-least-once, on
 		// schedule, and leave the rest to the workers.
-		if x.Core.Get().Method() == task.MthdAll {
+		if x.Host.Get(task.Method) == task.MthdAll {
 			x.Cron.Set().TickM1(tic.TickM1())
 		}
 

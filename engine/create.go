@@ -59,15 +59,6 @@ func (e *Engine) create(tas *task.Task) error {
 		}()
 	}
 
-	var met string
-	if tas.Core != nil {
-		met = tas.Core.Get().Method()
-	}
-
-	if met == "" {
-		met = task.MthdAny
-	}
-
 	var tid int64
 	{
 		tid = e.tim.Create().UnixNano()
@@ -78,13 +69,20 @@ func (e *Engine) create(tas *task.Task) error {
 	}
 
 	{
-		tas.Core.Set().Method(met)
 		tas.Core.Set().Object(tid)
 	}
 
 	if tas.Cron != nil {
 		tas.Cron.Set().TickM1(tic.TickM1())
 		tas.Cron.Set().TickP1(tic.TickP1())
+	}
+
+	if tas.Host == nil {
+		tas.Host = &task.Host{}
+	}
+
+	if tas.Host.Get(task.Method) == "" {
+		tas.Host.Set(task.Method, task.MthdAny)
 	}
 
 	{
@@ -106,18 +104,42 @@ func (e *Engine) verCre(tas *task.Task) (*ticker.Ticker, error) {
 		if tas == nil {
 			return nil, tracer.Maskf(taskEmptyError, "Task must not be empty")
 		}
+		if tas.Core != nil {
+			return nil, tracer.Maskf(taskCoreError, "Task.Core must be empty")
+		}
 		if tas.Meta == nil || tas.Meta.Emp() {
 			return nil, tracer.Maskf(taskMetaEmptyError, "Task.Meta must not be empty")
 		}
 	}
 
-	if tas.Core != nil {
-		for k, v := range *tas.Core {
-			if k != task.Method {
-				return nil, tracer.Maskf(taskCoreError, "Task.Core can only contain one of the reserved labels [%s]", task.Method)
-			}
-			if v != task.MthdAll && v != task.MthdAny {
-				return nil, tracer.Maskf(labelValueError, "Task.Core must only contain one of the reserved values [all any]")
+	if tas.Host != nil {
+		if !tas.Host.Has(Met()) {
+			return nil, tracer.Maskf(taskHostError, "Task.Host must contain reserved key [%s]", task.Method)
+		}
+
+		var met string
+		{
+			met = tas.Host.Get(task.Method)
+		}
+
+		if met == task.MthdAll && tas.Host.Len() != 1 {
+			return nil, tracer.Maskf(taskHostError, `Task.Host must not contain any more labels if delivery method "all" is configured`)
+		}
+
+		if met == task.MthdAny && tas.Host.Len() != 1 {
+			return nil, tracer.Maskf(taskHostError, `Task.Host must not contain any more labels if delivery method "any" is configured`)
+		}
+
+		if met == task.MthdUni && !tas.Host.Exi(task.Worker) {
+			return nil, tracer.Maskf(taskHostError, `Task.Host must only contain reserved keys [%s %s] if delivery method "uni" is configured`, task.Method, task.Worker)
+		}
+		if met == task.MthdUni && tas.Host.Len() != 2 {
+			return nil, tracer.Maskf(taskHostError, `Task.Host must only contain reserved keys [%s %s] if delivery method "uni" is configured`, task.Method, task.Worker)
+		}
+
+		for k, v := range *tas.Host {
+			if k == task.Method && v != task.MthdAll && v != task.MthdAny && v != task.MthdUni {
+				return nil, tracer.Maskf(labelValueError, "Task.Host must only contain one of the reserved values [%s %s %s]", task.MthdAll, task.MthdAny, task.MthdUni)
 			}
 		}
 	}

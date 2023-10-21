@@ -98,39 +98,8 @@ func (e *Engine) search() (*task.Task, error) {
 		}
 
 		// Skip any task that does not define the task delivery method "all".
-		if x.Core.Get().Method() != task.MthdAll {
+		if x.Host.Get(task.Method) != task.MthdAll {
 			continue
-		}
-
-		// Derive this task's creation timestamp from its object ID.
-		var tim time.Time
-		{
-			tim = created(x.Core.Get().Object())
-		}
-
-		// Any task with delivery method "all" is removed from the internal state
-		// once it is older than 1 week. This is just a random guess on what is
-		// sensible, and since we want to do some house keeping in order to prevent
-		// unnecessary state bloat, we just get rid of it eventually. The assumption
-		// here right now is that tasks to be processed by all workers within the
-		// network are either already processed, or not relevant anymore beyond 1
-		// week of creation.
-		if e.tim.Search().Sub(tim) > Week {
-			// Remove the purged task from memory, if any.
-			{
-				delete(e.loc, x.Core.Map().Object())
-			}
-
-			// Remove the purged task from the underlying queue.
-			{
-				k := e.Keyfmt()
-				s := float64(x.Core.Get().Object())
-
-				err = e.red.Sorted().Delete().Score(k, s)
-				if err != nil {
-					return nil, tracer.Mask(err)
-				}
-			}
 		}
 
 		var loc *local
@@ -141,6 +110,12 @@ func (e *Engine) search() (*task.Task, error) {
 		// Skip any task from our local copy that we already processed.
 		if loc != nil && loc.don {
 			continue
+		}
+
+		// Derive this task's creation timestamp from its object ID.
+		var tim time.Time
+		{
+			tim = created(x.Core.Get().Object())
 		}
 
 		// Skip any task that got created before this worker started to participate
@@ -188,7 +163,7 @@ func (e *Engine) search() (*task.Task, error) {
 	for i, x := range lis {
 		// Remove all broadcasted tasks for further processing. Any task defining
 		// delivery method "all" must have been addressed already above.
-		if x.Core.Get().Method() == task.MthdAll {
+		if x.Host.Get(task.Method) == task.MthdAll {
 			rem = append(rem, i)
 			continue
 		}
@@ -307,19 +282,43 @@ func (e *Engine) search() (*task.Task, error) {
 	}
 
 	var tas *task.Task
-	for _, t := range lis {
-		// We are looking for tasks which do not yet have an owner. So if
-		// there is an owner assigned we ignore the task and move on to find
-		// another one.
-		{
-			if t.Core.Get().Worker() != "" {
+
+	if tas == nil {
+		for _, x := range lis {
+			// We are looking for tasks which do not yet have an owner. So if there is
+			// an owner assigned we ignore the task and move on to find another one.
+			if x.Core.Get().Worker() != "" {
 				continue
 			}
-		}
 
-		{
-			tas = t
-			break
+			// The current task is not assigned to any worker. If this task's delivery
+			// method is now set to "uni" and its target worker address is this current
+			// worker, then we simply take it and assign it to the this current worker.
+			// Note that we want to give tasks priority that are specifically addressed
+			// to a particular worker. Tasks that can be processed by anyone are of
+			// secondary importance in our system.
+			if x.Host.Get(task.Method) == task.MthdUni && x.Host.Get(task.Worker) == e.wrk {
+				tas = x
+				break
+			}
+		}
+	}
+
+	if tas == nil {
+		for _, x := range lis {
+			// We are looking for tasks which do not yet have an owner. So if there is
+			// an owner assigned we ignore the task and move on to find another one.
+			if x.Core.Get().Worker() != "" {
+				continue
+			}
+
+			// The current task is not assigned to any worker. If this task's delivery
+			// method is now set to "any", then we simply take it and assign it to this
+			// current worker.
+			if x.Host.Get(task.Method) == task.MthdAny {
+				tas = x
+				break
+			}
 		}
 	}
 

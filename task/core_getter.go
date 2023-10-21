@@ -52,10 +52,6 @@ func (g *getcor) Expiry() time.Time {
 	return exp
 }
 
-func (g *getcor) Method() string {
-	return g.labl[Method]
-}
-
 func (g *getcor) Object() int64 {
 	obj, err := strconv.ParseInt(g.labl[Object], 10, 64)
 	if err != nil {

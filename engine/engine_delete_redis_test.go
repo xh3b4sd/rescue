@@ -270,11 +270,11 @@ func Test_Engine_Delete_Cron_Method_All(t *testing.T) {
 	var tas *task.Task
 	{
 		tas = &task.Task{
-			Core: &task.Core{
-				task.Method: task.MthdAll,
-			},
 			Cron: &task.Cron{
 				task.Aevery: "6 hours",
+			},
+			Host: &task.Host{
+				task.Method: task.MthdAll,
 			},
 			Meta: &task.Meta{
 				"test.api.io/key": "bar",
@@ -490,7 +490,7 @@ func Test_Engine_Delete_Gate_Method_All(t *testing.T) {
 	var tas *task.Task
 	{
 		tas = &task.Task{
-			Core: &task.Core{
+			Host: &task.Host{
 				task.Method: task.MthdAll,
 			},
 			Meta: &task.Meta{
@@ -621,7 +621,7 @@ func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Core: &task.Core{
+			Host: &task.Host{
 				task.Method: task.MthdAll,
 			},
 			Meta: &task.Meta{
@@ -656,6 +656,9 @@ func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
 				},
@@ -665,9 +668,6 @@ func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -692,6 +692,9 @@ func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
 				},
@@ -701,9 +704,6 @@ func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -756,6 +756,9 @@ func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
+				Host: &task.Host{
+					task.Method: task.MthdAll,
+				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
 				},
@@ -765,9 +768,6 @@ func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
 		{
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
-			}
-			if tas.Core.Get().Method() != task.MthdAll {
-				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
 			}
 		}
 	}
@@ -779,11 +779,12 @@ func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
 		})
 	}
 
-	// Searching for tasks now should purge the broadcasted task.
+	// Calling Engine.Expire purges any lingering task, regardless which engine
+	// executes it.
 	{
-		tas, err = etw.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		err = etw.Expire()
+		if err != nil {
+			t.Fatal(err)
 		}
 	}
 

@@ -24,17 +24,6 @@ const (
 	// fact and stop executing on the expired task.
 	Expiry = "task.rescue.io/expiry"
 
-	// Method is the addressing strategy to deliver a task within the network of
-	// worker nodes. Every single task may be processed with varying guarantees of
-	// delivery, but always at-least-once.
-	//
-	//     all    delivered to all workers within the network (timeline based)
-	//     any    delivered to any worker within the network (default method)
-	//     mny    delivered to many specific workers within the network (not implemented)
-	//     uni    delivered to a single specific worker within the network (not implemented)
-	//
-	Method = "task.rescue.io/method"
-
 	// Object is the identifier of the task within the queue.
 	Object = "task.rescue.io/object"
 
@@ -63,6 +52,19 @@ const (
 )
 
 const (
+	// Method is the addressing strategy to deliver a task within the network of
+	// worker nodes. Every single task may be processed with varying guarantees of
+	// delivery, but always at-least-once.
+	//
+	//     all    delivered to all workers within the network (timeline based)
+	//     any    delivered to any worker within the network (default method)
+	//     mny    delivered to many specific workers within the network (not implemented)
+	//     uni    delivered to a single specific worker within the network (worker based)
+	//
+	Method = "addr.rescue.io/method"
+)
+
+const (
 	// MthdAll is the addressing method to deliver a task to every worker within
 	// the network at the time of that particular task creation. Consider workers
 	// A, B and C participating in the network at any point in time. Consider task
@@ -79,6 +81,15 @@ const (
 	// long as it is being processed. This is the default method and does not have
 	// to be specified.
 	MthdAny = "any"
+
+	// MthdUni is the addressing method to deliver a task to a specific worker
+	// within the network. Using "uni" requires the accompanied usage of the core
+	// label key "task.rescue.io/worker" for specifying a particular identifier.
+	// Tasks routed via "uni" may expire like "any" task. In fact the only
+	// difference between "any" and "uni" is that the "uni" task has a sticky task
+	// ownership requirement, while "any" task may be picked up by some arbitrary
+	// worker after expiry.
+	MthdUni = "uni"
 )
 
 const (

@@ -22,10 +22,6 @@ func (p *prgcor) Expiry() {
 	delete(p.labl, Expiry)
 }
 
-func (p *prgcor) Method() {
-	delete(p.labl, Method)
-}
-
 func (p *prgcor) Object() {
 	delete(p.labl, Object)
 }
