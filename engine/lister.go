@@ -46,13 +46,8 @@ func (e *Engine) lister(tas *task.Task) ([]*task.Task, error) {
 	}
 
 	{
-		crn := (tas.Cron == nil || tas.Cron.Emp())
-		gat := (tas.Gate == nil || tas.Gate.Emp())
-		met := (tas.Meta == nil || tas.Meta.Emp())
-		roo := (tas.Root == nil || tas.Root.Emp())
-
-		if crn && gat && met && roo {
-			return nil, tracer.Maskf(taskMetaEmptyError, "at least one of [Task.Cron Task.Gate Task.Meta Task.Root] must be given")
+		if tas.Emp() {
+			return nil, tracer.Maskf(taskMetaEmptyError, "at least one of [Task.Cron Task.Gate Task.Host Task.Meta Task.Root] must be configured")
 		}
 	}
 
@@ -97,14 +92,9 @@ func (e *Engine) lister(tas *task.Task) ([]*task.Task, error) {
 	}
 
 	var fil []*task.Task
-	for _, t := range lis {
-		crn := tas.Cron.Emp() || (t.Cron != nil && t.Cron.Has(*tas.Cron))
-		gat := tas.Gate.Emp() || (t.Gate != nil && t.Gate.Has(*tas.Gate))
-		met := tas.Meta.Emp() || (t.Meta != nil && t.Meta.Has(*tas.Meta))
-		roo := tas.Root.Emp() || (t.Root != nil && t.Root.Has(*tas.Root))
-
-		if crn && gat && met && roo {
-			fil = append(fil, t)
+	for _, x := range lis {
+		if x.Has(tas) {
+			fil = append(fil, x)
 		}
 	}
 

@@ -1,6 +1,6 @@
 //go:build redis
 
-package engine
+package method
 
 import (
 	"reflect"
