@@ -260,17 +260,20 @@ func (e *Engine) ticker() error {
 		}
 
 		// The task delivery method "all" does not have a mechanism to acknowledge
-		// successful task completion if all possible workers within the network are
-		// envolved. Task processing with task delivery method "all" is time based,
-		// meaning that every worker decides for themselves whether to execute a
-		// such a task based on the point in time the task at hand got created, and
-		// the point in time the worker started participating in the network. The
-		// network does not know the complete set of workers within the network.
-		// What every worker knows for themselves though, is what they should be
-		// responsible for. And so for task delivery method "all", scheduled tasks
-		// move tick-1 and tick+1 forward together. That means there is no
-		// completion or acknowledgement for scheduled tasks if they are delivered
-		// to all workers.
+		// successful task completion. If all possible workers within the network
+		// are involved we have no guarantee of execution everywhere due to
+		// potential split brain scenarios and other synchronization issues that
+		// distributed systems bring with them. Task processing with task delivery
+		// method "all" is time based, meaning that every worker decides for
+		// themselves whether to execute such a task based on the point in time the
+		// task at hand got created, and the point in time the worker started
+		// participating in the network. The network does not know the complete set
+		// of workers within the network. What every worker knows for themselves
+		// though, is what they should be responsible for. And so for broadcasted
+		// tasks, scheduled tasks move tick-1 and tick+1 forward together. That
+		// means there is no completion or acknowledgement for scheduled tasks if
+		// they are delivered to all workers. We just fire at-least-once, on
+		// schedule, and leave the rest to the workers.
 		if x.Core.Get().Method() == task.MthdAll {
 			x.Cron.Set().TickM1(tic.TickM1())
 		}
