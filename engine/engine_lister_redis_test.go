@@ -3,10 +3,12 @@
 package engine
 
 import (
+	"reflect"
 	"slices"
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/redigo"
 	"github.com/xh3b4sd/rescue/task"
@@ -307,7 +309,7 @@ func Test_Engine_Lister(t *testing.T) {
 	{
 		_, err = eon.Search()
 		if !IsTaskNotFound(err) {
-			t.Fatal("queue must be empty")
+			t.Fatal("expected", taskNotFoundError, "got", err)
 		}
 	}
 }
@@ -702,69 +704,560 @@ func Test_Engine_Lister_Gate(t *testing.T) {
 		if len(lis) != 2 {
 			t.Fatal("expected", 2, "got", len(lis))
 		}
+	}
 
-		if lis[0].Meta.Get("test.api.io/key") != "bar" {
-			t.Fatal("expected", "bar", "got", lis[0].Meta.Get("test.api.io/key"))
-		}
-		if lis[0].Gate.Len() != 2 {
-			t.Fatal("expected", 2, "got", lis[0].Gate.Len())
-		}
-
-		var key []string
+	// This is the gating task template defining task.Gate.
+	{
+		var tas *task.Task
 		{
-			key = lis[0].Gate.Key()
+			tas = lis[0]
+		}
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "bar",
+				},
+				Gate: &task.Gate{
+					"test.api.io/k-0": task.Waiting,
+					"test.api.io/k-1": task.Waiting,
+				},
+				Sync: &task.Sync{
+					"test.api.io/zer": "0",
+					"test.api.io/one": "n/a",
+				},
+			}
 		}
 
 		{
-			slices.Sort(key)
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	// This is the triggered task emitted by the gating task template above.
+	{
+		var tas *task.Task
+		{
+			tas = lis[1]
 		}
 
-		if key[0] != "test.api.io/k-0" {
-			t.Fatal("expected", "test.api.io/k-0", "got", key[0])
-		}
-		if key[1] != "test.api.io/k-1" {
-			t.Fatal("expected", "test.api.io/k-1", "got", key[1])
-		}
-		if lis[0].Gate.Get(key[0]) != task.Waiting {
-			t.Fatal("expected", task.Waiting, "got", lis[0].Gate.Get(key[0]))
-		}
-		if lis[0].Gate.Get(key[1]) != task.Waiting {
-			t.Fatal("expected", task.Waiting, "got", lis[0].Gate.Get(key[1]))
-		}
-
-		if lis[0].Root != nil {
-			t.Fatal("expected", nil, "got", lis[0].Root)
-		}
-		if lis[0].Sync.Len() != 2 {
-			t.Fatal("expected", 2, "got", lis[0].Sync.Len())
-		}
-		if lis[0].Sync.Get("test.api.io/zer") != "0" {
-			t.Fatal("expected", "0", "got", lis[0].Sync.Get("test.api.io/zer"))
-		}
-		if lis[0].Sync.Get("test.api.io/one") != "n/a" {
-			t.Fatal("expected", "n/a", "got", lis[0].Sync.Get("test.api.io/one"))
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "bar",
+				},
+				Root: &task.Root{
+					task.Object: lis[0].Core.Map().Object(),
+				},
+				Sync: &task.Sync{
+					"test.api.io/zer": "0",
+					"test.api.io/one": "n/a",
+				},
+			}
 		}
 
-		if lis[1].Meta.Get("test.api.io/key") != "bar" {
-			t.Fatal("scheduling failed")
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
 		}
-		if lis[1].Gate != nil {
-			t.Fatal("expected", nil, "got", lis[1].Gate)
+	}
+}
+
+func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
+	var err error
+
+	var red redigo.Interface
+	{
+		red = redigo.Default()
+	}
+
+	{
+		err = red.Purge()
+		if err != nil {
+			t.Fatal(err)
 		}
-		if lis[1].Root.Len() != 1 {
-			t.Fatal("expected", 1, "got", lis[1].Root.Len())
+	}
+
+	var eon *Engine
+	{
+		eon = New(Config{
+			Logger: logger.Fake(),
+			Redigo: red,
+		})
+	}
+
+	var lis []*task.Task
+	{
+		lis, err = eon.Lister(All())
+		if err != nil {
+			t.Fatal(err)
 		}
-		if lis[1].Root.Get(task.Object) != lis[0].Core.Map().Object() {
-			t.Fatal("scheduled task must define root for task template")
+	}
+
+	{
+		if len(lis) != 0 {
+			t.Fatal("expected", 0, "got", len(lis))
 		}
-		if lis[1].Sync.Len() != 2 {
-			t.Fatal("expected", 2, "got", lis[1].Sync.Len())
+	}
+
+	{
+		tas := &task.Task{
+			Meta: &task.Meta{
+				"test.api.io/key": "foo",
+			},
+			Gate: &task.Gate{
+				"test.api.io/k-0": task.Trigger,
+			},
+			Sync: &task.Sync{
+				"test.api.io/zer": "0",
+			},
 		}
-		if lis[1].Sync.Get("test.api.io/zer") != "0" {
-			t.Fatal("expected", "0", "got", lis[1].Sync.Get("test.api.io/zer"))
+
+		err = eon.Create(tas)
+		if err != nil {
+			t.Fatal(err)
 		}
-		if lis[1].Sync.Get("test.api.io/one") != "n/a" {
-			t.Fatal("expected", "n/a", "got", lis[1].Sync.Get("test.api.io/one"))
+	}
+
+	{
+		tas := &task.Task{
+			Meta: &task.Meta{
+				"test.api.io/key": "foo",
+			},
+			Gate: &task.Gate{
+				"test.api.io/k-1": task.Trigger,
+			},
+		}
+
+		err = eon.Create(tas)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		tas := &task.Task{
+			Core: &task.Core{
+				task.Method: task.MthdAll,
+			},
+			Meta: &task.Meta{
+				"test.api.io/key": "bar",
+			},
+			Gate: &task.Gate{
+				"test.api.io/k-0": task.Waiting,
+				"test.api.io/k-1": task.Waiting,
+			},
+			Sync: &task.Sync{
+				"test.api.io/zer": "n/a",
+				"test.api.io/one": "n/a",
+			},
+		}
+
+		err = eon.Create(tas)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		lis, err = eon.Lister(All())
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		if len(lis) != 3 {
+			t.Fatal("expected", 3, "got", len(lis))
+		}
+	}
+
+	{
+		var tas *task.Task
+		{
+			tas = lis[0]
+		}
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+				Gate: &task.Gate{
+					"test.api.io/k-0": task.Trigger,
+				},
+				Sync: &task.Sync{
+					"test.api.io/zer": "0",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	{
+		var tas *task.Task
+		{
+			tas = lis[1]
+		}
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+				Gate: &task.Gate{
+					"test.api.io/k-1": task.Trigger,
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	{
+		var tas *task.Task
+		{
+			tas = lis[2]
+		}
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "bar",
+				},
+				Gate: &task.Gate{
+					"test.api.io/k-0": task.Waiting,
+					"test.api.io/k-1": task.Waiting,
+				},
+				Sync: &task.Sync{
+					"test.api.io/zer": "n/a",
+					"test.api.io/one": "n/a",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAll {
+				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	var tas *task.Task
+	{
+		tas, err = eon.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+				Gate: &task.Gate{
+					"test.api.io/k-0": task.Trigger,
+				},
+				Sync: &task.Sync{
+					"test.api.io/zer": "0",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	{
+		err = eon.Delete(tas)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		lis, err = eon.Lister(All())
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		if len(lis) != 2 {
+			t.Fatal("expected", 2, "got", len(lis))
+		}
+	}
+
+	{
+		var tas *task.Task
+		{
+			tas = lis[0]
+		}
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+				Gate: &task.Gate{
+					"test.api.io/k-1": task.Trigger,
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	// Ensure that any state in Task.Gate and Task.Sync is properly propagated,
+	// since one of the associated trigger tasks got resolved.
+	{
+		var tas *task.Task
+		{
+			tas = lis[1]
+		}
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "bar",
+				},
+				Gate: &task.Gate{
+					"test.api.io/k-0": task.Deleted,
+					"test.api.io/k-1": task.Waiting,
+				},
+				Sync: &task.Sync{
+					"test.api.io/zer": "0",
+					"test.api.io/one": "n/a",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAll {
+				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	{
+		tas, err = eon.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+				Gate: &task.Gate{
+					"test.api.io/k-1": task.Trigger,
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	{
+		err = eon.Delete(tas)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		tas, err = eon.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// After the second call to Engine.Delete the gating task template got
+	// triggered to emit the new scheduled task.
+	{
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "bar",
+				},
+				Root: &task.Root{
+					task.Object: lis[1].Core.Map().Object(), // 2nd task in lis is the template
+				},
+				Sync: &task.Sync{
+					"test.api.io/zer": "0",
+					"test.api.io/one": "n/a",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAll {
+				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	{
+		lis, err = eon.Lister(All())
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		if len(lis) != 2 {
+			t.Fatal("expected", 2, "got", len(lis))
+		}
+	}
+
+	// This is the gating task template defining task.Gate. Since both of its
+	// trigger tasks got just deleted, its Task.Gate definition flipped to
+	// "waiting" again for each trigger task label.
+	{
+		var tas *task.Task
+		{
+			tas = lis[0]
+		}
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "bar",
+				},
+				Gate: &task.Gate{
+					"test.api.io/k-0": task.Waiting,
+					"test.api.io/k-1": task.Waiting,
+				},
+				Sync: &task.Sync{
+					"test.api.io/zer": "0",
+					"test.api.io/one": "n/a",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAll {
+				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	// This is the triggered task emitted by the gating task template above.
+	// Ensure it has the template's object ID in Task.Root, all state as defined
+	// in Task.Sync and the task delivery method "all".
+	{
+		var tas *task.Task
+		{
+			tas = lis[1]
+		}
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "bar",
+				},
+				Root: &task.Root{
+					task.Object: lis[0].Core.Map().Object(), // 1st task in lis is the template
+				},
+				Sync: &task.Sync{
+					"test.api.io/zer": "0",
+					"test.api.io/one": "n/a",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAll {
+				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
+			}
 		}
 	}
 }

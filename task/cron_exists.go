@@ -1,23 +1,23 @@
 package task
 
 type exicrn struct {
-	Labl map[string]string
+	labl map[string]string
 }
 
 func (c *Cron) Exi() *exicrn {
 	return &exicrn{
-		Labl: *c,
+		labl: *c,
 	}
 }
 
 func (e *exicrn) Aevery() bool {
-	return e.Labl[Aevery] != ""
+	return e.labl[Aevery] != ""
 }
 
 func (e *exicrn) TickM1() bool {
-	return e.Labl[TickM1] != ""
+	return e.labl[TickM1] != ""
 }
 
 func (e *exicrn) TickP1() bool {
-	return e.Labl[TickP1] != ""
+	return e.labl[TickP1] != ""
 }

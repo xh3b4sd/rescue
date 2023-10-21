@@ -1,14 +1,16 @@
 package task
 
+import "github.com/xh3b4sd/rescue/matcher"
+
 type Core map[string]string
 
 func (c *Core) All(key ...string) *Core {
-	cor := Core(All(*c, key...))
+	cor := Core(matcher.All(*c, key...))
 	return &cor
 }
 
 func (c *Core) Any(key ...string) *Core {
-	cor := Core(Any(*c, key...))
+	cor := Core(matcher.Any(*c, key...))
 	return &cor
 }
 
@@ -21,7 +23,7 @@ func (c *Core) Eql(x *Core) bool {
 }
 
 func (c *Core) Has(lab map[string]string) bool {
-	return Has(*c, lab)
+	return matcher.Has(*c, lab)
 }
 
 func (c *Core) Key() []string {

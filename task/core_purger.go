@@ -1,31 +1,35 @@
 package task
 
 type prgcor struct {
-	Labl map[string]string
+	labl map[string]string
 }
 
 func (c *Core) Prg() *prgcor {
 	return &prgcor{
-		Labl: *c,
+		labl: *c,
 	}
 }
 
 func (p *prgcor) Bypass() {
-	delete(p.Labl, Bypass)
+	delete(p.labl, Bypass)
 }
 
 func (p *prgcor) Cycles() {
-	delete(p.Labl, Cycles)
+	delete(p.labl, Cycles)
 }
 
 func (p *prgcor) Expiry() {
-	delete(p.Labl, Expiry)
+	delete(p.labl, Expiry)
+}
+
+func (p *prgcor) Method() {
+	delete(p.labl, Method)
 }
 
 func (p *prgcor) Object() {
-	delete(p.Labl, Object)
+	delete(p.labl, Object)
 }
 
 func (p *prgcor) Worker() {
-	delete(p.Labl, Worker)
+	delete(p.labl, Worker)
 }

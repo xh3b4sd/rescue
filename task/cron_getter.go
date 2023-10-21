@@ -7,33 +7,33 @@ import (
 )
 
 type getcrn struct {
-	Labl map[string]string
+	labl map[string]string
 }
 
 func (c *Cron) Get() *getcrn {
 	return &getcrn{
-		Labl: *c,
+		labl: *c,
 	}
 }
 
 func (g *getcrn) Aevery() string {
-	return g.Labl[Aevery]
+	return g.labl[Aevery]
 }
 
 func (g *getcrn) TickM1() time.Time {
-	tim, err := time.Parse(ticker.Layout, g.Labl[TickM1])
+	tic, err := time.Parse(ticker.Layout, g.labl[TickM1])
 	if err != nil {
 		panic(err)
 	}
 
-	return tim
+	return tic
 }
 
 func (g *getcrn) TickP1() time.Time {
-	tim, err := time.Parse(ticker.Layout, g.Labl[TickP1])
+	tic, err := time.Parse(ticker.Layout, g.labl[TickP1])
 	if err != nil {
 		panic(err)
 	}
 
-	return tim
+	return tic
 }

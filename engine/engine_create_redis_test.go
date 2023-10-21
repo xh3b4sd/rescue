@@ -4,8 +4,10 @@ package engine
 
 import (
 	"fmt"
+	"reflect"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/redigo"
 	"github.com/xh3b4sd/rescue/task"
@@ -103,27 +105,96 @@ func Test_Engine_Create(t *testing.T) {
 		}
 	}
 
+	// We expect 3 tasks because 3 tasks got created, even if one task is
+	// redundant. The redundant task will be cleaned up below when calling
+	// Engine.Search.
 	{
 		if len(lis) != 3 {
-			t.Fatal("expected 3 tasks listed")
+			t.Fatal("expected", 3, "got", len(lis))
 		}
-		if lis[0].Meta.Get("test.api.io/key") != "foo" {
-			t.Fatal("scheduling failed")
+	}
+
+	{
+		var tas *task.Task
+		{
+			tas = lis[0]
 		}
-		if lis[0].Root != nil {
-			t.Fatal("scheduling failed")
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+			}
 		}
-		if lis[1].Meta.Get("test.api.io/key") != "zap" {
-			t.Fatal("scheduling failed")
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
 		}
-		if lis[1].Root.Get("test.api.io/key") != "foo" {
-			t.Fatal("scheduling failed")
+	}
+
+	{
+		var tas *task.Task
+		{
+			tas = lis[1]
 		}
-		if lis[2].Meta.Get("test.api.io/key") != "bar" {
-			t.Fatal("scheduling failed")
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "zap",
+				},
+				Root: &task.Root{
+					"test.api.io/key": "foo",
+				},
+			}
 		}
-		if lis[2].Root.Get("test.api.io/key") != "rrr" {
-			t.Fatal("scheduling failed")
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	{
+		var tas *task.Task
+		{
+			tas = lis[2]
+		}
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "bar",
+				},
+				Root: &task.Root{
+					"test.api.io/key": "rrr",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
 		}
 	}
 
@@ -136,11 +207,23 @@ func Test_Engine_Create(t *testing.T) {
 	}
 
 	{
-		if tas.Meta.Get("test.api.io/key") != "foo" {
-			t.Fatal("scheduling failed")
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+			}
 		}
-		if tas.Root != nil {
-			t.Fatal("scheduling failed")
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
 		}
 	}
 
@@ -151,21 +234,68 @@ func Test_Engine_Create(t *testing.T) {
 		}
 	}
 
+	// We expect 2 tasks even though 3 tasks got created. The user did not delete
+	// any task. The system noticed one task was redundant due to the tree
+	// structure defined by Task.Root. Calling Engine.Search cleaned up the
+	// redundant task, leaving us with 2 valid tasks to process.
 	{
 		if len(lis) != 2 {
-			t.Fatal("expected 2 tasks listed")
+			t.Fatal("expected", 2, "got", len(lis))
 		}
-		if lis[0].Meta.Get("test.api.io/key") != "foo" {
-			t.Fatal("scheduling failed")
+	}
+
+	{
+		var tas *task.Task
+		{
+			tas = lis[0]
 		}
-		if lis[0].Root != nil {
-			t.Fatal("scheduling failed")
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+			}
 		}
-		if lis[1].Meta.Get("test.api.io/key") != "bar" {
-			t.Fatal("scheduling failed")
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
 		}
-		if lis[1].Root.Get("test.api.io/key") != "rrr" {
-			t.Fatal("scheduling failed")
+	}
+
+	{
+		var tas *task.Task
+		{
+			tas = lis[1]
+		}
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "bar",
+				},
+				Root: &task.Root{
+					"test.api.io/key": "rrr",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
 		}
 	}
 
@@ -184,11 +314,26 @@ func Test_Engine_Create(t *testing.T) {
 	}
 
 	{
-		if tas.Meta.Get("test.api.io/key") != "bar" {
-			t.Fatal("scheduling failed")
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "bar",
+				},
+				Root: &task.Root{
+					"test.api.io/key": "rrr",
+				},
+			}
 		}
-		if tas.Root.Get("test.api.io/key") != "rrr" {
-			t.Fatal("scheduling failed")
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
 		}
 	}
 
@@ -201,13 +346,36 @@ func Test_Engine_Create(t *testing.T) {
 
 	{
 		if len(lis) != 1 {
-			t.Fatal("expected 1 task listed")
+			t.Fatal("expected", 1, "got", len(lis))
 		}
-		if lis[0].Meta.Get("test.api.io/key") != "bar" {
-			t.Fatal("scheduling failed")
+	}
+
+	{
+		var tas *task.Task
+		{
+			tas = lis[0]
 		}
-		if lis[0].Root.Get("test.api.io/key") != "rrr" {
-			t.Fatal("scheduling failed")
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "bar",
+				},
+				Root: &task.Root{
+					"test.api.io/key": "rrr",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
 		}
 	}
 
@@ -221,7 +389,7 @@ func Test_Engine_Create(t *testing.T) {
 	{
 		tas, err = eon.Search()
 		if !IsTaskNotFound(err) {
-			t.Fatal("queue must be empty")
+			t.Fatal("expected", taskNotFoundError, "got", err)
 		}
 	}
 }
@@ -357,7 +525,7 @@ func Test_Engine_Create_Cron(t *testing.T) {
 	{
 		_, err = eon.Search()
 		if !IsTaskNotFound(err) {
-			t.Fatal("queue must be empty")
+			t.Fatal("expected", taskNotFoundError, "got", err)
 		}
 	}
 
@@ -423,6 +591,219 @@ func Test_Engine_Create_Cron(t *testing.T) {
 	{
 		if len(lis) != 0 {
 			t.Fatal("expected 0 tasks listed")
+		}
+	}
+}
+
+func Test_Engine_Create_Method_All(t *testing.T) {
+	var err error
+
+	var red redigo.Interface
+	{
+		red = redigo.Default()
+	}
+
+	{
+		err = red.Purge()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	var eon *Engine
+	{
+		eon = New(Config{
+			Logger: logger.Fake(),
+			Redigo: red,
+			Worker: "eon",
+		})
+	}
+
+	var etw *Engine
+	{
+		etw = New(Config{
+			Logger: logger.Fake(),
+			Redigo: red,
+			Worker: "etw",
+		})
+	}
+
+	var eth *Engine
+	{
+		eth = New(Config{
+			Logger: logger.Fake(),
+			Redigo: red,
+			Worker: "eth",
+		})
+	}
+
+	// The first task we create does not have a delivery method defined, so it
+	// should default to "any".
+	{
+		tas := &task.Task{
+			Meta: &task.Meta{
+				"test.api.io/key": "fir",
+			},
+		}
+
+		err = etw.Create(tas)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// The second task we create defines the delivery method "all", so it should
+	// be the first task every worker receives, even if it was not first in line
+	// of creation.
+	{
+		tas := &task.Task{
+			Core: &task.Core{
+				task.Method: task.MthdAll,
+			},
+			Meta: &task.Meta{
+				"test.api.io/key": "sec",
+			},
+		}
+
+		err = eon.Create(tas)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	var tas *task.Task
+	{
+		tas, err = eon.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Ensure engine one receives the task defining delivery method "all" first.
+	{
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "sec",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Exi().Worker() {
+				t.Fatal("expected", false, "got", true)
+			}
+			if tas.Core.Get().Method() != task.MthdAll {
+				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	{
+		tas, err = etw.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Ensure engine two receives the task defining delivery method "all" first.
+	{
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "sec",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Exi().Worker() {
+				t.Fatal("expected", false, "got", true)
+			}
+			if tas.Core.Get().Method() != task.MthdAll {
+				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	{
+		tas, err = eth.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Ensure engine three receives the task defining delivery method "all" first.
+	{
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "sec",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Exi().Worker() {
+				t.Fatal("expected", false, "got", true)
+			}
+			if tas.Core.Get().Method() != task.MthdAll {
+				t.Fatal("expected", task.MthdAll, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	{
+		tas, err = etw.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Let engine two search for tasks again. Ensure it receives the task that we
+	// created at first. This is the last task in the queue. Its delivery method
+	// should default to "any".
+	{
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "fir",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+			if tas.Core.Get().Method() != task.MthdAny {
+				t.Fatal("expected", task.MthdAny, "got", tas.Core.Get().Method())
+			}
+		}
+	}
+
+	// Any further searches should result in no task being found.
+	{
+		_, err = eth.Search()
+		if !IsTaskNotFound(err) {
+			t.Fatal("expected", taskNotFoundError, "got", err)
 		}
 	}
 }
@@ -638,7 +1019,7 @@ func Test_Engine_Create_Root_First(t *testing.T) {
 	{
 		tas, err = eon.Search()
 		if !IsTaskNotFound(err) {
-			t.Fatal("queue must be empty")
+			t.Fatal("expected", taskNotFoundError, "got", err)
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package task
+package matcher
 
 // Any returns a label set that matches any of the given label keys. If any of
 // the given label keys does not match, it is simply ignored. That means that

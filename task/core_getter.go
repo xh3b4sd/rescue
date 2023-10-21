@@ -8,21 +8,21 @@ import (
 )
 
 type getcor struct {
-	Labl map[string]string
+	labl map[string]string
 }
 
 func (c *Core) Get() *getcor {
 	return &getcor{
-		Labl: *c,
+		labl: *c,
 	}
 }
 
 func (g *getcor) Bypass() bool {
-	if g.Labl[Bypass] == "" {
+	if g.labl[Bypass] == "" {
 		return false
 	}
 
-	byp, err := strconv.ParseBool(g.Labl[Bypass])
+	byp, err := strconv.ParseBool(g.labl[Bypass])
 	if err != nil {
 		panic(err)
 	}
@@ -31,11 +31,11 @@ func (g *getcor) Bypass() bool {
 }
 
 func (g *getcor) Cycles() int64 {
-	if g.Labl[Cycles] == "" {
+	if g.labl[Cycles] == "" {
 		return 0
 	}
 
-	cyc, err := strconv.ParseInt(g.Labl[Cycles], 10, 64)
+	cyc, err := strconv.ParseInt(g.labl[Cycles], 10, 64)
 	if err != nil {
 		panic(err)
 	}
@@ -44,23 +44,27 @@ func (g *getcor) Cycles() int64 {
 }
 
 func (g *getcor) Expiry() time.Time {
-	tim, err := time.Parse(ticker.Layout, g.Labl[Expiry])
+	exp, err := time.Parse(ticker.Layout, g.labl[Expiry])
 	if err != nil {
 		panic(err)
 	}
 
-	return tim
+	return exp
+}
+
+func (g *getcor) Method() string {
+	return g.labl[Method]
 }
 
 func (g *getcor) Object() int64 {
-	cyc, err := strconv.ParseInt(g.Labl[Object], 10, 64)
+	obj, err := strconv.ParseInt(g.labl[Object], 10, 64)
 	if err != nil {
 		panic(err)
 	}
 
-	return cyc
+	return obj
 }
 
 func (g *getcor) Worker() string {
-	return g.Labl[Worker]
+	return g.labl[Worker]
 }

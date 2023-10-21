@@ -1,14 +1,16 @@
 package task
 
+import "github.com/xh3b4sd/rescue/matcher"
+
 type Root map[string]string
 
 func (r *Root) All(key ...string) *Root {
-	roo := Root(All(*r, key...))
+	roo := Root(matcher.All(*r, key...))
 	return &roo
 }
 
 func (r *Root) Any(key ...string) *Root {
-	roo := Root(Any(*r, key...))
+	roo := Root(matcher.Any(*r, key...))
 	return &roo
 }
 
@@ -39,7 +41,7 @@ func (r *Root) Get(key string) string {
 }
 
 func (r *Root) Has(lab map[string]string) bool {
-	return Has(*r, lab)
+	return matcher.Has(*r, lab)
 }
 
 func (r *Root) Key() []string {

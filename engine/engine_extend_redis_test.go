@@ -103,7 +103,7 @@ func Test_Engine_Extend(t *testing.T) {
 	{
 		_, err = eon.Search()
 		if !IsTaskNotFound(err) {
-			t.Fatal("queue must be empty")
+			t.Fatal("expected", taskNotFoundError, "got", err)
 		}
 	}
 
@@ -125,7 +125,7 @@ func Test_Engine_Extend(t *testing.T) {
 	{
 		_, err = eon.Search()
 		if !IsTaskNotFound(err) {
-			t.Fatal("queue must be empty")
+			t.Fatal("expected", taskNotFoundError, "got", err)
 		}
 
 		err = etw.Extend(tas)
@@ -152,7 +152,7 @@ func Test_Engine_Extend(t *testing.T) {
 	{
 		_, err = eon.Search()
 		if !IsTaskNotFound(err) {
-			t.Fatal("queue must be empty")
+			t.Fatal("expected", taskNotFoundError, "got", err)
 		}
 
 		err = etw.Extend(tas)
@@ -179,7 +179,7 @@ func Test_Engine_Extend(t *testing.T) {
 	{
 		_, err = eon.Search()
 		if !IsTaskNotFound(err) {
-			t.Fatal("queue must be empty")
+			t.Fatal("expected", taskNotFoundError, "got", err)
 		}
 
 		err = etw.Extend(tas)
@@ -206,7 +206,7 @@ func Test_Engine_Extend(t *testing.T) {
 	{
 		_, err = eon.Search()
 		if !IsTaskNotFound(err) {
-			t.Fatal("queue must be empty")
+			t.Fatal("expected", taskNotFoundError, "got", err)
 		}
 
 		err = etw.Extend(tas)
@@ -233,7 +233,7 @@ func Test_Engine_Extend(t *testing.T) {
 	{
 		_, err = eon.Search()
 		if !IsTaskNotFound(err) {
-			t.Fatal("queue must be empty")
+			t.Fatal("expected", taskNotFoundError, "got", err)
 		}
 
 		err = etw.Extend(tas)
@@ -285,7 +285,7 @@ func Test_Engine_Extend(t *testing.T) {
 	{
 		_, err = etw.Search()
 		if !IsTaskNotFound(err) {
-			t.Fatal("queue must be empty")
+			t.Fatal("expected", taskNotFoundError, "got", err)
 		}
 	}
 
@@ -299,12 +299,12 @@ func Test_Engine_Extend(t *testing.T) {
 	{
 		_, err = eon.Search()
 		if !IsTaskNotFound(err) {
-			t.Fatal("queue must be empty")
+			t.Fatal("expected", taskNotFoundError, "got", err)
 		}
 
 		_, err = etw.Search()
 		if !IsTaskNotFound(err) {
-			t.Fatal("queue must be empty")
+			t.Fatal("expected", taskNotFoundError, "got", err)
 		}
 	}
 }
