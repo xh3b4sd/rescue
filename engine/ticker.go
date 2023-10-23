@@ -75,7 +75,7 @@ func (e *Engine) ticker() error {
 		// We are looking for tasks which have a schedule. So if there is no
 		// schedule defined, then we ignore the task and move on to find another
 		// one.
-		if x.Cron == nil || x.Cron.Get().Aevery() == "" {
+		if x.Cron == nil || !x.Cron.Exi().Aevery() {
 			continue
 		}
 
@@ -190,8 +190,25 @@ func (e *Engine) ticker() error {
 			// If the scheduled task references the object ID of our task template,
 			// then we found the task that is still being reconciled.
 			if y.Root.Len() == 1 && y.Root.Has(*x.Core.All(task.Object)) {
-				exi = true
-				break
+				if y.Node.Get(task.Method) == task.MthdAny {
+					exi = true
+					break
+				} else {
+					// Delete y since it was identified to be a scheduled task defining
+					// the delivery method "all" or "any", which implies that those tasks
+					// become redundant at the new interval that we just crossed. And so
+					// we delete the lingering task to replace it with the new one we are
+					// about to create below.
+					{
+						k := e.Keyfmt()
+						s := float64(y.Core.Get().Object())
+
+						err = e.red.Sorted().Delete().Score(k, s)
+						if err != nil {
+							return tracer.Mask(err)
+						}
+					}
+				}
 			}
 		}
 
