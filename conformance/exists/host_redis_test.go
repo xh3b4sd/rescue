@@ -36,7 +36,7 @@ func Test_Engine_Exists_Host(t *testing.T) {
 	}
 
 	{
-		exi, err := eon.Exists(&task.Task{Host: &task.Host{task.Method: task.MthdAll}})
+		exi, err := eon.Exists(&task.Task{Node: &task.Node{task.Method: task.MthdAll}})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -47,7 +47,7 @@ func Test_Engine_Exists_Host(t *testing.T) {
 	}
 
 	{
-		exi, err := eon.Exists(&task.Task{Host: &task.Host{task.Method: task.MthdUni}})
+		exi, err := eon.Exists(&task.Task{Node: &task.Node{task.Method: task.MthdUni}})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -58,7 +58,7 @@ func Test_Engine_Exists_Host(t *testing.T) {
 	}
 
 	{
-		exi, err := eon.Exists(&task.Task{Host: &task.Host{task.Method: task.MthdUni, task.Worker: "etw"}})
+		exi, err := eon.Exists(&task.Task{Node: &task.Node{task.Method: task.MthdUni, task.Worker: "etw"}})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -69,7 +69,7 @@ func Test_Engine_Exists_Host(t *testing.T) {
 	}
 
 	{
-		exi, err := eon.Exists(&task.Task{Host: &task.Host{task.Method: task.MthdAny}})
+		exi, err := eon.Exists(&task.Task{Node: &task.Node{task.Method: task.MthdAny}})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -81,12 +81,12 @@ func Test_Engine_Exists_Host(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Host: &task.Host{
-				task.Method: task.MthdAll,
-			},
 			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 			},
+			Node: &task.Node{
+				task.Method: task.MthdAll,
+			},
 		}
 
 		err = eon.Create(tas)
@@ -97,13 +97,13 @@ func Test_Engine_Exists_Host(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Host: &task.Host{
-				task.Method: task.MthdUni,
-				task.Worker: "eon",
-			},
 			Meta: &task.Meta{
 				"test.api.io/key": "bar",
 			},
+			Node: &task.Node{
+				task.Method: task.MthdUni,
+				task.Worker: "eon",
+			},
 		}
 
 		err = eon.Create(tas)
@@ -114,12 +114,12 @@ func Test_Engine_Exists_Host(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Host: &task.Host{
-				task.Method: task.MthdUni,
-				task.Worker: "etw",
-			},
 			Meta: &task.Meta{
 				"test.api.io/key": "baz",
+			},
+			Node: &task.Node{
+				task.Method: task.MthdUni,
+				task.Worker: "etw",
 			},
 		}
 
@@ -130,7 +130,7 @@ func Test_Engine_Exists_Host(t *testing.T) {
 	}
 
 	{
-		exi, err := eon.Exists(&task.Task{Host: &task.Host{task.Method: task.MthdAll}})
+		exi, err := eon.Exists(&task.Task{Node: &task.Node{task.Method: task.MthdAll}})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -141,7 +141,7 @@ func Test_Engine_Exists_Host(t *testing.T) {
 	}
 
 	{
-		exi, err := eon.Exists(&task.Task{Host: &task.Host{task.Method: task.MthdUni}})
+		exi, err := eon.Exists(&task.Task{Node: &task.Node{task.Method: task.MthdUni}})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -152,7 +152,7 @@ func Test_Engine_Exists_Host(t *testing.T) {
 	}
 
 	{
-		exi, err := eon.Exists(&task.Task{Host: &task.Host{task.Method: task.MthdUni, task.Worker: "etw"}})
+		exi, err := eon.Exists(&task.Task{Node: &task.Node{task.Method: task.MthdUni, task.Worker: "etw"}})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -164,7 +164,7 @@ func Test_Engine_Exists_Host(t *testing.T) {
 
 	// There is no "any" task created, so it must not exist.
 	{
-		exi, err := eon.Exists(&task.Task{Host: &task.Host{task.Method: task.MthdAny}})
+		exi, err := eon.Exists(&task.Task{Node: &task.Node{task.Method: task.MthdAny}})
 		if err != nil {
 			t.Fatal(err)
 		}

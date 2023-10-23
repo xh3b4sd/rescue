@@ -67,7 +67,7 @@ func (e *Engine) delete(tas *task.Task) error {
 	// Allow the local deletion of any broadcasted task that is not a task
 	// template.
 	if loc != nil {
-		all := tas.Host.Get(task.Method) == task.MthdAll
+		all := tas.Node.Get(task.Method) == task.MthdAll
 		byp := tas.Core.Exi().Bypass()
 		crn := tas.Cron == nil
 		gat := tas.Gate == nil
@@ -232,8 +232,8 @@ func (e *Engine) delete(tas *task.Task) error {
 				{
 					t = &task.Task{
 						Core: &task.Core{},
-						Host: x.Host,
 						Meta: x.Meta,
+						Node: x.Node,
 						Root: &task.Root{
 							task.Object: x.Core.Map().Object(),
 						},
@@ -250,12 +250,12 @@ func (e *Engine) delete(tas *task.Task) error {
 					t.Core.Set().Object(tid)
 				}
 
-				if t.Host == nil {
-					t.Host = &task.Host{}
+				if t.Node == nil {
+					t.Node = &task.Node{}
 				}
 
-				if t.Host.Get(task.Method) == "" {
-					t.Host.Set(task.Method, task.MthdAny)
+				if t.Node.Get(task.Method) == "" {
+					t.Node.Set(task.Method, task.MthdAny)
 				}
 
 				{

@@ -85,11 +85,11 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 			Cron: &task.Cron{
 				task.Aevery: "3 days",
 			},
-			Host: &task.Host{
-				task.Method: task.MthdAll,
-			},
 			Meta: &task.Meta{
 				"test.api.io/key": "foo",
+			},
+			Node: &task.Node{
+				task.Method: task.MthdAll,
 			},
 		}
 	}
@@ -155,11 +155,11 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 					task.TickM1: "2022-12-30T00:00:00Z",
 					task.TickP1: "2023-01-02T00:00:00Z",
 				},
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -219,11 +219,11 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 					task.TickM1: "2022-12-30T00:00:00Z",
 					task.TickP1: "2023-01-02T00:00:00Z",
 				},
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -277,11 +277,11 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 					task.TickM1: "2023-01-02T00:00:00Z",
 					task.TickP1: "2023-01-05T00:00:00Z",
 				},
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -305,11 +305,11 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 				Root: &task.Root{
 					task.Object: lis[0].Core.Map().Object(),
@@ -1182,11 +1182,11 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 				Gate: &task.Gate{
 					"test.api.io/k-1": task.Trigger,
 				},
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 				Sync: &task.Sync{
 					"test.api.io/foo": "should-not-change",
@@ -1221,7 +1221,7 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
 				},
-				Host: &task.Host{
+				Node: &task.Node{
 					task.Method: task.MthdAny,
 				},
 				Root: &task.Root{
@@ -1293,11 +1293,11 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 				Gate: &task.Gate{
 					"test.api.io/k-1": task.Trigger,
 				},
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 				Sync: &task.Sync{
 					"test.api.io/foo": "should-not-change",
@@ -1314,7 +1314,7 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 	}
 }
 
-func Test_Engine_Lifecycle_Method_All_Failure(t *testing.T) {
+func Test_Engine_Lifecycle_Node_All_Failure(t *testing.T) {
 	var err error
 
 	var red redigo.Interface
@@ -1362,11 +1362,11 @@ func Test_Engine_Lifecycle_Method_All_Failure(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Host: &task.Host{
-				task.Method: task.MthdAll,
-			},
 			Meta: &task.Meta{
 				"test.api.io/key": "foo",
+			},
+			Node: &task.Node{
+				task.Method: task.MthdAll,
 			},
 		}
 
@@ -1386,11 +1386,11 @@ func Test_Engine_Lifecycle_Method_All_Failure(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Host: &task.Host{
-				task.Method: task.MthdAll,
-			},
 			Meta: &task.Meta{
 				"test.api.io/key": "bar",
+			},
+			Node: &task.Node{
+				task.Method: task.MthdAll,
 			},
 		}
 
@@ -1414,11 +1414,11 @@ func Test_Engine_Lifecycle_Method_All_Failure(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -1446,11 +1446,11 @@ func Test_Engine_Lifecycle_Method_All_Failure(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -1532,11 +1532,11 @@ func Test_Engine_Lifecycle_Method_All_Failure(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}

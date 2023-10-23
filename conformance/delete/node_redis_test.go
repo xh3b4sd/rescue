@@ -10,11 +10,13 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/redigo"
+	"github.com/xh3b4sd/rescue"
+	"github.com/xh3b4sd/rescue/engine"
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/rescue/timer"
 )
 
-func Test_Engine_Delete(t *testing.T) {
+func Test_Engine_Delete_Cron_Node_All(t *testing.T) {
 	var err error
 
 	var red redigo.Interface
@@ -29,117 +31,9 @@ func Test_Engine_Delete(t *testing.T) {
 		}
 	}
 
-	var eon *Engine
+	var eon rescue.Interface
 	{
-		eon = New(Config{
-			Expiry: 1 * time.Millisecond,
-			Logger: logger.Fake(),
-			Redigo: red,
-			Worker: "eon",
-		})
-	}
-
-	var etw *Engine
-	{
-		etw = New(Config{
-			Expiry: 1 * time.Millisecond,
-			Logger: logger.Fake(),
-			Redigo: red,
-			Worker: "etw",
-		})
-	}
-
-	{
-		tas := &task.Task{
-			Meta: &task.Meta{
-				"test.api.io/key": "foo",
-			},
-		}
-
-		err = eon.Create(tas)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	var tas *task.Task
-	{
-		tas, err = eon.Search()
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if tas.Meta.Get("test.api.io/key") != "foo" {
-			t.Fatal("scheduling failed")
-		}
-	}
-
-	{
-		time.Sleep(1 * time.Millisecond)
-	}
-
-	{
-		err = eon.Expire()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	{
-		exi, err := eon.Exists(&task.Task{Core: tas.Core.All(task.Object, task.Worker)})
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if exi {
-			t.Fatal("task must not be owned by eon")
-		}
-	}
-
-	{
-		err = etw.Delete(tas)
-		if !IsTaskOutdated(err) {
-			t.Fatal("task must be deleted by owner")
-		}
-	}
-
-	{
-		tas.Core.Set().Bypass(true)
-	}
-
-	{
-		err = etw.Delete(tas)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	{
-		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
-		}
-	}
-}
-
-func Test_Engine_Delete_Cron(t *testing.T) {
-	var err error
-
-	var red redigo.Interface
-	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	var eon *Engine
-	{
-		eon = New(Config{
+		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 		})
@@ -147,7 +41,7 @@ func Test_Engine_Delete_Cron(t *testing.T) {
 
 	var lis []*task.Task
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -168,6 +62,9 @@ func Test_Engine_Delete_Cron(t *testing.T) {
 			Meta: &task.Meta{
 				"test.api.io/key": "bar",
 			},
+			Node: &task.Node{
+				task.Method: task.MthdAll,
+			},
 			Sync: &task.Sync{
 				"test.api.io/zer": "n/a",
 				"test.api.io/one": "n/a",
@@ -183,7 +80,7 @@ func Test_Engine_Delete_Cron(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -198,8 +95,8 @@ func Test_Engine_Delete_Cron(t *testing.T) {
 	// Ensure that deleting task templates does not work without bypassing.
 	{
 		err = eon.Delete(tas)
-		if !IsTaskOutdated(err) {
-			t.Fatal("expected", true, "got", false)
+		if !engine.IsTaskOutdated(err) {
+			t.Fatal("expected", "taskOutdatedError", "got", err)
 		}
 	}
 
@@ -217,7 +114,7 @@ func Test_Engine_Delete_Cron(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -230,7 +127,7 @@ func Test_Engine_Delete_Cron(t *testing.T) {
 	}
 }
 
-func Test_Engine_Delete_Cron_Method_All(t *testing.T) {
+func Test_Engine_Delete_Gate_Node_All(t *testing.T) {
 	var err error
 
 	var red redigo.Interface
@@ -245,9 +142,9 @@ func Test_Engine_Delete_Cron_Method_All(t *testing.T) {
 		}
 	}
 
-	var eon *Engine
+	var eon rescue.Interface
 	{
-		eon = New(Config{
+		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 		})
@@ -255,7 +152,7 @@ func Test_Engine_Delete_Cron_Method_All(t *testing.T) {
 
 	var lis []*task.Task
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -270,124 +167,16 @@ func Test_Engine_Delete_Cron_Method_All(t *testing.T) {
 	var tas *task.Task
 	{
 		tas = &task.Task{
-			Cron: &task.Cron{
-				task.Aevery: "6 hours",
-			},
-			Host: &task.Host{
-				task.Method: task.MthdAll,
-			},
-			Meta: &task.Meta{
-				"test.api.io/key": "bar",
-			},
-			Sync: &task.Sync{
-				"test.api.io/zer": "n/a",
-				"test.api.io/one": "n/a",
-			},
-		}
-	}
-
-	{
-		err = eon.Create(tas)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	{
-		lis, err = eon.Lister(All())
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	{
-		if len(lis) != 1 {
-			t.Fatal("expected", 1, "got", len(lis))
-		}
-	}
-
-	// Ensure that deleting task templates does not work without bypassing.
-	{
-		err = eon.Delete(tas)
-		if !IsTaskOutdated(err) {
-			t.Fatal("expected", true, "got", false)
-		}
-	}
-
-	// Templates for scheduling tasks can only be deleted when bypassing the
-	// internal ownership checks.
-	{
-		tas.Core.Set().Bypass(true)
-	}
-
-	{
-		err = eon.Delete(tas)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	{
-		lis, err = eon.Lister(All())
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	{
-		if len(lis) != 0 {
-			t.Fatal("expected", 0, "got", len(lis))
-		}
-	}
-}
-
-func Test_Engine_Delete_Gate(t *testing.T) {
-	var err error
-
-	var red redigo.Interface
-	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	var eon *Engine
-	{
-		eon = New(Config{
-			Logger: logger.Fake(),
-			Redigo: red,
-		})
-	}
-
-	var lis []*task.Task
-	{
-		lis, err = eon.Lister(All())
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	{
-		if len(lis) != 0 {
-			t.Fatal("expected", 0, "got", len(lis))
-		}
-	}
-
-	var tas *task.Task
-	{
-		tas = &task.Task{
-			Meta: &task.Meta{
-				"test.api.io/key": "bar",
-			},
 			Gate: &task.Gate{
 				"test.api.io/k-0": task.Waiting,
 				"test.api.io/k-1": task.Waiting,
 			},
+			Meta: &task.Meta{
+				"test.api.io/key": "bar",
+			},
+			Node: &task.Node{
+				task.Method: task.MthdAll,
+			},
 			Sync: &task.Sync{
 				"test.api.io/zer": "n/a",
 				"test.api.io/one": "n/a",
@@ -403,7 +192,7 @@ func Test_Engine_Delete_Gate(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -418,8 +207,8 @@ func Test_Engine_Delete_Gate(t *testing.T) {
 	// Ensure that deleting task templates does not work without bypassing.
 	{
 		err = eon.Delete(tas)
-		if !IsTaskOutdated(err) {
-			t.Fatal("expected", true, "got", false)
+		if !engine.IsTaskOutdated(err) {
+			t.Fatal("expected", "taskOutdatedError", "got", err)
 		}
 	}
 
@@ -437,7 +226,7 @@ func Test_Engine_Delete_Gate(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -450,119 +239,7 @@ func Test_Engine_Delete_Gate(t *testing.T) {
 	}
 }
 
-func Test_Engine_Delete_Gate_Method_All(t *testing.T) {
-	var err error
-
-	var red redigo.Interface
-	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	var eon *Engine
-	{
-		eon = New(Config{
-			Logger: logger.Fake(),
-			Redigo: red,
-		})
-	}
-
-	var lis []*task.Task
-	{
-		lis, err = eon.Lister(All())
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	{
-		if len(lis) != 0 {
-			t.Fatal("expected", 0, "got", len(lis))
-		}
-	}
-
-	var tas *task.Task
-	{
-		tas = &task.Task{
-			Host: &task.Host{
-				task.Method: task.MthdAll,
-			},
-			Meta: &task.Meta{
-				"test.api.io/key": "bar",
-			},
-			Gate: &task.Gate{
-				"test.api.io/k-0": task.Waiting,
-				"test.api.io/k-1": task.Waiting,
-			},
-			Sync: &task.Sync{
-				"test.api.io/zer": "n/a",
-				"test.api.io/one": "n/a",
-			},
-		}
-	}
-
-	{
-		err = eon.Create(tas)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	{
-		lis, err = eon.Lister(All())
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	{
-		if len(lis) != 1 {
-			t.Fatal("expected", 1, "got", len(lis))
-		}
-	}
-
-	// Ensure that deleting task templates does not work without bypassing.
-	{
-		err = eon.Delete(tas)
-		if !IsTaskOutdated(err) {
-			t.Fatal("expected", true, "got", false)
-		}
-	}
-
-	// Templates for triggered tasks can only be deleted when bypassing the
-	// internal ownership checks.
-	{
-		tas.Core.Set().Bypass(true)
-	}
-
-	{
-		err = eon.Delete(tas)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	{
-		lis, err = eon.Lister(All())
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	{
-		if len(lis) != 0 {
-			t.Fatal("expected", 0, "got", len(lis))
-		}
-	}
-}
-
-func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
+func Test_Engine_Delete_Node_All_Purge(t *testing.T) {
 	var err error
 
 	var red redigo.Interface
@@ -591,9 +268,9 @@ func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
 		})
 	}
 
-	var eon *Engine
+	var eon rescue.Interface
 	{
-		eon = New(Config{
+		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 			Timer:  tim,
@@ -601,9 +278,9 @@ func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
 		})
 	}
 
-	var etw *Engine
+	var etw rescue.Interface
 	{
-		etw = New(Config{
+		etw = engine.New(engine.Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 			Timer:  tim,
@@ -621,11 +298,11 @@ func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Host: &task.Host{
-				task.Method: task.MthdAll,
-			},
 			Meta: &task.Meta{
 				"test.api.io/key": "foo",
+			},
+			Node: &task.Node{
+				task.Method: task.MthdAll,
 			},
 		}
 
@@ -656,11 +333,11 @@ func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -692,11 +369,11 @@ func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -718,21 +395,21 @@ func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
 
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
 	{
 		_, err = etw.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
 	var lis []*task.Task
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -756,11 +433,11 @@ func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -789,7 +466,7 @@ func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -800,4 +477,13 @@ func Test_Engine_Delete_Method_All_Purge(t *testing.T) {
 			t.Fatal("expected", 0, "got", len(lis))
 		}
 	}
+}
+
+func musTim(str string) time.Time {
+	tim, err := time.Parse("2006-01-02T15:04:05.999999Z", str)
+	if err != nil {
+		panic(err)
+	}
+
+	return tim
 }

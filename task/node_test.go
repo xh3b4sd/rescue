@@ -9,7 +9,7 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func Test_Task_Host_Emp(t *testing.T) {
+func Test_Task_Node_Emp(t *testing.T) {
 	testCases := []struct {
 		tas *Task
 		emp bool
@@ -29,14 +29,14 @@ func Test_Task_Host_Emp(t *testing.T) {
 		// Case 002
 		{
 			tas: &Task{
-				Host: &Host{},
+				Node: &Node{},
 			},
 			emp: true,
 		},
 		// Case 003
 		{
 			tas: &Task{
-				Host: &Host{"foo": "bar"},
+				Node: &Node{"foo": "bar"},
 			},
 			emp: false,
 		},
@@ -58,7 +58,7 @@ func Test_Task_Host_Emp(t *testing.T) {
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
-			emp := tc.tas.Host.Emp()
+			emp := tc.tas.Node.Emp()
 
 			if emp != tc.emp {
 				t.Fatalf("\n\n%s\n", cmp.Diff(tc.emp, emp))
@@ -67,30 +67,30 @@ func Test_Task_Host_Emp(t *testing.T) {
 	}
 }
 
-func Test_Task_Host_Eql(t *testing.T) {
+func Test_Task_Node_Eql(t *testing.T) {
 	testCases := []struct {
 		tas *Task
-		hos *Host
+		nod *Node
 		eql bool
 	}{
 		// Case 000
 		{
 			tas: &Task{},
-			hos: nil,
+			nod: nil,
 			eql: false,
 		},
 		// Case 001
 		{
 			tas: &Task{},
-			hos: &Host{},
+			nod: &Node{},
 			eql: false,
 		},
 		// Case 002
 		{
 			tas: &Task{
-				Host: &Host{"foo": "bar"},
+				Node: &Node{"foo": "bar"},
 			},
-			hos: &Host{},
+			nod: &Node{},
 			eql: false,
 		},
 		// Case 003
@@ -98,62 +98,62 @@ func Test_Task_Host_Eql(t *testing.T) {
 			tas: &Task{
 				Core: &Core{"foo": "bar"},
 			},
-			hos: &Host{"foo": "bar"},
+			nod: &Node{"foo": "bar"},
 			eql: false,
 		},
 		// Case 004
 		{
 			tas: &Task{
-				Host: &Host{"foo": "bar"},
+				Node: &Node{"foo": "bar"},
 			},
-			hos: &Host{"foo": "bar"},
+			nod: &Node{"foo": "bar"},
 			eql: true,
 		},
 		// Case 005
 		{
 			tas: &Task{
-				Host: &Host{"foo": "bar", "baz": "zap"},
+				Node: &Node{"foo": "bar", "baz": "zap"},
 			},
-			hos: &Host{"foo": "bar"},
+			nod: &Node{"foo": "bar"},
 			eql: false,
 		},
 		// Case 006
 		{
 			tas: &Task{
-				Host: &Host{"foo": "bar", "baz": "zap"},
+				Node: &Node{"foo": "bar", "baz": "zap"},
 			},
-			hos: &Host{"baz": "zap"},
+			nod: &Node{"baz": "zap"},
 			eql: false,
 		},
 		// Case 007
 		{
 			tas: &Task{
-				Host: &Host{"foo": "bar", "baz": "zap"},
+				Node: &Node{"foo": "bar", "baz": "zap"},
 			},
-			hos: &Host{"foo": "bar", "baz": "zap"},
+			nod: &Node{"foo": "bar", "baz": "zap"},
 			eql: true,
 		},
 		// Case 008
 		{
 			tas: &Task{
-				Host: &Host{"foo": "", "baz": "zap"},
+				Node: &Node{"foo": "", "baz": "zap"},
 			},
-			hos: &Host{"foo": "", "baz": "zap"},
+			nod: &Node{"foo": "", "baz": "zap"},
 			eql: true,
 		},
 		// Case 009
 		{
 			tas: &Task{
-				Host: &Host{"foo": "", "baz": "zap"},
+				Node: &Node{"foo": "", "baz": "zap"},
 			},
-			hos: &Host{"foo": "bar", "baz": ""},
+			nod: &Node{"foo": "bar", "baz": ""},
 			eql: false,
 		},
 	}
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
-			eql := tc.tas.Host.Eql(tc.hos)
+			eql := tc.tas.Node.Eql(tc.nod)
 
 			if eql != tc.eql {
 				t.Fatalf("\n\n%s\n", cmp.Diff(tc.eql, eql))
@@ -162,7 +162,7 @@ func Test_Task_Host_Eql(t *testing.T) {
 	}
 }
 
-func Test_Task_Host_Exi(t *testing.T) {
+func Test_Task_Node_Exi(t *testing.T) {
 	testCases := []struct {
 		tas *Task
 		exi bool
@@ -182,14 +182,14 @@ func Test_Task_Host_Exi(t *testing.T) {
 		// Case 002
 		{
 			tas: &Task{
-				Host: &Host{},
+				Node: &Node{},
 			},
 			exi: false,
 		},
 		// Case 003
 		{
 			tas: &Task{
-				Host: &Host{"foo": "bar"},
+				Node: &Node{"foo": "bar"},
 			},
 			exi: true,
 		},
@@ -211,7 +211,7 @@ func Test_Task_Host_Exi(t *testing.T) {
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
-			exi := tc.tas.Host.Exi("foo")
+			exi := tc.tas.Node.Exi("foo")
 
 			if exi != tc.exi {
 				t.Fatalf("\n\n%s\n", cmp.Diff(tc.exi, exi))
@@ -220,7 +220,7 @@ func Test_Task_Host_Exi(t *testing.T) {
 	}
 }
 
-func Test_Task_Host_Get(t *testing.T) {
+func Test_Task_Node_Get(t *testing.T) {
 	testCases := []struct {
 		tas *Task
 		get string
@@ -240,14 +240,14 @@ func Test_Task_Host_Get(t *testing.T) {
 		// Case 002
 		{
 			tas: &Task{
-				Host: &Host{},
+				Node: &Node{},
 			},
 			get: "",
 		},
 		// Case 003
 		{
 			tas: &Task{
-				Host: &Host{"foo": "bar"},
+				Node: &Node{"foo": "bar"},
 			},
 			get: "bar",
 		},
@@ -269,7 +269,7 @@ func Test_Task_Host_Get(t *testing.T) {
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
-			get := tc.tas.Host.Get("foo")
+			get := tc.tas.Node.Get("foo")
 
 			if get != tc.get {
 				t.Fatalf("\n\n%s\n", cmp.Diff(tc.get, get))
@@ -278,7 +278,7 @@ func Test_Task_Host_Get(t *testing.T) {
 	}
 }
 
-func Test_Task_Host_Key(t *testing.T) {
+func Test_Task_Node_Key(t *testing.T) {
 	testCases := []struct {
 		tas *Task
 		key []string
@@ -300,7 +300,7 @@ func Test_Task_Host_Key(t *testing.T) {
 		// Case 002
 		{
 			tas: &Task{
-				Host: &Host{
+				Node: &Node{
 					"foo": "bar",
 				},
 			},
@@ -311,7 +311,7 @@ func Test_Task_Host_Key(t *testing.T) {
 		// Case 003
 		{
 			tas: &Task{
-				Host: &Host{
+				Node: &Node{
 					"foo": "bar",
 					"baz": "foo",
 					"key": "baz",
@@ -327,7 +327,7 @@ func Test_Task_Host_Key(t *testing.T) {
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
-			key := tc.tas.Host.Key()
+			key := tc.tas.Node.Key()
 
 			slices.Sort(key)
 			slices.Sort(tc.key)
@@ -339,7 +339,7 @@ func Test_Task_Host_Key(t *testing.T) {
 	}
 }
 
-func Test_Task_Host_Set(t *testing.T) {
+func Test_Task_Node_Set(t *testing.T) {
 	testCases := []struct {
 		tas *Task
 		key string
@@ -349,30 +349,30 @@ func Test_Task_Host_Set(t *testing.T) {
 		// Case 000
 		{
 			tas: &Task{
-				Host: &Host{"foo": "bar"},
+				Node: &Node{"foo": "bar"},
 			},
 			key: "foo",
 			val: "zap",
 			set: &Task{
-				Host: &Host{"foo": "zap"},
+				Node: &Node{"foo": "zap"},
 			},
 		},
 		// Case 001
 		{
 			tas: &Task{
-				Host: &Host{"foo": "bar", "one": "two"},
+				Node: &Node{"foo": "bar", "one": "two"},
 			},
 			key: "one",
 			val: "thr",
 			set: &Task{
-				Host: &Host{"foo": "bar", "one": "thr"},
+				Node: &Node{"foo": "bar", "one": "thr"},
 			},
 		},
 	}
 
 	for i, tc := range testCases {
 		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
-			tc.tas.Host.Set(tc.key, tc.val)
+			tc.tas.Node.Set(tc.key, tc.val)
 
 			set := tc.set
 

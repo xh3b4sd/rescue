@@ -53,12 +53,12 @@ func Test_Engine_Lister_Host(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Host: &task.Host{
-				task.Method: task.MthdAll,
-			},
 			Meta: &task.Meta{
 				"test.api.io/key": "foo",
 			},
+			Node: &task.Node{
+				task.Method: task.MthdAll,
+			},
 		}
 
 		err = eon.Create(tas)
@@ -69,13 +69,13 @@ func Test_Engine_Lister_Host(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Host: &task.Host{
-				task.Method: task.MthdUni,
-				task.Worker: "eon",
-			},
 			Meta: &task.Meta{
 				"test.api.io/key": "bar",
 			},
+			Node: &task.Node{
+				task.Method: task.MthdUni,
+				task.Worker: "eon",
+			},
 		}
 
 		err = eon.Create(tas)
@@ -86,12 +86,12 @@ func Test_Engine_Lister_Host(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Host: &task.Host{
-				task.Method: task.MthdUni,
-				task.Worker: "etw",
-			},
 			Meta: &task.Meta{
 				"test.api.io/key": "baz",
+			},
+			Node: &task.Node{
+				task.Method: task.MthdUni,
+				task.Worker: "etw",
 			},
 		}
 
@@ -124,11 +124,11 @@ func Test_Engine_Lister_Host(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -150,12 +150,12 @@ func Test_Engine_Lister_Host(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdUni,
-					task.Worker: "eon",
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdUni,
+					task.Worker: "eon",
 				},
 			}
 		}
@@ -177,12 +177,12 @@ func Test_Engine_Lister_Host(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdUni,
-					task.Worker: "etw",
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "baz",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdUni,
+					task.Worker: "etw",
 				},
 			}
 		}
@@ -195,7 +195,7 @@ func Test_Engine_Lister_Host(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(&task.Task{Host: &task.Host{task.Method: task.MthdAll}})
+		lis, err = eon.Lister(&task.Task{Node: &task.Node{task.Method: task.MthdAll}})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -208,7 +208,7 @@ func Test_Engine_Lister_Host(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(&task.Task{Host: &task.Host{task.Method: task.MthdUni}})
+		lis, err = eon.Lister(&task.Task{Node: &task.Node{task.Method: task.MthdUni}})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -221,7 +221,7 @@ func Test_Engine_Lister_Host(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(&task.Task{Host: &task.Host{task.Method: task.MthdUni, task.Worker: "etw"}})
+		lis, err = eon.Lister(&task.Task{Node: &task.Node{task.Method: task.MthdUni, task.Worker: "etw"}})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -234,7 +234,7 @@ func Test_Engine_Lister_Host(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(&task.Task{Host: &task.Host{task.Method: task.MthdAny}})
+		lis, err = eon.Lister(&task.Task{Node: &task.Node{task.Method: task.MthdAny}})
 		if err != nil {
 			t.Fatal(err)
 		}

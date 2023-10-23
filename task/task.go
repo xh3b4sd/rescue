@@ -75,18 +75,6 @@ type Task struct {
 	// to begin.
 	Gate *Gate `json:"gate,omitempty"`
 
-	// Host contains addressable task delivery information for targeting any
-	// addressable worker within the network. The default delivery method is
-	// "any". Tasks may be processed by "all" workers within the network without
-	// acknowledgement of completion. Any particular worker may be addressed like
-	// shown below. Tasks not being addressed within a configured retention period
-	// are being deleted.
-	//
-	//     addr.rescue.io/method    uni
-	//     task.rescue.io/worker    90dc68ba-4820-42ac-a924-2450388c15a6
-	//
-	Host *Host `json:"host,omitempty"`
-
 	// Meta contains task specific information defined by the user. Any worker
 	// should be able to identify whether they are able to execute on a task
 	// successfully, given the task metadata. Upon task creation, certain metadata
@@ -97,6 +85,18 @@ type Task struct {
 	//     x.api.io/object    1234
 	//
 	Meta *Meta `json:"meta,omitempty"`
+
+	// Node contains addressable task delivery information for targeting any
+	// addressable worker within the network. The default delivery method is
+	// "any". Tasks may be processed by "all" workers within the network without
+	// acknowledgement of completion. Any particular worker may be addressed like
+	// shown below. Tasks not being addressed within a configured retention period
+	// are being deleted.
+	//
+	//     addr.rescue.io/method    uni
+	//     task.rescue.io/worker    90dc68ba-4820-42ac-a924-2450388c15a6
+	//
+	Node *Node `json:"node,omitempty"`
 
 	// Root allows to manage a tree of dependencies. Consider task x and y, where
 	// x is the root of y.
@@ -132,7 +132,7 @@ type Task struct {
 
 // Emp expresses whether this task t contains any definition at all.
 func (t *Task) Emp() bool {
-	return t != nil && t.Core.Emp() && t.Cron.Emp() && t.Host.Emp() && t.Gate.Emp() && t.Meta.Emp() && t.Root.Emp()
+	return t != nil && t.Core.Emp() && t.Cron.Emp() && t.Gate.Emp() && t.Meta.Emp() && t.Node.Emp() && t.Root.Emp()
 }
 
 // Has expresses whether this task t contains all the definitions of the given
@@ -141,10 +141,10 @@ func (t *Task) Emp() bool {
 func (t *Task) Has(x *Task) bool {
 	cor := x.Core.Emp() || (t.Core != nil && t.Core.Has(*x.Core))
 	crn := x.Cron.Emp() || (t.Cron != nil && t.Cron.Has(*x.Cron))
-	hos := x.Host.Emp() || (t.Host != nil && t.Host.Has(*x.Host))
 	gat := x.Gate.Emp() || (t.Gate != nil && t.Gate.Has(*x.Gate))
 	met := x.Meta.Emp() || (t.Meta != nil && t.Meta.Has(*x.Meta))
+	nod := x.Node.Emp() || (t.Node != nil && t.Node.Has(*x.Node))
 	roo := x.Root.Emp() || (t.Root != nil && t.Root.Has(*x.Root))
 
-	return cor && crn && hos && gat && met && roo
+	return cor && crn && gat && met && nod && roo
 }
