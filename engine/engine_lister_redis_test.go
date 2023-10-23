@@ -721,11 +721,11 @@ func Test_Engine_Lister_Gate(t *testing.T) {
 					"test.api.io/k-0": task.Waiting,
 					"test.api.io/k-1": task.Waiting,
 				},
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 				Sync: &task.Sync{
 					"test.api.io/zer": "0",
@@ -752,11 +752,11 @@ func Test_Engine_Lister_Gate(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 				Root: &task.Root{
 					task.Object: lis[0].Core.Map().Object(),
@@ -776,7 +776,7 @@ func Test_Engine_Lister_Gate(t *testing.T) {
 	}
 }
 
-func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
+func Test_Engine_Lister_Gate_Node_All(t *testing.T) {
 	var err error
 
 	var red redigo.Interface
@@ -854,11 +854,11 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 				"test.api.io/k-0": task.Waiting,
 				"test.api.io/k-1": task.Waiting,
 			},
-			Host: &task.Host{
-				task.Method: task.MthdAll,
-			},
 			Meta: &task.Meta{
 				"test.api.io/key": "bar",
+			},
+			Node: &task.Node{
+				task.Method: task.MthdAll,
 			},
 			Sync: &task.Sync{
 				"test.api.io/zer": "n/a",
@@ -898,11 +898,11 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 				Gate: &task.Gate{
 					"test.api.io/k-0": task.Trigger,
 				},
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 				Sync: &task.Sync{
 					"test.api.io/zer": "0",
@@ -930,11 +930,11 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 				Gate: &task.Gate{
 					"test.api.io/k-1": task.Trigger,
 				},
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 			}
 		}
@@ -960,11 +960,11 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 					"test.api.io/k-0": task.Waiting,
 					"test.api.io/k-1": task.Waiting,
 				},
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 				Sync: &task.Sync{
 					"test.api.io/zer": "n/a",
@@ -996,11 +996,11 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 				Gate: &task.Gate{
 					"test.api.io/k-0": task.Trigger,
 				},
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 				Sync: &task.Sync{
 					"test.api.io/zer": "0",
@@ -1048,11 +1048,11 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 				Gate: &task.Gate{
 					"test.api.io/k-1": task.Trigger,
 				},
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 			}
 		}
@@ -1080,11 +1080,11 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 					"test.api.io/k-0": task.Deleted,
 					"test.api.io/k-1": task.Waiting,
 				},
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 				Sync: &task.Sync{
 					"test.api.io/zer": "0",
@@ -1115,11 +1115,11 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 				Gate: &task.Gate{
 					"test.api.io/k-1": task.Trigger,
 				},
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 			}
 		}
@@ -1152,11 +1152,11 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 				Root: &task.Root{
 					task.Object: lis[1].Core.Map().Object(), // 2nd task in lis is the template
@@ -1205,11 +1205,11 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 					"test.api.io/k-0": task.Waiting,
 					"test.api.io/k-1": task.Waiting,
 				},
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 				Sync: &task.Sync{
 					"test.api.io/zer": "0",
@@ -1238,11 +1238,11 @@ func Test_Engine_Lister_Gate_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 				Root: &task.Root{
 					task.Object: lis[0].Core.Map().Object(), // 1st task in lis is the template

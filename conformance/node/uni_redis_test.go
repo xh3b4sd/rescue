@@ -16,7 +16,7 @@ import (
 	"github.com/xh3b4sd/rescue/timer"
 )
 
-func Test_Engine_Method_Uni_Cleanup(t *testing.T) {
+func Test_Engine_Node_Uni_Cleanup(t *testing.T) {
 	var err error
 
 	var red redigo.Interface
@@ -58,12 +58,12 @@ func Test_Engine_Method_Uni_Cleanup(t *testing.T) {
 	// Worker two creates a task for worker one, which never shows up.
 	{
 		tas := &task.Task{
-			Host: &task.Host{
-				task.Method: task.MthdUni,
-				task.Worker: "eon",
-			},
 			Meta: &task.Meta{
 				"test.api.io/key": "bar",
+			},
+			Node: &task.Node{
+				task.Method: task.MthdUni,
+				task.Worker: "eon",
 			},
 		}
 
@@ -163,7 +163,7 @@ func Test_Engine_Method_Uni_Cleanup(t *testing.T) {
 	}
 }
 
-func Test_Engine_Method_Uni_Lifecycle(t *testing.T) {
+func Test_Engine_Node_Uni_Lifecycle(t *testing.T) {
 	var err error
 
 	var red redigo.Interface
@@ -222,11 +222,11 @@ func Test_Engine_Method_Uni_Lifecycle(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Host: &task.Host{
-				task.Method: task.MthdAny,
-			},
 			Meta: &task.Meta{
 				"test.api.io/key": "foo",
+			},
+			Node: &task.Node{
+				task.Method: task.MthdAny,
 			},
 		}
 
@@ -246,12 +246,12 @@ func Test_Engine_Method_Uni_Lifecycle(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Host: &task.Host{
-				task.Method: task.MthdUni,
-				task.Worker: "eon",
-			},
 			Meta: &task.Meta{
 				"test.api.io/key": "bar",
+			},
+			Node: &task.Node{
+				task.Method: task.MthdUni,
+				task.Worker: "eon",
 			},
 		}
 
@@ -276,12 +276,12 @@ func Test_Engine_Method_Uni_Lifecycle(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdUni,
-					task.Worker: "eon",
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdUni,
+					task.Worker: "eon",
 				},
 			}
 		}
@@ -310,11 +310,11 @@ func Test_Engine_Method_Uni_Lifecycle(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 			}
 		}
@@ -409,12 +409,12 @@ func Test_Engine_Method_Uni_Lifecycle(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdUni,
-					task.Worker: "eon",
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdUni,
+					task.Worker: "eon",
 				},
 			}
 		}

@@ -92,6 +92,18 @@ type Task struct {
 	//
 	Meta *Meta `json:"meta,omitempty"`
 
+	// Node contains addressable task delivery information for targeting any
+	// addressable worker within the network. The default delivery method is
+	// "any". Tasks may be processed by "all" workers within the network without
+	// acknowledgement of completion. Any particular worker may be addressed like
+	// shown below. Tasks not being addressed within a configured retention period
+	// are being deleted.
+	//
+	//     addr.rescue.io/method    uni
+	//     task.rescue.io/worker    90dc68ba-4820-42ac-a924-2450388c15a6
+	//
+	Node *Node `json:"node,omitempty"`
+
 	// Root allows to manage a tree of dependencies. Consider task x and y, where
 	// x is the root of y.
 	//

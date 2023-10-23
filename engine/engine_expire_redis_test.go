@@ -149,7 +149,7 @@ func Test_Engine_Expire(t *testing.T) {
 	}
 }
 
-func Test_Engine_Expire_Method_All(t *testing.T) {
+func Test_Engine_Expire_Node_All(t *testing.T) {
 	var err error
 
 	var red redigo.Interface
@@ -208,11 +208,11 @@ func Test_Engine_Expire_Method_All(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Host: &task.Host{
-				task.Method: task.MthdAll,
-			},
 			Meta: &task.Meta{
 				"test.api.io/key": "foo",
+			},
+			Node: &task.Node{
+				task.Method: task.MthdAll,
 			},
 		}
 
@@ -235,11 +235,11 @@ func Test_Engine_Expire_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -263,11 +263,11 @@ func Test_Engine_Expire_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -314,11 +314,11 @@ func Test_Engine_Expire_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -342,11 +342,11 @@ func Test_Engine_Expire_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -409,11 +409,11 @@ func Test_Engine_Expire_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -474,11 +474,11 @@ func Test_Engine_Expire_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -537,11 +537,11 @@ func Test_Engine_Expire_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}

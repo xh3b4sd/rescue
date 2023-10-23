@@ -129,57 +129,57 @@ func Test_Engine_Create_Host_Error(t *testing.T) {
 		// Case 000
 		{
 			tas: &task.Task{
-				Host: &task.Host{
-					task.Method: "foo",
-				},
 				Meta: &task.Meta{
 					"foo": "bar",
+				},
+				Node: &task.Node{
+					task.Method: "foo",
 				},
 			},
 		},
 		// Case 001
 		{
 			tas: &task.Task{
-				Host: &task.Host{
-					task.Object: "bar",
-				},
 				Meta: &task.Meta{
 					"foo": "bar",
+				},
+				Node: &task.Node{
+					task.Object: "bar",
 				},
 			},
 		},
 		// Case 002
 		{
 			tas: &task.Task{
-				Host: &task.Host{
-					task.Worker: "baz",
-				},
 				Meta: &task.Meta{
 					"foo": "bar",
+				},
+				Node: &task.Node{
+					task.Worker: "baz",
 				},
 			},
 		},
 		// Case 003
 		{
 			tas: &task.Task{
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-					task.Worker: "baz",
-				},
 				Meta: &task.Meta{
 					"foo": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
+					task.Worker: "baz",
 				},
 			},
 		},
 		// Case 004
 		{
 			tas: &task.Task{
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-					task.Object: "bar",
-				},
 				Meta: &task.Meta{
 					"foo": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
+					task.Object: "bar",
 				},
 			},
 		},
@@ -197,23 +197,23 @@ func Test_Engine_Create_Host_Error(t *testing.T) {
 		// Case 006
 		{
 			tas: &task.Task{
-				Host: &task.Host{
-					task.Method: task.MthdUni,
-				},
 				Meta: &task.Meta{
 					"foo": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdUni,
 				},
 			},
 		},
 		// Case 007
 		{
 			tas: &task.Task{
-				Host: &task.Host{
-					task.Method: task.MthdUni,
-					task.Object: "foo",
-				},
 				Meta: &task.Meta{
 					"foo": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdUni,
+					task.Object: "foo",
 				},
 			},
 		},
@@ -243,34 +243,34 @@ func Test_Engine_Create_Host_No_Error(t *testing.T) {
 		// Case 000
 		{
 			tas: &task.Task{
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"foo": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			},
 		},
 		// Case 001
 		{
 			tas: &task.Task{
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"foo": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 			},
 		},
 		// Case 002
 		{
 			tas: &task.Task{
-				Host: &task.Host{
-					task.Method: task.MthdUni,
-					task.Worker: "foo",
-				},
 				Meta: &task.Meta{
 					"foo": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdUni,
+					task.Worker: "foo",
 				},
 			},
 		},

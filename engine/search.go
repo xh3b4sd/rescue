@@ -98,7 +98,7 @@ func (e *Engine) search() (*task.Task, error) {
 		}
 
 		// Skip any task that does not define the task delivery method "all".
-		if x.Host.Get(task.Method) != task.MthdAll {
+		if x.Node.Get(task.Method) != task.MthdAll {
 			continue
 		}
 
@@ -163,7 +163,7 @@ func (e *Engine) search() (*task.Task, error) {
 	for i, x := range lis {
 		// Remove all broadcasted tasks for further processing. Any task defining
 		// delivery method "all" must have been addressed already above.
-		if x.Host.Get(task.Method) == task.MthdAll {
+		if x.Node.Get(task.Method) == task.MthdAll {
 			rem = append(rem, i)
 			continue
 		}
@@ -297,7 +297,7 @@ func (e *Engine) search() (*task.Task, error) {
 			// Note that we want to give tasks priority that are specifically addressed
 			// to a particular worker. Tasks that can be processed by anyone are of
 			// secondary importance in our system.
-			if x.Host.Get(task.Method) == task.MthdUni && x.Host.Get(task.Worker) == e.wrk {
+			if x.Node.Get(task.Method) == task.MthdUni && x.Node.Get(task.Worker) == e.wrk {
 				tas = x
 				break
 			}
@@ -315,7 +315,7 @@ func (e *Engine) search() (*task.Task, error) {
 			// The current task is not assigned to any worker. If this task's delivery
 			// method is now set to "any", then we simply take it and assign it to this
 			// current worker.
-			if x.Host.Get(task.Method) == task.MthdAny {
+			if x.Node.Get(task.Method) == task.MthdAny {
 				tas = x
 				break
 			}

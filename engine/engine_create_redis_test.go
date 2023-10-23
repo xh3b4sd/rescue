@@ -124,11 +124,11 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 			}
 		}
@@ -150,11 +150,11 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "zap",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 				Root: &task.Root{
 					"test.api.io/key": "foo",
@@ -179,11 +179,11 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 				Root: &task.Root{
 					"test.api.io/key": "rrr",
@@ -211,11 +211,11 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 			}
 		}
@@ -254,11 +254,11 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 			}
 		}
@@ -280,11 +280,11 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 				Root: &task.Root{
 					"test.api.io/key": "rrr",
@@ -318,11 +318,11 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 				Root: &task.Root{
 					"test.api.io/key": "rrr",
@@ -360,11 +360,11 @@ func Test_Engine_Create(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 				Root: &task.Root{
 					"test.api.io/key": "rrr",
@@ -595,7 +595,7 @@ func Test_Engine_Create_Cron(t *testing.T) {
 	}
 }
 
-func Test_Engine_Create_Method_All(t *testing.T) {
+func Test_Engine_Create_Node_All(t *testing.T) {
 	var err error
 
 	var red redigo.Interface
@@ -657,11 +657,11 @@ func Test_Engine_Create_Method_All(t *testing.T) {
 	// of creation.
 	{
 		tas := &task.Task{
-			Host: &task.Host{
-				task.Method: task.MthdAll,
-			},
 			Meta: &task.Meta{
 				"test.api.io/key": "sec",
+			},
+			Node: &task.Node{
+				task.Method: task.MthdAll,
 			},
 		}
 
@@ -685,11 +685,11 @@ func Test_Engine_Create_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "sec",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -717,11 +717,11 @@ func Test_Engine_Create_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "sec",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -749,11 +749,11 @@ func Test_Engine_Create_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAll,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "sec",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAll,
 				},
 			}
 		}
@@ -783,11 +783,11 @@ func Test_Engine_Create_Method_All(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Host: &task.Host{
-					task.Method: task.MthdAny,
-				},
 				Meta: &task.Meta{
 					"test.api.io/key": "fir",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
 				},
 			}
 		}

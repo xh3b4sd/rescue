@@ -209,9 +209,9 @@ func (e *Engine) ticker() error {
 			{
 				t = &task.Task{
 					Core: &task.Core{},
-					Host: x.Host,
 					Gate: x.Gate,
 					Meta: x.Meta,
+					Node: x.Node,
 					Root: &task.Root{
 						task.Object: x.Core.Map().Object(),
 					},
@@ -228,12 +228,12 @@ func (e *Engine) ticker() error {
 				t.Core.Set().Object(tid)
 			}
 
-			if t.Host == nil {
-				t.Host = &task.Host{}
+			if t.Node == nil {
+				t.Node = &task.Node{}
 			}
 
-			if t.Host.Get(task.Method) == "" {
-				t.Host.Set(task.Method, task.MthdAny)
+			if t.Node.Get(task.Method) == "" {
+				t.Node.Set(task.Method, task.MthdAny)
 			}
 
 			{
@@ -270,7 +270,7 @@ func (e *Engine) ticker() error {
 		// means there is no completion or acknowledgement for scheduled tasks if
 		// they are delivered to all workers. We just fire at-least-once, on
 		// schedule, and leave the rest to the workers.
-		if x.Host.Get(task.Method) == task.MthdAll {
+		if x.Node.Get(task.Method) == task.MthdAll {
 			x.Cron.Set().TickM1(tic.TickM1())
 		}
 
