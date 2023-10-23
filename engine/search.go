@@ -242,7 +242,7 @@ func (e *Engine) search() (*task.Task, error) {
 		}
 	}
 
-	// Each of the redundant task must be removed from our local copy once we
+	// Each of the redundant tasks must be removed from our local copy once we
 	// deleted the respective elements from the underlying sorted set.
 	for i, x := range rem {
 		j := x - i

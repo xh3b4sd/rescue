@@ -1,6 +1,6 @@
 //go:build redis
 
-package method
+package node
 
 import (
 	"reflect"
@@ -473,13 +473,4 @@ func Test_Engine_Node_Uni_Lifecycle(t *testing.T) {
 			t.Fatal("expected", 0, "got", len(lis))
 		}
 	}
-}
-
-func musTim(str string) time.Time {
-	tim, err := time.Parse("2006-01-02T15:04:05.999999Z", str)
-	if err != nil {
-		panic(err)
-	}
-
-	return tim
 }

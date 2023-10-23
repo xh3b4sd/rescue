@@ -1,6 +1,6 @@
 //go:build redis
 
-package engine
+package delete
 
 import (
 	"testing"
