@@ -1,6 +1,6 @@
 //go:build redis
 
-package engine
+package expire
 
 import (
 	"reflect"
@@ -10,144 +10,11 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/redigo"
+	"github.com/xh3b4sd/rescue"
+	"github.com/xh3b4sd/rescue/engine"
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/rescue/timer"
 )
-
-func Test_Engine_Expire(t *testing.T) {
-	var err error
-
-	var red redigo.Interface
-	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	var eon *Engine
-	{
-		eon = New(Config{
-			Expiry: time.Millisecond,
-			Logger: logger.Fake(),
-			Redigo: red,
-			Worker: "eon",
-		})
-	}
-
-	var etw *Engine
-	{
-		etw = New(Config{
-			Expiry: time.Millisecond,
-			Logger: logger.Fake(),
-			Redigo: red,
-			Worker: "etw",
-		})
-	}
-
-	{
-		tas := &task.Task{
-			Meta: &task.Meta{
-				"test.api.io/key": "foo",
-			},
-		}
-
-		err = eon.Create(tas)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	{
-		tas := &task.Task{
-			Meta: &task.Meta{
-				"test.api.io/key": "bar",
-			},
-		}
-
-		err = etw.Create(tas)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	var s []string
-
-	{
-		_, err = eon.Search()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	{
-		tas, err := etw.Search()
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		s = append(s, tas.Meta.Get("test.api.io/key"))
-
-		err = etw.Delete(tas)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	// For engine one we simulate failure so that the acquired task can
-	// expire and be rescheduled to engine two. For the simulation we
-	// call Expire which is the responsibility of every worker to do
-	// periodically. It does not matter which engine executes the
-	// expiration process.
-	{
-		err = eon.Expire()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	{
-		tas, err := etw.Search()
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		s = append(s, tas.Meta.Get("test.api.io/key"))
-
-		err = etw.Delete(tas)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	{
-		if len(s) != 2 {
-			t.Fatal("length of s must be 2")
-		}
-		if s[0] == "foo" && s[1] != "bar" {
-			t.Fatal("scheduling failed")
-		}
-		if s[1] == "foo" && s[0] != "bar" {
-			t.Fatal("scheduling failed")
-		}
-	}
-
-	{
-		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
-		}
-
-		_, err = etw.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
-		}
-	}
-}
 
 func Test_Engine_Expire_Node_All(t *testing.T) {
 	var err error
@@ -178,9 +45,9 @@ func Test_Engine_Expire_Node_All(t *testing.T) {
 		})
 	}
 
-	var eon *Engine
+	var eon rescue.Interface
 	{
-		eon = New(Config{
+		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 			Timer:  tim,
@@ -188,9 +55,9 @@ func Test_Engine_Expire_Node_All(t *testing.T) {
 		})
 	}
 
-	var etw *Engine
+	var etw rescue.Interface
 	{
-		etw = New(Config{
+		etw = engine.New(engine.Config{
 			Logger: logger.Fake(),
 			Redigo: red,
 			Timer:  tim,
@@ -281,15 +148,15 @@ func Test_Engine_Expire_Node_All(t *testing.T) {
 
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
 	{
 		_, err = etw.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
@@ -368,15 +235,15 @@ func Test_Engine_Expire_Node_All(t *testing.T) {
 
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
 	{
 		_, err = etw.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
@@ -392,8 +259,8 @@ func Test_Engine_Expire_Node_All(t *testing.T) {
 	// not find any more tasks.
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
@@ -436,21 +303,21 @@ func Test_Engine_Expire_Node_All(t *testing.T) {
 	// From this point forwad no worker in the network should find a task anymore.
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
 	{
 		_, err = etw.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
 	var lis []*task.Task
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -500,20 +367,20 @@ func Test_Engine_Expire_Node_All(t *testing.T) {
 	// Just repeating all lookups should yield the very same results down below.
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
 	{
 		_, err = etw.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -550,6 +417,142 @@ func Test_Engine_Expire_Node_All(t *testing.T) {
 			if !reflect.DeepEqual(tas, exp) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
 			}
+		}
+	}
+}
+
+func Test_Engine_Expire_Node_Any(t *testing.T) {
+	var err error
+
+	var red redigo.Interface
+	{
+		red = redigo.Default()
+	}
+
+	{
+		err = red.Purge()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	var eon rescue.Interface
+	{
+		eon = engine.New(engine.Config{
+			Expiry: time.Millisecond,
+			Logger: logger.Fake(),
+			Redigo: red,
+			Worker: "eon",
+		})
+	}
+
+	var etw rescue.Interface
+	{
+		etw = engine.New(engine.Config{
+			Expiry: time.Millisecond,
+			Logger: logger.Fake(),
+			Redigo: red,
+			Worker: "etw",
+		})
+	}
+
+	{
+		tas := &task.Task{
+			Meta: &task.Meta{
+				"test.api.io/key": "foo",
+			},
+		}
+
+		err = eon.Create(tas)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		tas := &task.Task{
+			Meta: &task.Meta{
+				"test.api.io/key": "bar",
+			},
+		}
+
+		err = etw.Create(tas)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	var s []string
+
+	{
+		_, err = eon.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		tas, err := etw.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		s = append(s, tas.Meta.Get("test.api.io/key"))
+
+		err = etw.Delete(tas)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// For engine one we simulate failure so that the acquired task can expire and
+	// be rescheduled to engine two. For the simulation we call Expire which is
+	// the responsibility of every worker to do periodically. It does not matter
+	// which engine executes the expiration process.
+	{
+		err = eon.Expire()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		tas, err := etw.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		s = append(s, tas.Meta.Get("test.api.io/key"))
+
+		err = etw.Delete(tas)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		if len(s) != 2 {
+			t.Fatal("length of s must be 2")
+		}
+		if s[0] == "foo" && s[1] != "bar" {
+			t.Fatal("scheduling failed")
+		}
+		if s[1] == "foo" && s[0] != "bar" {
+			t.Fatal("scheduling failed")
+		}
+	}
+
+	{
+		_, err = eon.Search()
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
+		}
+	}
+
+	{
+		_, err = etw.Search()
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 }

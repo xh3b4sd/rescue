@@ -68,12 +68,33 @@ func (e *Engine) expire() error {
 		return nil
 	}
 
-	cur := map[string]int{}
-	for _, l := range lis {
-		cur[l.Core.Get().Worker()]++
-	}
+	var rem []int
+	for i, x := range lis {
+		// Skip all scheduled task templates for further processing. Any task
+		// template defining Task.Cron is meant to trigger time based task
+		// scheduling for child tasks originating from that template. The template
+		// itself is not meant to be processed by workers.
+		if x.Cron != nil {
+			rem = append(rem, i)
+			continue
+		}
 
-	for _, x := range lis {
+		// Skip all trigger task templates for further processing. Any task
+		// template defining Task.Gate is meant to trigger event based task
+		// scheduling for child tasks originating from that template. The template
+		// itself is not meant to be processed by workers. Note that we are checking
+		// whether Task.Gate has not any value "trigger", which means that if
+		// Task.Gate is not empty, then its values can only either be "waiting" or
+		// "deleted", which defines the trigger templates. Scheduled tasks defining
+		// any value "trigger" in Task.Gate are the very tasks that workers should
+		// process, because completion of those processed trigger tasks is what
+		// causes the trigger template to create the gated task that is being onhold
+		// until all triggers completed.
+		if x.Gate != nil && !x.Gate.Has(Tri()) {
+			rem = append(rem, i)
+			continue
+		}
+
 		// Derive this task's creation timestamp from its object ID.
 		var tim time.Time
 		{
@@ -103,8 +124,34 @@ func (e *Engine) expire() error {
 					return tracer.Mask(err)
 				}
 			}
-		}
 
+			{
+				rem = append(rem, i)
+			}
+		}
+	}
+
+	// Each of the deleted tasks must be removed from our local copy once we
+	// deleted the respective elements from the underlying sorted set.
+	for i, x := range rem {
+		j := x - i
+		if j < len(lis)-1 {
+			copy(lis[j:], lis[j+1:])
+		}
+		lis[len(lis)-1] = nil
+		lis = lis[:len(lis)-1]
+	}
+
+	if len(lis) == 0 {
+		return nil
+	}
+
+	cur := map[string]int{}
+	for _, l := range lis {
+		cur[l.Core.Get().Worker()]++
+	}
+
+	for _, x := range lis {
 		// We are looking for tasks which have an owner. So if there is no
 		// owner assigned we ignore the task and move on to find another
 		// one.
