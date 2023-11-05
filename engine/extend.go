@@ -83,7 +83,7 @@ func (e *Engine) extend(tas *task.Task) error {
 
 		if !exi || !own || !tid {
 			e.met.Task.Outdated.Inc()
-			return tracer.Mask(taskOutdatedError)
+			return tracer.Maskf(taskOutdatedError, tas.Core.Map().Object())
 		}
 	}
 
