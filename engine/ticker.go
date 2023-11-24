@@ -40,13 +40,13 @@ func (e *Engine) ticker() error {
 	// information back to the queue. Otherwise worker behaviour would be
 	// inconsistent and the integrity of the queue could not be guaranteed.
 	{
-		err := e.red.Locker().Acquire()
+		err := e.loc.Acquire()
 		if err != nil {
 			return tracer.Mask(err)
 		}
 
 		defer func() {
-			err := e.red.Locker().Release()
+			err := e.loc.Release()
 			if err != nil {
 				e.lerror(tracer.Mask(err))
 			}

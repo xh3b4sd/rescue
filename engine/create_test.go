@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/xh3b4sd/redigo"
+	"github.com/xh3b4sd/redigo/locker"
 	"github.com/xh3b4sd/rescue/task"
 )
 
@@ -111,6 +112,7 @@ func Test_Engine_Create_Core_Error(t *testing.T) {
 			{
 				e = New(Config{
 					Redigo: redigo.Fake(),
+					Locker: &locker.Fake{},
 				})
 			}
 
@@ -225,6 +227,7 @@ func Test_Engine_Create_Host_Error(t *testing.T) {
 			{
 				e = New(Config{
 					Redigo: redigo.Fake(),
+					Locker: &locker.Fake{},
 				})
 			}
 
@@ -282,6 +285,7 @@ func Test_Engine_Create_Host_No_Error(t *testing.T) {
 			{
 				e = New(Config{
 					Redigo: redigo.Fake(),
+					Locker: &locker.Fake{},
 				})
 			}
 
@@ -313,6 +317,7 @@ func Test_Engine_Create_Meta_No_Error(t *testing.T) {
 			{
 				e = New(Config{
 					Redigo: redigo.Fake(),
+					Locker: &locker.Fake{},
 				})
 			}
 
@@ -403,6 +408,7 @@ func Test_Engine_Create_Gate_No_Error(t *testing.T) {
 			{
 				e = New(Config{
 					Redigo: redigo.Fake(),
+					Locker: &locker.Fake{},
 				})
 			}
 
@@ -586,6 +592,7 @@ func Test_Engine_Create_Gate_Error(t *testing.T) {
 			{
 				e = New(Config{
 					Redigo: redigo.Fake(),
+					Locker: &locker.Fake{},
 				})
 			}
 

@@ -59,13 +59,13 @@ func (e *Engine) exists(tas *task.Task) (bool, error) {
 	// would be inconsistent and the integrity of the queue could not be
 	// guaranteed.
 	{
-		err := e.red.Locker().Acquire()
+		err := e.loc.Acquire()
 		if err != nil {
 			return false, tracer.Mask(err)
 		}
 
 		defer func() {
-			err := e.red.Locker().Release()
+			err := e.loc.Release()
 			if err != nil {
 				e.lerror(tracer.Mask(err))
 			}

@@ -5,8 +5,11 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/xh3b4sd/breakr"
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/redigo"
+	"github.com/xh3b4sd/redigo/locker"
+	"github.com/xh3b4sd/redigo/pool"
 	"github.com/xh3b4sd/rescue/balancer"
 	"github.com/xh3b4sd/rescue/metric"
 	"github.com/xh3b4sd/rescue/timer"
@@ -27,6 +30,7 @@ type Config struct {
 	Balancer balancer.Interface
 	Cleanup  time.Duration
 	Expiry   time.Duration
+	Locker   locker.Interface
 	Logger   logger.Interface
 	Metric   *metric.Collection
 	Queue    string
@@ -38,14 +42,15 @@ type Config struct {
 
 type Engine struct {
 	bal balancer.Interface
-	cln time.Duration
-	ctx context.Context
-	exp time.Duration
-	// loc is the local lookup table for tasks that have been chosen to be
+	// cac is the local lookup table for tasks that have been chosen to be
 	// processed without assigning direct ownership to this particular worker
 	// process. An example of necessary mappings we need to track for workers are
 	// all tasks defining the delivery method "all".
-	loc map[string]*local
+	cac map[string]*local
+	cln time.Duration
+	ctx context.Context
+	exp time.Duration
+	loc locker.Interface
 	log logger.Interface
 	met *metric.Collection
 	// pnt is the local point in time at which this worker became operational.
@@ -83,6 +88,9 @@ func New(config Config) *Engine {
 	if config.Redigo == nil {
 		config.Redigo = redigo.Default()
 	}
+	if config.Locker == nil {
+		config.Locker = defLoc(config.Redigo.Listen())
+	}
 	if config.Sepkey == "" {
 		config.Sepkey = ":"
 	}
@@ -95,10 +103,11 @@ func New(config Config) *Engine {
 
 	e := &Engine{
 		bal: config.Balancer,
+		cac: map[string]*local{},
 		cln: config.Cleanup,
 		ctx: context.Background(),
 		exp: config.Expiry,
-		loc: map[string]*local{},
+		loc: config.Locker,
 		log: config.Logger,
 		met: config.Metric,
 		pnt: config.Timer.Engine(),
@@ -119,4 +128,16 @@ func (e *Engine) lerror(err error) {
 		"message", err.Error(),
 		"stack", tracer.Stack(err),
 	)
+}
+
+func defLoc(add string) locker.Interface {
+	return locker.New(locker.Config{
+		Brk: breakr.New(breakr.Config{
+			Failure: breakr.Failure{
+				Budget: 30,
+				Cooler: 1 * time.Second,
+			},
+		}),
+		Poo: pool.NewSinglePoolWithAddress(add),
+	})
 }
