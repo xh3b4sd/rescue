@@ -40,13 +40,13 @@ func (e *Engine) search() (*task.Task, error) {
 	// information back to the queue. Otherwise worker behaviour would be
 	// inconsistent and the integrity of the queue could not be guaranteed.
 	{
-		err := e.red.Locker().Acquire()
+		err := e.loc.Acquire()
 		if err != nil {
 			return nil, tracer.Mask(err)
 		}
 
 		defer func() {
-			err := e.red.Locker().Release()
+			err := e.loc.Release()
 			if err != nil {
 				e.lerror(tracer.Mask(err))
 			}
@@ -104,7 +104,7 @@ func (e *Engine) search() (*task.Task, error) {
 
 		var loc *local
 		{
-			loc = e.loc[x.Core.Map().Object()]
+			loc = e.cac[x.Core.Map().Object()]
 		}
 
 		// Skip any task from our local copy that we already processed.
@@ -147,7 +147,7 @@ func (e *Engine) search() (*task.Task, error) {
 		// remember the current expiry of this broadcasted task, so that we can
 		// expire it locally and retry if necessary.
 		{
-			e.loc[x.Core.Map().Object()] = &local{exp: e.tim.Search().Add(e.exp)}
+			e.cac[x.Core.Map().Object()] = &local{exp: e.tim.Search().Add(e.exp)}
 		}
 
 		return x, nil

@@ -39,13 +39,13 @@ func (e *Engine) expire() error {
 	// information back to the queue. Otherwise worker behaviour would be
 	// inconsistent and the integrity of the queue could not be guaranteed.
 	{
-		err := e.red.Locker().Acquire()
+		err := e.loc.Acquire()
 		if err != nil {
 			return tracer.Mask(err)
 		}
 
 		defer func() {
-			err := e.red.Locker().Release()
+			err := e.loc.Release()
 			if err != nil {
 				e.lerror(tracer.Mask(err))
 			}
@@ -111,7 +111,7 @@ func (e *Engine) expire() error {
 		if e.tim.Search().Sub(tim) > e.cln {
 			// Remove the irrelevant task from memory, if any.
 			{
-				delete(e.loc, x.Core.Map().Object())
+				delete(e.cac, x.Core.Map().Object())
 			}
 
 			// Remove the irrelevant task from the underlying queue.

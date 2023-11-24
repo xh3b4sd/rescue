@@ -46,13 +46,13 @@ func (e *Engine) delete(tas *task.Task) error {
 	// information back to the queue. Otherwise worker behaviour would be
 	// inconsistent and the integrity of the queue could not be guaranteed.
 	{
-		err := e.red.Locker().Acquire()
+		err := e.loc.Acquire()
 		if err != nil {
 			return tracer.Mask(err)
 		}
 
 		defer func() {
-			err := e.red.Locker().Release()
+			err := e.loc.Release()
 			if err != nil {
 				e.lerror(tracer.Mask(err))
 			}
@@ -61,7 +61,7 @@ func (e *Engine) delete(tas *task.Task) error {
 
 	var loc *local
 	{
-		loc = e.loc[tas.Core.Map().Object()]
+		loc = e.cac[tas.Core.Map().Object()]
 	}
 
 	// Allow the local deletion of any broadcasted task that is not a task
@@ -81,7 +81,7 @@ func (e *Engine) delete(tas *task.Task) error {
 			// task that we just completed, because we are processing everything in
 			// first-in-first-out fashion.
 			{
-				e.pnt = first(unix(expiry(e.loc)))
+				e.pnt = first(unix(expiry(e.cac)))
 			}
 
 			// Since this worker did its part in processing the broadcasted task, we
@@ -91,7 +91,7 @@ func (e *Engine) delete(tas *task.Task) error {
 			}
 
 			{
-				e.loc[tas.Core.Map().Object()] = loc
+				e.cac[tas.Core.Map().Object()] = loc
 			}
 
 			return nil
