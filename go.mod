@@ -7,7 +7,7 @@ require (
 	github.com/google/uuid v1.4.0
 	github.com/prometheus/client_golang v1.17.0
 	github.com/xh3b4sd/logger v0.8.1
-	github.com/xh3b4sd/redigo v0.36.2
+	github.com/xh3b4sd/redigo v0.37.0
 	github.com/xh3b4sd/tracer v0.11.1
 )
 
