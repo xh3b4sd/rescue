@@ -208,8 +208,8 @@ func (e *Engine) verCre(tas *task.Task) (*ticker.Ticker, error) {
 		if tas.Root != nil && tas.Root.Has(Res()) {
 			return nil, tracer.Maskf(labelReservedError, "Task.Root must not contain reserved scheme rescue.io")
 		}
-		if tas.Sync != nil && tas.Sync.Has(Res()) {
-			return nil, tracer.Maskf(labelReservedError, "Task.Sync must not contain reserved scheme rescue.io")
+		if tas.Sync != nil && tas.Sync.All(task.Paging).Len() != tas.Sync.All("*rescue.io*").Len() {
+			return nil, tracer.Maskf(labelReservedError, "Task.Sync must not contain reserved scheme rescue.io, other than generic paging pointer")
 		}
 	}
 
