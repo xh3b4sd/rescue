@@ -1,6 +1,6 @@
 //go:build redis
 
-package lister
+package conformance
 
 import (
 	"reflect"

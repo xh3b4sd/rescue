@@ -1,6 +1,6 @@
 //go:build redis
 
-package engine
+package conformance
 
 import (
 	"fmt"
@@ -12,6 +12,8 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/redigo"
+	"github.com/xh3b4sd/rescue"
+	"github.com/xh3b4sd/rescue/engine"
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/rescue/timer"
 	"github.com/xh3b4sd/tracer"
@@ -19,18 +21,6 @@ import (
 
 func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 	var err error
-
-	var red redigo.Interface
-	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
 
 	var tim *timer.Timer
 	{
@@ -45,11 +35,11 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 		})
 	}
 
-	var eon *Engine
+	var eon rescue.Interface
 	{
-		eon = New(Config{
+		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Timer:  tim,
 			Worker: "eon",
 		})
@@ -190,7 +180,7 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -250,7 +240,7 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -328,38 +318,26 @@ func Test_Engine_Lifecycle_Cron_3Days(t *testing.T) {
 func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 	var err error
 
-	var red redigo.Interface
-	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
 	var tim *timer.Timer
 	{
 		tim = timer.New()
 	}
 
-	var eon *Engine
+	var eon rescue.Interface
 	{
-		eon = New(Config{
+		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Timer:  tim,
 			Worker: "eon",
 		})
 	}
 
-	var etw *Engine
+	var etw rescue.Interface
 	{
-		etw = New(Config{
+		etw = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Timer:  tim,
 			Worker: "etw",
 		})
@@ -544,7 +522,7 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -614,7 +592,7 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -678,7 +656,7 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -742,7 +720,7 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -807,7 +785,7 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -849,38 +827,26 @@ func Test_Engine_Lifecycle_Cron_Failure(t *testing.T) {
 func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 	var err error
 
-	var red redigo.Interface
-	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
 	var tim *timer.Timer
 	{
 		tim = timer.New()
 	}
 
-	var eon *Engine
+	var eon rescue.Interface
 	{
-		eon = New(Config{
+		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Timer:  tim,
 			Worker: "eon",
 		})
 	}
 
-	var etw *Engine
+	var etw rescue.Interface
 	{
-		etw = New(Config{
+		etw = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Timer:  tim,
 			Worker: "etw",
 		})
@@ -1073,7 +1039,7 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1152,7 +1118,7 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1263,7 +1229,7 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 	}
 
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1317,18 +1283,6 @@ func Test_Engine_Lifecycle_Cron_Resolve(t *testing.T) {
 func Test_Engine_Lifecycle_Node_All_Failure(t *testing.T) {
 	var err error
 
-	var red redigo.Interface
-	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
 	var tim *timer.Timer
 	{
 		tim = timer.New()
@@ -1343,11 +1297,11 @@ func Test_Engine_Lifecycle_Node_All_Failure(t *testing.T) {
 		})
 	}
 
-	var eon *Engine
+	var eon rescue.Interface
 	{
-		eon = New(Config{
+		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Timer:  tim,
 		})
 	}
@@ -1476,11 +1430,11 @@ func Test_Engine_Lifecycle_Node_All_Failure(t *testing.T) {
 		}
 	}
 
-	var etw *Engine
+	var etw rescue.Interface
 	{
-		etw = New(Config{
+		etw = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: redigo.Default(),
 			Timer:  tim,
 		})
 	}
@@ -1489,17 +1443,17 @@ func Test_Engine_Lifecycle_Node_All_Failure(t *testing.T) {
 	// available, since all created tasks got created before it came online.
 	{
 		_, err = etw.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
 	// Now the failing task one can still not be received because of its internal
 	// expiry.
 	{
-		tas, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		_, err = eon.Search()
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
@@ -1522,8 +1476,8 @@ func Test_Engine_Lifecycle_Node_All_Failure(t *testing.T) {
 	// since it came online.
 	{
 		_, err = etw.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
@@ -1567,8 +1521,8 @@ func Test_Engine_Lifecycle_Node_All_Failure(t *testing.T) {
 	// any more tasks to be received.
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
@@ -1576,8 +1530,8 @@ func Test_Engine_Lifecycle_Node_All_Failure(t *testing.T) {
 	// since it came online.
 	{
 		_, err = etw.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
@@ -1591,8 +1545,8 @@ func Test_Engine_Lifecycle_Node_All_Failure(t *testing.T) {
 
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
@@ -1600,8 +1554,8 @@ func Test_Engine_Lifecycle_Node_All_Failure(t *testing.T) {
 	// since it came online.
 	{
 		_, err = etw.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
@@ -1615,8 +1569,8 @@ func Test_Engine_Lifecycle_Node_All_Failure(t *testing.T) {
 
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
@@ -1624,8 +1578,8 @@ func Test_Engine_Lifecycle_Node_All_Failure(t *testing.T) {
 	// since it came online.
 	{
 		_, err = etw.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 }
@@ -1633,32 +1587,20 @@ func Test_Engine_Lifecycle_Node_All_Failure(t *testing.T) {
 func Test_Engine_Lifecycle_Race(t *testing.T) {
 	var err error
 
-	var red redigo.Interface
+	var eon rescue.Interface
 	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	var eon *Engine
-	{
-		eon = New(Config{
+		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Worker: "eon",
 		})
 	}
 
-	var etw *Engine
+	var etw rescue.Interface
 	{
-		etw = New(Config{
+		etw = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Worker: "etw",
 		})
 	}
@@ -1822,14 +1764,14 @@ func Test_Engine_Lifecycle_Race(t *testing.T) {
 
 		{
 			_, err = eon.Search()
-			if !IsTaskNotFound(err) {
-				erc <- fmt.Errorf("%s %#v %s %#v", "expected", taskNotFoundError, "got", err)
+			if !engine.IsTaskNotFound(err) {
+				erc <- fmt.Errorf("%s %#v %s %#v", "expected", "taskNotFoundError", "got", err)
 				return
 			}
 
 			_, err = etw.Search()
-			if !IsTaskNotFound(err) {
-				erc <- fmt.Errorf("%s %#v %s %#v", "expected", taskNotFoundError, "got", err)
+			if !engine.IsTaskNotFound(err) {
+				erc <- fmt.Errorf("%s %#v %s %#v", "expected", "taskNotFoundError", "got", err)
 				return
 			}
 		}
@@ -1846,34 +1788,22 @@ func Test_Engine_Lifecycle_Race(t *testing.T) {
 func Test_Engine_Lifecycle_Sync(t *testing.T) {
 	var err error
 
-	var red redigo.Interface
+	var eon rescue.Interface
 	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	var eon *Engine
-	{
-		eon = New(Config{
+		eon = engine.New(engine.Config{
 			Expiry: 500 * time.Millisecond,
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Queue:  "one", // engines use different queues
 		})
 	}
 
-	var etw *Engine
+	var etw rescue.Interface
 	{
-		etw = New(Config{
+		etw = engine.New(engine.Config{
 			Expiry: 500 * time.Millisecond,
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Queue:  "two", // engines use different queues
 		})
 	}
@@ -1947,7 +1877,7 @@ func Test_Engine_Lifecycle_Sync(t *testing.T) {
 		}
 
 		err = etw.Create(tas)
-		if !IsTaskMetaEmpty(err) {
+		if !engine.IsTaskMetaEmpty(err) {
 			t.Fatal("expected task creation to fail without Task.Meta")
 		}
 	}
@@ -2104,24 +2034,15 @@ func Test_Engine_Lifecycle_Sync(t *testing.T) {
 
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
 	{
 		_, err = etw.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
-}
-
-func musTim(str string) time.Time {
-	tim, err := time.Parse("2006-01-02T15:04:05.999999Z", str)
-	if err != nil {
-		panic(err)
-	}
-
-	return tim
 }

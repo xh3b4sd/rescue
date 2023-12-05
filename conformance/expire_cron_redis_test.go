@@ -1,6 +1,6 @@
 //go:build redis
 
-package expire
+package conformance
 
 import (
 	"reflect"
@@ -16,7 +16,7 @@ import (
 	"github.com/xh3b4sd/rescue/timer"
 )
 
-func Test_Engine_Expire_Gate(t *testing.T) {
+func Test_Engine_Expire_Cron(t *testing.T) {
 	var err error
 
 	var red redigo.Interface
@@ -75,9 +75,8 @@ func Test_Engine_Expire_Gate(t *testing.T) {
 
 	{
 		tas := &task.Task{
-			Gate: &task.Gate{
-				"test.api.io/k-0": task.Waiting,
-				"test.api.io/k-1": task.Waiting,
+			Cron: &task.Cron{
+				task.Aevery: "hour",
 			},
 			Meta: &task.Meta{
 				"test.api.io/key": "foo",
@@ -121,7 +120,7 @@ func Test_Engine_Expire_Gate(t *testing.T) {
 		}
 	}
 
-	// Shortly after task creation, the task template defining Task.Gate should
+	// Shortly after task creation, the task template defining Task.Cron should
 	// still exist, regardless the call to Engine.Expire.
 	{
 		var tas *task.Task
@@ -133,9 +132,10 @@ func Test_Engine_Expire_Gate(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Gate: &task.Gate{
-					"test.api.io/k-0": task.Waiting,
-					"test.api.io/k-1": task.Waiting,
+				Cron: &task.Cron{
+					task.Aevery: "hour",
+					task.TickM1: "2023-10-20T00:00:00Z",
+					task.TickP1: "2023-10-20T01:00:00Z",
 				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
@@ -183,7 +183,10 @@ func Test_Engine_Expire_Gate(t *testing.T) {
 	}
 
 	// More than one week after task creation, the task template defining
-	// Task.Gate should still exist, regardless the call to Engine.Expire.
+	// Task.Cron should still exist, regardless the call to Engine.Expire. Note
+	// that since we do not call Engine.Ticker the ticks in Task.Cron do not
+	// advance for this test, which is also not subject of this very test case, so
+	// we ignore it.
 	{
 		var tas *task.Task
 		{
@@ -194,9 +197,10 @@ func Test_Engine_Expire_Gate(t *testing.T) {
 		{
 			exp = &task.Task{
 				Core: tas.Core,
-				Gate: &task.Gate{
-					"test.api.io/k-0": task.Waiting,
-					"test.api.io/k-1": task.Waiting,
+				Cron: &task.Cron{
+					task.Aevery: "hour",
+					task.TickM1: "2023-10-20T00:00:00Z",
+					task.TickP1: "2023-10-20T01:00:00Z",
 				},
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",

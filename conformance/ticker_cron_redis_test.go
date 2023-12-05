@@ -1,6 +1,6 @@
 //go:build redis
 
-package ticker
+package conformance
 
 import (
 	"reflect"

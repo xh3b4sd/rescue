@@ -1,6 +1,6 @@
 //go:build redis
 
-package delete
+package conformance
 
 import (
 	"testing"
@@ -12,7 +12,7 @@ import (
 	"github.com/xh3b4sd/rescue/task"
 )
 
-func Test_Engine_Delete_Cron(t *testing.T) {
+func Test_Engine_Delete_Gate(t *testing.T) {
 	var err error
 
 	var red redigo.Interface
@@ -52,8 +52,9 @@ func Test_Engine_Delete_Cron(t *testing.T) {
 	var tas *task.Task
 	{
 		tas = &task.Task{
-			Cron: &task.Cron{
-				task.Aevery: "6 hours",
+			Gate: &task.Gate{
+				"test.api.io/k-0": task.Waiting,
+				"test.api.io/k-1": task.Waiting,
 			},
 			Meta: &task.Meta{
 				"test.api.io/key": "bar",
@@ -93,7 +94,7 @@ func Test_Engine_Delete_Cron(t *testing.T) {
 		}
 	}
 
-	// Templates for scheduling tasks can only be deleted when bypassing the
+	// Templates for triggered tasks can only be deleted when bypassing the
 	// internal ownership checks.
 	{
 		tas.Core.Set().Bypass(true)

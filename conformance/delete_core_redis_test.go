@@ -1,6 +1,6 @@
 //go:build redis
 
-package delete
+package conformance
 
 import (
 	"testing"
