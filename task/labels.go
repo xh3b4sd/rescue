@@ -1,6 +1,27 @@
 package task
 
 const (
+	// Method is the addressing strategy to deliver a task within the network of
+	// worker nodes. Every single task may be processed with varying guarantees of
+	// delivery, but always at-least-once.
+	//
+	//     all    delivered to all workers within the network (timeline based)
+	//     any    delivered to any worker within the network (default method)
+	//     mny    delivered to many specific workers within the network (not implemented)
+	//     uni    delivered to a single specific worker within the network (worker based)
+	//
+	Method = "addr.rescue.io/method"
+)
+
+const (
+	// Paging is the requeueing indicator a task may carry to allow workers to
+	// process tasks again with the given paging pointer. This paging pointer is a
+	// progress indicator that can be used to inform workers at which point work
+	// has to be picked up again.
+	Paging = "sync.rescue.io/paging"
+)
+
+const (
 	// Bypass is to work around certain design specific safeguards. Bypass may
 	// never be used, unless very good reasons demand it for special use cases.
 	Bypass = "task.rescue.io/bypass"
@@ -49,19 +70,6 @@ const (
 	// scheduled task may be created again. TickP1 is always updated to the next
 	// interval of tick+1, regardless of the conditions in the underlying system.
 	TickP1 = "time.rescue.io/tick+1"
-)
-
-const (
-	// Method is the addressing strategy to deliver a task within the network of
-	// worker nodes. Every single task may be processed with varying guarantees of
-	// delivery, but always at-least-once.
-	//
-	//     all    delivered to all workers within the network (timeline based)
-	//     any    delivered to any worker within the network (default method)
-	//     mny    delivered to many specific workers within the network (not implemented)
-	//     uni    delivered to a single specific worker within the network (worker based)
-	//
-	Method = "addr.rescue.io/method"
 )
 
 const (
