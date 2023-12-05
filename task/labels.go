@@ -14,7 +14,7 @@ const (
 )
 
 const (
-	// Paging is the requeueing indicator a task may carry to allow workers to
+	// Paging is the requeuing indicator a task may carry to allow workers to
 	// process tasks again with the given paging pointer. This paging pointer is a
 	// progress indicator that can be used to inform workers at which point work
 	// has to be picked up again.

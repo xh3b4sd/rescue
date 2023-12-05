@@ -153,7 +153,7 @@ func (t *Task) Has(x *Task) bool {
 
 // Pag expresses whether this task t contains a paging pointer inside Task.Sync
 // indicating to continue processing this task with this pointer after
-// requeueing. More concretely, if a paging pointer exists and its value is 0,
+// requeuing. More concretely, if a paging pointer exists and its value is 0,
 // then Pag will return false. If a paging pointer exists and its value is not
 // 0, then Pag will return true.
 func (t *Task) Pag() bool {
