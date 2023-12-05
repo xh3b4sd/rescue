@@ -1,6 +1,6 @@
 //go:build redis
 
-package engine
+package conformance
 
 import (
 	"strconv"
@@ -8,47 +8,37 @@ import (
 
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/redigo"
+	"github.com/xh3b4sd/rescue"
+	"github.com/xh3b4sd/rescue/engine"
 	"github.com/xh3b4sd/rescue/task"
 )
 
 func Test_Engine_Balance(t *testing.T) {
 	var err error
 
-	var red redigo.Interface
+	var eon rescue.Interface
 	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	var eon *Engine
-	{
-		eon = New(Config{
+		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Worker: "eon",
 		})
 	}
 
-	var etw *Engine
+	var etw rescue.Interface
 	{
-		etw = New(Config{
+		etw = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Worker: "etw",
 		})
 	}
 
-	var eth *Engine
+	var eth rescue.Interface
 	{
-		eth = New(Config{
+		eth = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Worker: "eth",
 		})
 	}
@@ -104,7 +94,7 @@ func Test_Engine_Balance(t *testing.T) {
 	{
 		for {
 			tas, err := eon.Search()
-			if IsTaskNotFound(err) {
+			if engine.IsTaskNotFound(err) {
 				break
 			} else if err != nil {
 				t.Fatal(err)
@@ -115,7 +105,7 @@ func Test_Engine_Balance(t *testing.T) {
 
 		for {
 			tas, err := etw.Search()
-			if IsTaskNotFound(err) {
+			if engine.IsTaskNotFound(err) {
 				break
 			} else if err != nil {
 				t.Fatal(err)
@@ -126,7 +116,7 @@ func Test_Engine_Balance(t *testing.T) {
 
 		for {
 			tas, err := eth.Search()
-			if IsTaskNotFound(err) {
+			if engine.IsTaskNotFound(err) {
 				break
 			} else if err != nil {
 				t.Fatal(err)

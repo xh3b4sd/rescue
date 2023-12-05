@@ -1,6 +1,6 @@
 //go:build redis
 
-package delete
+package conformance
 
 import (
 	"reflect"
@@ -19,23 +19,11 @@ import (
 func Test_Engine_Delete_Cron_Node_All(t *testing.T) {
 	var err error
 
-	var red redigo.Interface
-	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
 	var eon rescue.Interface
 	{
 		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 		})
 	}
 

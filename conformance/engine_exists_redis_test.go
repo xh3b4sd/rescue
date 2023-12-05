@@ -1,6 +1,6 @@
 //go:build redis
 
-package engine
+package conformance
 
 import (
 	"slices"
@@ -9,30 +9,20 @@ import (
 
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/redigo"
+	"github.com/xh3b4sd/rescue"
+	"github.com/xh3b4sd/rescue/engine"
 	"github.com/xh3b4sd/rescue/task"
 )
 
 func Test_Engine_Exists(t *testing.T) {
 	var err error
 
-	var red redigo.Interface
+	var eon rescue.Interface
 	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	var eon *Engine
-	{
-		eon = New(Config{
+		eon = engine.New(engine.Config{
 			Expiry: 500 * time.Millisecond,
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Worker: "eon",
 		})
 	}
@@ -94,8 +84,8 @@ func Test_Engine_Exists(t *testing.T) {
 
 	{
 		_, err := eon.Exists(&task.Task{Root: &task.Root{task.Worker: "*"}})
-		if !IsLabelReserved(err) {
-			t.Fatal("expected", labelReservedError, "got", err)
+		if !engine.IsLabelReserved(err) {
+			t.Fatal("expected", "labelReservedError", "got", err)
 		}
 	}
 
@@ -249,8 +239,8 @@ func Test_Engine_Exists(t *testing.T) {
 
 	{
 		err = eon.Delete(tas)
-		if !IsTaskOutdated(err) {
-			t.Fatal("expected", taskOutdatedError, "got", err)
+		if !engine.IsTaskOutdated(err) {
+			t.Fatal("expected", "taskOutdatedError", "got", err)
 		}
 	}
 
@@ -319,8 +309,8 @@ func Test_Engine_Exists(t *testing.T) {
 
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 }
@@ -328,23 +318,11 @@ func Test_Engine_Exists(t *testing.T) {
 func Test_Engine_Exists_Gate(t *testing.T) {
 	var err error
 
-	var red redigo.Interface
+	var eon rescue.Interface
 	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	var eon *Engine
-	{
-		eon = New(Config{
+		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 		})
 	}
 
@@ -620,7 +598,7 @@ func Test_Engine_Exists_Gate(t *testing.T) {
 
 	var lis []*task.Task
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}

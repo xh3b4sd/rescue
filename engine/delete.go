@@ -317,6 +317,29 @@ func (e *Engine) delete(tas *task.Task) error {
 		}
 	}
 
+	// Update any task defining Task.Sync and expire it immediatelly so that it
+	// can be picked up again with the updated synced data.
+	if tas.Cron == nil && tas.Gate == nil && tas.Root == nil && tas.Sync != nil && tas.Pag() {
+		{
+			tas.Core.Prg().Expiry()
+			tas.Core.Prg().Worker()
+			tas.Core.Set().Cycles(tas.Core.Get().Cycles() + 1)
+		}
+
+		{
+			k := e.Keyfmt()
+			v := task.ToString(tas)
+			s := float64(tas.Core.Get().Object())
+
+			_, err := e.red.Sorted().Update().Score(k, v, s)
+			if err != nil {
+				return tracer.Mask(err)
+			}
+		}
+
+		return nil
+	}
+
 	{
 		k := e.Keyfmt()
 		s := float64(tas.Core.Get().Object())

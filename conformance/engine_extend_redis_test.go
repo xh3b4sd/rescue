@@ -1,6 +1,6 @@
 //go:build redis
 
-package engine
+package conformance
 
 import (
 	"testing"
@@ -8,40 +8,30 @@ import (
 
 	"github.com/xh3b4sd/logger"
 	"github.com/xh3b4sd/redigo"
+	"github.com/xh3b4sd/rescue"
+	"github.com/xh3b4sd/rescue/engine"
 	"github.com/xh3b4sd/rescue/task"
 )
 
 func Test_Engine_Extend(t *testing.T) {
 	var err error
 
-	var red redigo.Interface
+	var eon rescue.Interface
 	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	var eon *Engine
-	{
-		eon = New(Config{
+		eon = engine.New(engine.Config{
 			Expiry: time.Second,
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Worker: "eon",
 		})
 	}
 
-	var etw *Engine
+	var etw rescue.Interface
 	{
-		etw = New(Config{
+		etw = engine.New(engine.Config{
 			Expiry: time.Second,
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Worker: "etw",
 		})
 	}
@@ -61,7 +51,7 @@ func Test_Engine_Extend(t *testing.T) {
 
 	var lis []*task.Task
 	{
-		lis, err = eon.Lister(All())
+		lis, err = eon.Lister(engine.All())
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -83,7 +73,7 @@ func Test_Engine_Extend(t *testing.T) {
 	// the queue, and the one given as argument to Engine.Extend.
 	{
 		err = etw.Extend(lis[0])
-		if !IsTaskOutdated(err) {
+		if !engine.IsTaskOutdated(err) {
 			t.Fatal("task must be extended by owner")
 		}
 	}
@@ -102,8 +92,8 @@ func Test_Engine_Extend(t *testing.T) {
 
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
@@ -124,8 +114,8 @@ func Test_Engine_Extend(t *testing.T) {
 
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 
 		err = etw.Extend(tas)
@@ -151,8 +141,8 @@ func Test_Engine_Extend(t *testing.T) {
 
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 
 		err = etw.Extend(tas)
@@ -178,8 +168,8 @@ func Test_Engine_Extend(t *testing.T) {
 
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 
 		err = etw.Extend(tas)
@@ -205,8 +195,8 @@ func Test_Engine_Extend(t *testing.T) {
 
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 
 		err = etw.Extend(tas)
@@ -232,8 +222,8 @@ func Test_Engine_Extend(t *testing.T) {
 
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 
 		err = etw.Extend(tas)
@@ -259,14 +249,14 @@ func Test_Engine_Extend(t *testing.T) {
 
 	{
 		err = etw.Extend(tas)
-		if !IsTaskOutdated(err) {
+		if !engine.IsTaskOutdated(err) {
 			t.Fatal("task must be extended by owner")
 		}
 	}
 
 	{
 		err = etw.Delete(tas)
-		if !IsTaskOutdated(err) {
+		if !engine.IsTaskOutdated(err) {
 			t.Fatal("task must be deleted by owner")
 		}
 	}
@@ -284,8 +274,8 @@ func Test_Engine_Extend(t *testing.T) {
 
 	{
 		_, err = etw.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 
@@ -298,13 +288,13 @@ func Test_Engine_Extend(t *testing.T) {
 
 	{
 		_, err = eon.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 
 		_, err = etw.Search()
-		if !IsTaskNotFound(err) {
-			t.Fatal("expected", taskNotFoundError, "got", err)
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
 		}
 	}
 }
