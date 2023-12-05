@@ -92,6 +92,22 @@ func Test_Task_All(t *testing.T) {
 				"test.api.io/worker": "a",
 			},
 		},
+		// Case 007
+		{
+			lab: map[string]string{
+				"foo":                  "bar",
+				"test.api.io/cycles":   "5",
+				"test.other.io/object": "1",
+				"test.api.io/worker":   "a",
+			},
+			key: []string{
+				"*.api.io/*",
+			},
+			all: map[string]string{
+				"test.api.io/cycles": "5",
+				"test.api.io/worker": "a",
+			},
+		},
 	}
 
 	for i, tc := range testCases {

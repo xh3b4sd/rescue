@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/xh3b4sd/redigo"
+	"github.com/xh3b4sd/redigo/locker"
 )
 
 func Test_Engine_Worker(t *testing.T) {
@@ -33,6 +34,7 @@ func Test_Engine_Worker(t *testing.T) {
 			{
 				e = New(Config{
 					Redigo: redigo.Fake(),
+					Locker: &locker.Fake{},
 					Worker: tc.wrk,
 				})
 			}

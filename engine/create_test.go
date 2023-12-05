@@ -329,97 +329,6 @@ func Test_Engine_Create_Meta_No_Error(t *testing.T) {
 	}
 }
 
-func Test_Engine_Create_Gate_No_Error(t *testing.T) {
-	testCases := []struct {
-		tas *task.Task
-	}{
-		// Case 000 ensures that trigger tasks can define a single trigger label.
-		{
-			tas: &task.Task{
-				Meta: &task.Meta{
-					"foo": "bar",
-				},
-				Gate: &task.Gate{
-					"foo": task.Trigger,
-				},
-			},
-		},
-		// Case 001 ensures that task templates defining Task.Cron can schedule
-		// trigger tasks with Task.Gate definitions containing the reserved value
-		// "trigger".
-		{
-			tas: &task.Task{
-				Cron: &task.Cron{
-					task.Aevery: "hour",
-				},
-				Meta: &task.Meta{
-					"foo": "bar",
-				},
-				Gate: &task.Gate{
-					"foo": task.Trigger,
-					"bar": task.Trigger,
-					"baz": task.Trigger,
-				},
-			},
-		},
-		// Case 002 ensures that trigger tasks can define a multiple trigger labels.
-		{
-			tas: &task.Task{
-				Meta: &task.Meta{
-					"foo": "bar",
-				},
-				Gate: &task.Gate{
-					"foo": task.Trigger,
-					"bar": task.Trigger,
-					"baz": task.Trigger,
-				},
-			},
-		},
-		// Case 003 ensures that task templates can define a single waiting label.
-		{
-			tas: &task.Task{
-				Meta: &task.Meta{
-					"foo": "bar",
-				},
-				Gate: &task.Gate{
-					"baz": task.Waiting,
-				},
-			},
-		},
-		// Case 004 ensures that task templates can define a multiple waiting
-		// labels.
-		{
-			tas: &task.Task{
-				Meta: &task.Meta{
-					"foo": "bar",
-				},
-				Gate: &task.Gate{
-					"foo": task.Waiting,
-					"bar": task.Waiting,
-					"baz": task.Waiting,
-				},
-			},
-		},
-	}
-
-	for i, tc := range testCases {
-		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
-			var e *Engine
-			{
-				e = New(Config{
-					Redigo: redigo.Fake(),
-					Locker: &locker.Fake{},
-				})
-			}
-
-			err := e.Create(tc.tas)
-			if err != nil {
-				t.Fatal("expected", nil, "got", err)
-			}
-		})
-	}
-}
-
 func Test_Engine_Create_Gate_Error(t *testing.T) {
 	testCases := []struct {
 		tas *task.Task
@@ -599,6 +508,261 @@ func Test_Engine_Create_Gate_Error(t *testing.T) {
 			err := e.Create(tc.tas)
 			if err == nil {
 				t.Fatal("expected", "error", "got", nil)
+			}
+		})
+	}
+}
+
+func Test_Engine_Create_Gate_No_Error(t *testing.T) {
+	testCases := []struct {
+		tas *task.Task
+	}{
+		// Case 000 ensures that trigger tasks can define a single trigger label.
+		{
+			tas: &task.Task{
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+				Gate: &task.Gate{
+					"foo": task.Trigger,
+				},
+			},
+		},
+		// Case 001 ensures that task templates defining Task.Cron can schedule
+		// trigger tasks with Task.Gate definitions containing the reserved value
+		// "trigger".
+		{
+			tas: &task.Task{
+				Cron: &task.Cron{
+					task.Aevery: "hour",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+				Gate: &task.Gate{
+					"foo": task.Trigger,
+					"bar": task.Trigger,
+					"baz": task.Trigger,
+				},
+			},
+		},
+		// Case 002 ensures that trigger tasks can define a multiple trigger labels.
+		{
+			tas: &task.Task{
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+				Gate: &task.Gate{
+					"foo": task.Trigger,
+					"bar": task.Trigger,
+					"baz": task.Trigger,
+				},
+			},
+		},
+		// Case 003 ensures that task templates can define a single waiting label.
+		{
+			tas: &task.Task{
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+				Gate: &task.Gate{
+					"baz": task.Waiting,
+				},
+			},
+		},
+		// Case 004 ensures that task templates can define a multiple waiting
+		// labels.
+		{
+			tas: &task.Task{
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+				Gate: &task.Gate{
+					"foo": task.Waiting,
+					"bar": task.Waiting,
+					"baz": task.Waiting,
+				},
+			},
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
+			var e *Engine
+			{
+				e = New(Config{
+					Redigo: redigo.Fake(),
+					Locker: &locker.Fake{},
+				})
+			}
+
+			err := e.Create(tc.tas)
+			if err != nil {
+				t.Fatal("expected", nil, "got", err)
+			}
+		})
+	}
+}
+
+func Test_Engine_Create_Sync_Error(t *testing.T) {
+	testCases := []struct {
+		tas *task.Task
+	}{
+		// Case 000
+		{
+			tas: &task.Task{
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+				Sync: &task.Sync{
+					task.Paging: "0",
+					task.Worker: "1234",
+				},
+			},
+		},
+		// Case 001
+		{
+			tas: &task.Task{
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+				Sync: &task.Sync{
+					task.Object: "1234",
+					task.Paging: "1",
+				},
+			},
+		},
+		// Case 002
+		{
+			tas: &task.Task{
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+				Sync: &task.Sync{
+					task.Expiry: "1234",
+					task.Object: "1234",
+					task.Paging: "2837652",
+				},
+			},
+		},
+		// Case 003
+		{
+			tas: &task.Task{
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+				Sync: &task.Sync{
+					task.Paging: "foo",
+					task.Aevery: "hour",
+				},
+			},
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
+			var e *Engine
+			{
+				e = New(Config{
+					Redigo: redigo.Fake(),
+					Locker: &locker.Fake{},
+				})
+			}
+
+			err := e.Create(tc.tas)
+			if err == nil {
+				t.Fatal("expected", "error", "got", nil)
+			}
+		})
+	}
+}
+
+func Test_Engine_Create_Sync_No_Error(t *testing.T) {
+	testCases := []struct {
+		tas *task.Task
+	}{
+		// Case 000
+		{
+			tas: &task.Task{
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+				Sync: &task.Sync{
+					task.Paging: "0",
+				},
+			},
+		},
+		// Case 001
+		{
+			tas: &task.Task{
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+				Sync: &task.Sync{
+					task.Paging: "1",
+				},
+			},
+		},
+		// Case 002
+		{
+			tas: &task.Task{
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+				Sync: &task.Sync{
+					task.Paging: "2837652",
+				},
+			},
+		},
+		// Case 003
+		{
+			tas: &task.Task{
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+				Sync: &task.Sync{
+					task.Paging: "foo",
+				},
+			},
+		},
+		// Case 004
+		{
+			tas: &task.Task{
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+				Sync: &task.Sync{
+					task.Paging: "foo",
+					"whatever":  "this",
+				},
+			},
+		},
+		// Case 005
+		{
+			tas: &task.Task{
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+				Sync: &task.Sync{
+					"whatever": "this",
+				},
+			},
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
+			var e *Engine
+			{
+				e = New(Config{
+					Redigo: redigo.Fake(),
+					Locker: &locker.Fake{},
+				})
+			}
+
+			err := e.Create(tc.tas)
+			if err != nil {
+				t.Fatal("expected", nil, "got", err)
 			}
 		})
 	}

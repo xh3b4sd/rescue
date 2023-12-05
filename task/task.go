@@ -1,5 +1,7 @@
 package task
 
+import "strings"
+
 type Task struct {
 	// Core contains systemically relevant information fundamental for task
 	// distribution. Below is shown example metadata managed internally.
@@ -147,4 +149,13 @@ func (t *Task) Has(x *Task) bool {
 	roo := x.Root.Emp() || (t.Root != nil && t.Root.Has(*x.Root))
 
 	return cor && crn && gat && met && nod && roo
+}
+
+// Pag expresses whether this task t contains a paging pointer inside Task.Sync
+// indicating to continue processing this task with this pointer after
+// requeuing. More concretely, if a paging pointer exists and its value is 0,
+// then Pag will return false. If a paging pointer exists and its value is not
+// 0, then Pag will return true.
+func (t *Task) Pag() bool {
+	return t != nil && t.Sync != nil && strings.TrimSpace(t.Sync.Get(Paging)) != "" && t.Sync.Get(Paging) != "0"
 }
