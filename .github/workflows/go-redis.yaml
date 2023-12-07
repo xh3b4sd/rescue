@@ -16,7 +16,7 @@ jobs:
 
     services:
       redis:
-        image: "redis:6.2"
+        image: "redis"
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
@@ -38,4 +38,4 @@ jobs:
           REDIS_HOST: "redis"
           REDIS_PORT: "6379"
         run: |
-          go test ./... -race -tags redis -count 1
+          go test ./... -race -tags redis
