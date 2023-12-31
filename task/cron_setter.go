@@ -20,6 +20,10 @@ func (s *setcrn) Aevery(x string) {
 	s.labl[Aevery] = x
 }
 
+func (s *setcrn) Aexact(x string) {
+	s.labl[Aexact] = x
+}
+
 func (s *setcrn) TickM1(x time.Time) {
 	s.labl[TickM1] = x.Format(ticker.Layout)
 }

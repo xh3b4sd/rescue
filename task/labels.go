@@ -53,9 +53,20 @@ const (
 )
 
 const (
-	// Aevery is the optional scheduling information that users may provide. See
-	// Task.Cron for more information.
+	// Aevery is the optional scheduling information that users may provide for
+	// repeated execution based on the given time interval expression. See
+	// Task.Cron for more information. Note that @every and @exact are mutually
+	// exclusive.
 	Aevery = "time.rescue.io/@every"
+
+	// Aexact is the optional scheduling information that users may provide for
+	// single execution based on the given timestamp. After successful execution
+	// via @exact, the processed task is deleted. Note that @every and @exact are
+	// mutually exclusive.
+	//
+	//     time.rescue.io/@exact    2023-09-28T12:00:00
+	//
+	Aexact = "time.rescue.io/@exact"
 
 	// TickM1 is the unix timestamp of the most recent interval at which a
 	// scheduled task got emitted and then eventually resolved. TickM1 is only

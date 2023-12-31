@@ -169,10 +169,24 @@ func (e *Engine) search() (*task.Task, error) {
 		}
 
 		// Remove all scheduled task templates for further processing. Any task
-		// template defining Task.Cron is meant to trigger time based task
-		// scheduling for child tasks originating from that template. The template
-		// itself is not meant to be processed by workers.
-		if x.Cron != nil {
+		// template defining Task.Cron and @every is meant to trigger time based
+		// task scheduling for child tasks originating from that template. The
+		// template itself is not meant to be processed by workers.
+		if x.Cron != nil && x.Cron.Exi().Aevery() {
+			rem = append(rem, i)
+			continue
+		}
+
+		var now time.Time
+		{
+			now = e.tim.Search()
+		}
+
+		// Remove all scheduled tasks that define their exact execution to be in the
+		// future. Any task template defining Task.Cron and @exact is meant to be
+		// executed "exactly" at the specified time. So if the specified time is
+		// pointing to the future still, we ignore it here.
+		if x.Cron != nil && x.Cron.Exi().Aexact() && x.Cron.Get().Aexact().After(now) {
 			rem = append(rem, i)
 			continue
 		}

@@ -14,6 +14,10 @@ func (m *mapcrn) Aevery() string {
 	return m.labl[Aevery]
 }
 
+func (m *mapcrn) Aexact() string {
+	return m.labl[Aexact]
+}
+
 func (m *mapcrn) TickM1() string {
 	return m.labl[TickM1]
 }

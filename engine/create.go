@@ -1,6 +1,8 @@
 package engine
 
 import (
+	"time"
+
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/rescue/ticker"
 	"github.com/xh3b4sd/tracer"
@@ -72,7 +74,7 @@ func (e *Engine) create(tas *task.Task) error {
 		tas.Core.Set().Object(tid)
 	}
 
-	if tas.Cron != nil {
+	if tas.Cron != nil && tas.Cron.Exi().Aevery() {
 		tas.Cron.Set().TickM1(tic.TickM1())
 		tas.Cron.Set().TickP1(tic.TickP1())
 	}
@@ -153,20 +155,40 @@ func (e *Engine) verCre(tas *task.Task) (*ticker.Ticker, error) {
 		}
 	}
 
-	{
+	var tic *ticker.Ticker
+	if tas.Cron != nil {
+		if tas.Cron.Exi().Aevery() && tas.Cron.Exi().Aexact() {
+			return nil, tracer.Maskf(taskCronError, "Task.Cron must not define @every and @exact together")
+		}
+
 		if tas.Cron != nil && tas.Cron.Len() != 1 {
 			return nil, tracer.Maskf(taskCronError, "Task.Cron must only be configured with one valid format")
 		}
-	}
 
-	var tic *ticker.Ticker
-	if tas.Cron != nil {
-		tic = ticker.New(tas.Cron.Get().Aevery(), e.tim.Create())
-	}
+		if tas.Cron.Exi().Aevery() && !tas.Cron.Exi().Aexact() {
+			{
+				tic = ticker.New(tas.Cron.Get().Aevery(), e.tim.Create())
+			}
 
-	{
-		if tas.Cron != nil && tic.TickP1().IsZero() {
-			return nil, tracer.Maskf(taskCronError, "Task.Cron format must be valid")
+			if tic.TickP1().IsZero() {
+				return nil, tracer.Maskf(taskCronError, "Task.Cron format must be valid")
+			}
+		}
+
+		if !tas.Cron.Exi().Aevery() && tas.Cron.Exi().Aexact() {
+			tim, err := time.Parse(ticker.Layout, tas.Cron.Map().Aexact())
+			if err != nil {
+				return nil, tracer.Mask(err)
+			}
+
+			var now time.Time
+			{
+				now = e.tim.Create()
+			}
+
+			if !tim.After(now) {
+				return nil, tracer.Maskf(taskCronError, "Task.Cron @exact must be in the future")
+			}
 		}
 	}
 
