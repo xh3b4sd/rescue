@@ -14,6 +14,10 @@ func (e *exicrn) Aevery() bool {
 	return e.labl[Aevery] != ""
 }
 
+func (e *exicrn) Aexact() bool {
+	return e.labl[Aexact] != ""
+}
+
 func (e *exicrn) TickM1() bool {
 	return e.labl[TickM1] != ""
 }

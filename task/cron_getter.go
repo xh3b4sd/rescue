@@ -20,20 +20,29 @@ func (g *getcrn) Aevery() string {
 	return g.labl[Aevery]
 }
 
-func (g *getcrn) TickM1() time.Time {
-	tic, err := time.Parse(ticker.Layout, g.labl[TickM1])
+func (g *getcrn) Aexact() time.Time {
+	tim, err := time.Parse(ticker.Layout, g.labl[Aexact])
 	if err != nil {
 		panic(err)
 	}
 
-	return tic
+	return tim
+}
+
+func (g *getcrn) TickM1() time.Time {
+	tim, err := time.Parse(ticker.Layout, g.labl[TickM1])
+	if err != nil {
+		panic(err)
+	}
+
+	return tim
 }
 
 func (g *getcrn) TickP1() time.Time {
-	tic, err := time.Parse(ticker.Layout, g.labl[TickP1])
+	tim, err := time.Parse(ticker.Layout, g.labl[TickP1])
 	if err != nil {
 		panic(err)
 	}
 
-	return tic
+	return tim
 }

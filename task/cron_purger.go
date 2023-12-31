@@ -14,6 +14,10 @@ func (p *prgcrn) Aevery() {
 	delete(p.labl, Aevery)
 }
 
+func (p *prgcrn) Aexact() {
+	delete(p.labl, Aexact)
+}
+
 func (p *prgcrn) TickM1() {
 	delete(p.labl, TickM1)
 }

@@ -3,10 +3,12 @@ package engine
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/xh3b4sd/redigo"
 	"github.com/xh3b4sd/redigo/locker"
 	"github.com/xh3b4sd/rescue/task"
+	"github.com/xh3b4sd/rescue/ticker"
 )
 
 func Test_Engine_Create_Core_Error(t *testing.T) {
@@ -119,6 +121,99 @@ func Test_Engine_Create_Core_Error(t *testing.T) {
 			err := e.Create(tc.tas)
 			if err == nil {
 				t.Fatal("expected", "error", "got", nil)
+			}
+		})
+	}
+}
+
+func Test_Engine_Create_Cron_Error(t *testing.T) {
+	testCases := []struct {
+		tas *task.Task
+	}{
+		// Case 000 ensures that @every and @exact cannot be defined together.
+		{
+			tas: &task.Task{
+				Cron: &task.Cron{
+					task.Aevery: "hour",
+					task.Aexact: time.Now().UTC().Add(5 * time.Minute).Format(ticker.Layout),
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+		// Case 001 ensures that @exact cannot be defined in the past.
+		{
+			tas: &task.Task{
+				Cron: &task.Cron{
+					task.Aexact: "2023-09-28T12:00:00",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
+			var e *Engine
+			{
+				e = New(Config{
+					Redigo: redigo.Fake(),
+					Locker: &locker.Fake{},
+				})
+			}
+
+			err := e.Create(tc.tas)
+			if err == nil {
+				t.Fatal("expected", "error", "got", nil)
+			}
+		})
+	}
+}
+
+func Test_Engine_Create_Cron_No_Error(t *testing.T) {
+	testCases := []struct {
+		tas *task.Task
+	}{
+		// Case 000 ensures that @every can be defined.
+		{
+			tas: &task.Task{
+				Cron: &task.Cron{
+					task.Aevery: "hour",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+		// Case 001 ensures that @exact can be defined.
+		{
+			tas: &task.Task{
+				Cron: &task.Cron{
+					task.Aexact: time.Now().UTC().Add(5 * time.Minute).Format(ticker.Layout),
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
+	}
+
+	for i, tc := range testCases {
+		t.Run(fmt.Sprintf("%03d", i), func(t *testing.T) {
+			var e *Engine
+			{
+				e = New(Config{
+					Redigo: redigo.Fake(),
+					Locker: &locker.Fake{},
+				})
+			}
+
+			err := e.Create(tc.tas)
+			if err != nil {
+				t.Fatal("expected", nil, "got", err)
 			}
 		})
 	}
