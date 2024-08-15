@@ -12,7 +12,7 @@ on: "push"
 jobs:
   go-redis:
     runs-on: "ubuntu-latest"
-    container: "golang:1.21-alpine"
+    container: "golang:1.22-alpine"
 
     services:
       redis:
