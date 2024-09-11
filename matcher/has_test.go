@@ -252,6 +252,18 @@ func Test_Task_Has(t *testing.T) {
 			},
 			has: true,
 		},
+		// Case 023
+		{
+			all: map[string]string{
+				"some.key.io": "val",
+				"some.one.io": "*",
+				"some.baz.io": "zap",
+			},
+			sub: map[string]string{
+				"some.one.io": "*",
+			},
+			has: true,
+		},
 	}
 
 	for i, tc := range testCases {
