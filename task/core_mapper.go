@@ -14,6 +14,10 @@ func (m *mapcor) Bypass() string {
 	return m.labl[Bypass]
 }
 
+func (m *mapcor) Cancel() string {
+	return m.labl[Cancel]
+}
+
 func (m *mapcor) Cycles() string {
 	return m.labl[Cycles]
 }

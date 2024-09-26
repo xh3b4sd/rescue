@@ -10,6 +10,12 @@ func All() *task.Task {
 	}
 }
 
+func Can() map[string]string {
+	return map[string]string{
+		task.Cancel: "*",
+	}
+}
+
 func Del() map[string]string {
 	return map[string]string{
 		"*": task.Deleted,

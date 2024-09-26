@@ -15,6 +15,15 @@ type Task struct {
 	//     task.rescue.io/object    1611318984211839461
 	//     task.rescue.io/worker    90dc68ba-4820-42ac-a924-2450388c15a6
 	//
+	// It is possible to define an execution limit using the circuit breaker label
+	// Cancel. A task defining a maximum execution count will be executed at most
+	// Cancel times. Once the execution limit hit the task at hand will be kept on
+	// hold until its Cycles number is reset by some external process. This allows
+	// tasks to stay on queue until a resolution for the failing root cause may be
+	// found.
+	//
+	//     task.rescue.io/cancel    5
+	//
 	Core *Core `json:"core,omitempty"`
 
 	// Cron contains optional scheduling information. A task may define to be
@@ -286,8 +295,12 @@ func (w *Worker) Filter(tas *task.Task) bool {
 
 ### Conformance Tests
 
+If you have nothing else blocking the standard redis port on your machine, then
+you can simply run the Redis docker image and execute the conformance tests
+labelled with the redis tags.
+
 ```
-docker run --rm --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
+docker run --rm --name redis-stack-rescue -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
 ```
 
 ```
@@ -298,10 +311,14 @@ go test ./... -race -tags redis
 
 ### Redis Port
 
-```
-export REDIS_PORT=6380
-```
+If you have multiple redis instances on your machine you should use a different
+port dedicated for the Rescue conformance tests.
 
 ```
 docker run --rm --name redis-stack-rescue -p 6380:6379 -p 8002:8001 redis/redis-stack:latest
+```
+
+```
+export REDIS_PORT=6380
+go test ./... -race -tags redis
 ```

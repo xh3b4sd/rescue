@@ -21,6 +21,10 @@ func (s *setcor) Bypass(x bool) {
 	s.labl[Bypass] = strconv.FormatBool(x)
 }
 
+func (s *setcor) Cancel(x int64) {
+	s.labl[Cancel] = strconv.FormatInt(x, 10)
+}
+
 func (s *setcor) Cycles(x int64) {
 	s.labl[Cycles] = strconv.FormatInt(x, 10)
 }

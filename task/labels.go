@@ -26,6 +26,15 @@ const (
 	// never be used, unless very good reasons demand it for special use cases.
 	Bypass = "task.rescue.io/bypass"
 
+	// Cancel is the number of maximum attempts, see task.rescue.io/cycles below.
+	// Using this circuit breaker stops executing those tasks that have hit their
+	// maximum execution limit. Tasks hitting their execution limit are not
+	// deleted, but instead are kept on queue for inspection. Resetting the cycles
+	// count of tasks that have been halted by this circuit breaker will cause
+	// those halted tasks to execute again with the goal of finally reconciling
+	// successfully.
+	Cancel = "task.rescue.io/cancel"
+
 	// Cycles is the number of attempts that workers tried to execute a given
 	// task. This number is being incremented e.g. after ownership expiration,
 	// resulting in rescheduling so that other workers can take over task

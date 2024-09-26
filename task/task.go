@@ -11,6 +11,15 @@ type Task struct {
 	//     task.rescue.io/object    1611318984211839461
 	//     task.rescue.io/worker    90dc68ba-4820-42ac-a924-2450388c15a6
 	//
+	// It is possible to define an execution limit using the circuit breaker label
+	// Cancel. A task defining a maximum execution count will be executed at most
+	// Cancel times. Once the execution limit hit the task at hand will be kept on
+	// hold until its Cycles number is reset by some external process. This allows
+	// tasks to stay on queue until a resolution for the failing root cause may be
+	// found.
+	//
+	//     task.rescue.io/cancel    5
+	//
 	Core *Core `json:"core,omitempty"`
 
 	// Cron contains optional scheduling information. A task may define to be

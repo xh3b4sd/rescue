@@ -30,6 +30,19 @@ func (g *getcor) Bypass() bool {
 	return byp
 }
 
+func (g *getcor) Cancel() int64 {
+	if g.labl[Cancel] == "" {
+		return 0
+	}
+
+	can, err := strconv.ParseInt(g.labl[Cancel], 10, 64)
+	if err != nil {
+		panic(err)
+	}
+
+	return can
+}
+
 func (g *getcor) Cycles() int64 {
 	if g.labl[Cycles] == "" {
 		return 0
