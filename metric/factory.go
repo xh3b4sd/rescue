@@ -10,6 +10,11 @@ func Default() *Collection {
 				Dur: &Metric{d: prometheus.NewDesc("rescue_engine_create_duration_seconds" /***/, "the number of seconds a call to Engine.Create took", nil, nil)},
 				Err: &Metric{d: prometheus.NewDesc("rescue_engine_create_error_total" /********/, "the number of errors a call to Engine.Create produced", nil, nil)},
 			},
+			Cycles: &CollectionEngineCollector{
+				Cal: &Metric{d: prometheus.NewDesc("rescue_engine_cycles_call_total" /*********/, "the number of times a call to Engine.Cycles was made", nil, nil)},
+				Dur: &Metric{d: prometheus.NewDesc("rescue_engine_cycles_duration_seconds" /***/, "the number of seconds a call to Engine.Cycles took", nil, nil)},
+				Err: &Metric{d: prometheus.NewDesc("rescue_engine_cycles_error_total" /********/, "the number of errors a call to Engine.Cycles produced", nil, nil)},
+			},
 			Delete: &CollectionEngineCollector{
 				Cal: &Metric{d: prometheus.NewDesc("rescue_engine_delete_call_total" /*********/, "the number of times a call to Engine.Delete was made", nil, nil)},
 				Dur: &Metric{d: prometheus.NewDesc("rescue_engine_delete_duration_seconds" /***/, "the number of seconds a call to Engine.Delete took", nil, nil)},

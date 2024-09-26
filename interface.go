@@ -12,6 +12,15 @@ type Interface interface {
 	// may be created using Task.Cron.
 	Create(tas *task.Task) error
 
+	// Cycles allows the Task.Core.Cycles label to be reset to 0, given its
+	// associated object ID. Resetting this cycles counter is only allowed for
+	// tasks that define Task.Core.Cancel as a circuit breaker in order to get
+	// halted tasks executed again.
+	//
+	//     inp[0] the object ID of the task to reset
+	//
+	Cycles(tas *task.Task) error
+
 	// Delete removes an existing task from the system. Tasks can only be deleted
 	// by the workers that own the task they have been assigned to. Task ownership
 	// cannot be cherry-picked. Deleting an expired task causes an error on the

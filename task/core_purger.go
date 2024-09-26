@@ -14,6 +14,10 @@ func (p *prgcor) Bypass() {
 	delete(p.labl, Bypass)
 }
 
+func (p *prgcor) Cancel() {
+	delete(p.labl, Cancel)
+}
+
 func (p *prgcor) Cycles() {
 	delete(p.labl, Cycles)
 }

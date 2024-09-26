@@ -14,6 +14,10 @@ func (e *exicor) Bypass() bool {
 	return e.labl[Bypass] != ""
 }
 
+func (e *exicor) Cancel() bool {
+	return e.labl[Cancel] != ""
+}
+
 func (e *exicor) Cycles() bool {
 	return e.labl[Cycles] != ""
 }

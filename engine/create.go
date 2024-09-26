@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/xh3b4sd/rescue/task"
@@ -106,8 +107,11 @@ func (e *Engine) verCre(tas *task.Task) (*ticker.Ticker, error) {
 		if tas == nil {
 			return nil, tracer.Maskf(taskEmptyError, "Task must not be empty")
 		}
-		if tas.Core != nil {
+		if tas.Core != nil && !(tas.Core.Len() == 1 && tas.Core.Has(Can())) {
 			return nil, tracer.Maskf(taskCoreError, "Task.Core must be empty")
+		}
+		if tas.Core != nil && !(tas.Core.Has(Can()) && natNum(tas.Core.Map().Cancel())) {
+			return nil, tracer.Maskf(taskCoreError, "Task.Core does not define a positive number for %s", task.Cancel)
 		}
 		if tas.Meta == nil || tas.Meta.Emp() {
 			return nil, tracer.Maskf(taskMetaEmptyError, "Task.Meta must not be empty")
@@ -236,4 +240,9 @@ func (e *Engine) verCre(tas *task.Task) (*ticker.Ticker, error) {
 	}
 
 	return tic, nil
+}
+
+func natNum(s string) bool {
+	num, err := strconv.Atoi(s)
+	return err == nil && num > 0
 }

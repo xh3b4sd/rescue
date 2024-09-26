@@ -304,6 +304,245 @@ func Test_Engine_Lister(t *testing.T) {
 	}
 }
 
+func Test_Engine_Lister_Cancel(t *testing.T) {
+	var err error
+
+	var eon rescue.Interface
+	{
+		eon = engine.New(engine.Config{
+			Expiry: 500 * time.Millisecond,
+			Logger: logger.Fake(),
+			Redigo: prgAll(redigo.Default()),
+			Worker: "eon",
+		})
+	}
+
+	var etw rescue.Interface
+	{
+		etw = engine.New(engine.Config{
+			Expiry: 500 * time.Millisecond,
+			Logger: logger.Fake(),
+			Redigo: prgAll(redigo.Default()),
+			Worker: "etw",
+		})
+	}
+
+	{
+		tas := &task.Task{
+			Core: &task.Core{
+				task.Cancel: "2",
+			},
+			Meta: &task.Meta{
+				"test.api.io/key": "val",
+			},
+		}
+
+		err = eon.Create(tas)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	var lis []*task.Task
+	{
+		lis, err = eon.Lister(engine.All())
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		if len(lis) != 1 {
+			t.Fatal("expected 1 tasks listed")
+		}
+		if lis[0].Core.Get().Cancel() != 2 {
+			t.Fatal("expected", 2, "got", lis[0].Core.Get().Cancel())
+		}
+		if lis[0].Core.Get().Cycles() != 0 {
+			t.Fatal("expected", 0, "got", lis[0].Core.Get().Cycles())
+		}
+	}
+
+	{
+		tas, err := etw.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if tas.Core.Get().Cancel() != 2 {
+			t.Fatal("expected", 2, "got", tas.Core.Get().Cancel())
+		}
+		if tas.Core.Get().Cycles() != 0 {
+			t.Fatal("expected", 0, "got", tas.Core.Get().Cycles())
+		}
+	}
+
+	// expire the first time
+
+	{
+		time.Sleep(500 * time.Millisecond)
+	}
+
+	{
+		err = eon.Expire()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		lis, err = etw.Lister(engine.All())
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		if len(lis) != 1 {
+			t.Fatal("expected 1 tasks listed")
+		}
+		if lis[0].Core.Get().Cancel() != 2 {
+			t.Fatal("expected", 2, "got", lis[0].Core.Get().Cancel())
+		}
+		if lis[0].Core.Get().Cycles() != 1 {
+			t.Fatal("expected", 1, "got", lis[0].Core.Get().Cycles())
+		}
+	}
+
+	{
+		tas, err := eon.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if tas.Core.Get().Cancel() != 2 {
+			t.Fatal("expected", 2, "got", tas.Core.Get().Cancel())
+		}
+		if tas.Core.Get().Cycles() != 1 {
+			t.Fatal("expected", 1, "got", tas.Core.Get().Cycles())
+		}
+	}
+
+	// expire the second time
+
+	{
+		time.Sleep(500 * time.Millisecond)
+	}
+
+	{
+		err = eon.Expire()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		lis, err = eon.Lister(engine.All())
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		if len(lis) != 1 {
+			t.Fatal("expected 1 tasks listed")
+		}
+		if lis[0].Core.Get().Cancel() != 2 {
+			t.Fatal("expected", 2, "got", lis[0].Core.Get().Cancel())
+		}
+		if lis[0].Core.Get().Cycles() != 2 {
+			t.Fatal("expected", 2, "got", lis[0].Core.Get().Cycles())
+		}
+	}
+
+	{
+		_, err = etw.Search()
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
+		}
+	}
+
+	// expire the third time
+
+	{
+		time.Sleep(500 * time.Millisecond)
+	}
+
+	{
+		err = eon.Expire()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		lis, err = eon.Lister(engine.All())
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// the results for listing and searching should not change anymore
+
+	{
+		if len(lis) != 1 {
+			t.Fatal("expected 1 tasks listed")
+		}
+		if lis[0].Core.Get().Cancel() != 2 {
+			t.Fatal("expected", 2, "got", lis[0].Core.Get().Cancel())
+		}
+		if lis[0].Core.Get().Cycles() != 2 {
+			t.Fatal("expected", 2, "got", lis[0].Core.Get().Cycles())
+		}
+	}
+
+	{
+		_, err = etw.Search()
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
+		}
+	}
+
+	{
+		lis, err = eon.Lister(engine.All())
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// Resetting the task's cycles count should make it available to us again
+	// using Engine.Search.
+
+	{
+		err = eon.Cycles(lis[0])
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	var tas *task.Task
+	{
+		tas, err = eon.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if tas.Core.Get().Cancel() != 2 {
+			t.Fatal("expected", 2, "got", tas.Core.Get().Cancel())
+		}
+		if tas.Core.Get().Cycles() != 0 {
+			t.Fatal("expected", 0, "got", tas.Core.Get().Cycles())
+		}
+	}
+
+	{
+		_, err = eon.Search()
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
+		}
+	}
+}
+
 func Test_Engine_Lister_Gate(t *testing.T) {
 	var err error
 

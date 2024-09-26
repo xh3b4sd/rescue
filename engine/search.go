@@ -161,6 +161,14 @@ func (e *Engine) search() (*task.Task, error) {
 	// sorted set.
 	var rem []int
 	for i, x := range lis {
+		// Remove all tasks with an active circuit breaker. Any task hitting their
+		// defined maximum amount of execution attempts is effectively on hold until
+		// their cycles counts are reset.
+		if x.Core.Exi().Cancel() && x.Core.Get().Cycles() >= x.Core.Get().Cancel() {
+			rem = append(rem, i)
+			continue
+		}
+
 		// Remove all broadcasted tasks for further processing. Any task defining
 		// delivery method "all" must have been addressed already above.
 		if x.Node.Get(task.Method) == task.MthdAll {
@@ -297,24 +305,22 @@ func (e *Engine) search() (*task.Task, error) {
 
 	var tas *task.Task
 
-	if tas == nil {
-		for _, x := range lis {
-			// We are looking for tasks which do not yet have an owner. So if there is
-			// an owner assigned we ignore the task and move on to find another one.
-			if x.Core.Get().Worker() != "" {
-				continue
-			}
+	for _, x := range lis {
+		// We are looking for tasks which do not yet have an owner. So if there is
+		// an owner assigned we ignore the task and move on to find another one.
+		if x.Core.Get().Worker() != "" {
+			continue
+		}
 
-			// The current task is not assigned to any worker. If this task's delivery
-			// method is now set to "uni" and its target worker address is this current
-			// worker, then we simply take it and assign it to the this current worker.
-			// Note that we want to give tasks priority that are specifically addressed
-			// to a particular worker. Tasks that can be processed by anyone are of
-			// secondary importance in our system.
-			if x.Node.Get(task.Method) == task.MthdUni && x.Node.Get(task.Worker) == e.wrk {
-				tas = x
-				break
-			}
+		// The current task is not assigned to any worker. If this task's delivery
+		// method is now set to "uni" and its target worker address is this current
+		// worker, then we simply take it and assign it to the this current worker.
+		// Note that we want to give tasks priority that are specifically addressed
+		// to a particular worker. Tasks that can be processed by anyone are of
+		// secondary importance in our system.
+		if x.Node.Get(task.Method) == task.MthdUni && x.Node.Get(task.Worker) == e.wrk {
+			tas = x
+			break
 		}
 	}
 

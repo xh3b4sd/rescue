@@ -7,6 +7,7 @@ type Collection struct {
 
 type CollectionEngine struct {
 	Create *CollectionEngineCollector
+	Cycles *CollectionEngineCollector
 	Delete *CollectionEngineCollector
 	Exists *CollectionEngineCollector
 	Expire *CollectionEngineCollector
@@ -36,6 +37,10 @@ func (c *Collection) Reset() {
 	c.Engine.Create.Cal.Res()
 	c.Engine.Create.Dur.Res()
 	c.Engine.Create.Err.Res()
+
+	c.Engine.Cycles.Cal.Res()
+	c.Engine.Cycles.Dur.Res()
+	c.Engine.Cycles.Err.Res()
 
 	c.Engine.Delete.Cal.Res()
 	c.Engine.Delete.Dur.Res()
