@@ -8,7 +8,7 @@ require (
 	github.com/prometheus/client_golang v1.20.3
 	github.com/xh3b4sd/breakr v0.1.0
 	github.com/xh3b4sd/logger v0.8.1
-	github.com/xh3b4sd/redigo v0.37.2
+	github.com/xh3b4sd/redigo v0.38.0
 	github.com/xh3b4sd/tracer v0.11.1
 )
 
