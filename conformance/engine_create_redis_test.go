@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/xh3b4sd/logger"
@@ -13,9 +14,10 @@ import (
 	"github.com/xh3b4sd/rescue"
 	"github.com/xh3b4sd/rescue/engine"
 	"github.com/xh3b4sd/rescue/task"
+	"github.com/xh3b4sd/rescue/timer"
 )
 
-func Test_Engine_Create(t *testing.T) {
+func Test_Engine_Create_Basic(t *testing.T) {
 	var err error
 
 	var eon rescue.Interface
@@ -87,7 +89,7 @@ func Test_Engine_Create(t *testing.T) {
 		}
 	}
 
-	var lis []*task.Task
+	var lis task.Slicer
 	{
 		lis, err = eon.Lister(engine.All())
 		if err != nil {
@@ -107,7 +109,7 @@ func Test_Engine_Create(t *testing.T) {
 	{
 		var tas *task.Task
 		{
-			tas = lis[0]
+			tas = lis.TaskMeta(&task.Meta{"test.api.io/key": "foo"})[0]
 		}
 
 		var exp *task.Task
@@ -133,7 +135,7 @@ func Test_Engine_Create(t *testing.T) {
 	{
 		var tas *task.Task
 		{
-			tas = lis[1]
+			tas = lis.TaskMeta(&task.Meta{"test.api.io/key": "zap"})[0]
 		}
 
 		var exp *task.Task
@@ -162,7 +164,7 @@ func Test_Engine_Create(t *testing.T) {
 	{
 		var tas *task.Task
 		{
-			tas = lis[2]
+			tas = lis.TaskMeta(&task.Meta{"test.api.io/key": "bar"})[0]
 		}
 
 		var exp *task.Task
@@ -197,9 +199,9 @@ func Test_Engine_Create(t *testing.T) {
 	}
 
 	{
-		var exp *task.Task
+		var one *task.Task
 		{
-			exp = &task.Task{
+			one = &task.Task{
 				Core: tas.Core,
 				Meta: &task.Meta{
 					"test.api.io/key": "foo",
@@ -210,9 +212,25 @@ func Test_Engine_Create(t *testing.T) {
 			}
 		}
 
+		var two *task.Task
 		{
-			if !reflect.DeepEqual(tas, exp) {
-				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			two = &task.Task{
+				Core: tas.Core,
+				Meta: &task.Meta{
+					"test.api.io/key": "bar",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
+				},
+				Root: &task.Root{
+					"test.api.io/key": "rrr",
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, one) && !reflect.DeepEqual(tas, two) {
+				t.Fatal("expected meta key foo or bar")
 			}
 		}
 	}
@@ -237,7 +255,7 @@ func Test_Engine_Create(t *testing.T) {
 	{
 		var tas *task.Task
 		{
-			tas = lis[0]
+			tas = lis.TaskMeta(&task.Meta{"test.api.io/key": "foo"})[0]
 		}
 
 		var exp *task.Task
@@ -263,7 +281,7 @@ func Test_Engine_Create(t *testing.T) {
 	{
 		var tas *task.Task
 		{
-			tas = lis[1]
+			tas = lis.TaskMeta(&task.Meta{"test.api.io/key": "bar"})[0]
 		}
 
 		var exp *task.Task
@@ -303,26 +321,49 @@ func Test_Engine_Create(t *testing.T) {
 		}
 	}
 
+	var foo *task.Task
 	{
-		var exp *task.Task
+		foo = &task.Task{
+			Core: tas.Core,
+			Meta: &task.Meta{
+				"test.api.io/key": "foo",
+			},
+			Node: &task.Node{
+				task.Method: task.MthdAny,
+			},
+		}
+	}
+
+	var bar *task.Task
+	{
+		bar = &task.Task{
+			Core: tas.Core,
+			Meta: &task.Meta{
+				"test.api.io/key": "bar",
+			},
+			Node: &task.Node{
+				task.Method: task.MthdAny,
+			},
+			Root: &task.Root{
+				"test.api.io/key": "rrr",
+			},
+		}
+	}
+
+	var fnd string
+	{
 		{
-			exp = &task.Task{
-				Core: tas.Core,
-				Meta: &task.Meta{
-					"test.api.io/key": "bar",
-				},
-				Node: &task.Node{
-					task.Method: task.MthdAny,
-				},
-				Root: &task.Root{
-					"test.api.io/key": "rrr",
-				},
+			if reflect.DeepEqual(tas, foo) {
+				fnd = "foo"
+			}
+			if reflect.DeepEqual(tas, bar) {
+				fnd = "bar"
 			}
 		}
 
 		{
-			if !reflect.DeepEqual(tas, exp) {
-				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			if fnd == "" {
+				t.Fatal("expected meta key foo or bar")
 			}
 		}
 	}
@@ -346,25 +387,12 @@ func Test_Engine_Create(t *testing.T) {
 			tas = lis[0]
 		}
 
-		var exp *task.Task
 		{
-			exp = &task.Task{
-				Core: tas.Core,
-				Meta: &task.Meta{
-					"test.api.io/key": "bar",
-				},
-				Node: &task.Node{
-					task.Method: task.MthdAny,
-				},
-				Root: &task.Root{
-					"test.api.io/key": "rrr",
-				},
+			if fnd == "foo" && !reflect.DeepEqual(tas, foo) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(foo, tas))
 			}
-		}
-
-		{
-			if !reflect.DeepEqual(tas, exp) {
-				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			if fnd == "bar" && !reflect.DeepEqual(tas, bar) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(bar, tas))
 			}
 		}
 	}
@@ -387,11 +415,29 @@ func Test_Engine_Create(t *testing.T) {
 func Test_Engine_Create_Cron(t *testing.T) {
 	var err error
 
+	var tim *timer.Timer
+	{
+		tim = timer.New()
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:00Z")
+		})
+	}
+
 	var eon rescue.Interface
 	{
 		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
 			Redigo: prgAll(redigo.Default()),
+			Timer:  tim,
+		})
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:01Z")
 		})
 	}
 
@@ -409,6 +455,12 @@ func Test_Engine_Create_Cron(t *testing.T) {
 	}
 
 	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:02Z")
+		})
+	}
+
+	{
 		tas := &task.Task{
 			Cron: &task.Cron{
 				task.Aevery: "hour",
@@ -419,6 +471,12 @@ func Test_Engine_Create_Cron(t *testing.T) {
 		if !engine.IsTaskMetaEmpty(err) {
 			t.Fatal(err)
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:03Z")
+		})
 	}
 
 	{
@@ -492,6 +550,12 @@ func Test_Engine_Create_Cron(t *testing.T) {
 	}
 
 	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:04Z")
+		})
+	}
+
+	{
 		err = eon.Delete(tas)
 		if err != nil {
 			t.Fatal(err)
@@ -540,6 +604,12 @@ func Test_Engine_Create_Cron(t *testing.T) {
 	}
 
 	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:05Z")
+		})
+	}
+
+	{
 		err = eon.Delete(tas)
 		if !engine.IsTaskOutdated(err) {
 			t.Fatal("task must be deleted by owner")
@@ -550,6 +620,12 @@ func Test_Engine_Create_Cron(t *testing.T) {
 	// internal ownership checks.
 	{
 		tas.Core.Set().Bypass(true)
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:06Z")
+		})
 	}
 
 	{
@@ -576,11 +652,23 @@ func Test_Engine_Create_Cron(t *testing.T) {
 func Test_Engine_Create_Node_All(t *testing.T) {
 	var err error
 
+	var tim *timer.Timer
+	{
+		tim = timer.New()
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:00Z")
+		})
+	}
+
 	var eon rescue.Interface
 	{
 		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
 			Redigo: prgAll(redigo.Default()),
+			Timer:  tim,
 			Worker: "eon",
 		})
 	}
@@ -590,6 +678,7 @@ func Test_Engine_Create_Node_All(t *testing.T) {
 		etw = engine.New(engine.Config{
 			Logger: logger.Fake(),
 			Redigo: prgAll(redigo.Default()),
+			Timer:  tim,
 			Worker: "etw",
 		})
 	}
@@ -599,7 +688,14 @@ func Test_Engine_Create_Node_All(t *testing.T) {
 		eth = engine.New(engine.Config{
 			Logger: logger.Fake(),
 			Redigo: prgAll(redigo.Default()),
+			Timer:  tim,
 			Worker: "eth",
+		})
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:01Z")
 		})
 	}
 
@@ -616,6 +712,12 @@ func Test_Engine_Create_Node_All(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:02Z")
+		})
 	}
 
 	// The second task we create defines the delivery method "all", so it should
@@ -777,11 +879,29 @@ func Test_Engine_Create_Node_All(t *testing.T) {
 func Test_Engine_Create_Root_First(t *testing.T) {
 	var err error
 
+	var tim *timer.Timer
+	{
+		tim = timer.New()
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:00Z")
+		})
+	}
+
 	var eon rescue.Interface
 	{
 		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
 			Redigo: prgAll(redigo.Default()),
+			Timer:  tim,
+		})
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:01Z")
 		})
 	}
 
@@ -816,6 +936,12 @@ func Test_Engine_Create_Root_First(t *testing.T) {
 		}
 	}
 
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:02Z")
+		})
+	}
+
 	// This is the root task.
 	{
 		tas := &task.Task{
@@ -828,6 +954,12 @@ func Test_Engine_Create_Root_First(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:03Z")
+		})
 	}
 
 	{
@@ -922,6 +1054,12 @@ func Test_Engine_Create_Root_First(t *testing.T) {
 	}
 
 	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:04Z")
+		})
+	}
+
+	{
 		err = eon.Delete(tas)
 		if err != nil {
 			t.Fatal(err)
@@ -961,6 +1099,12 @@ func Test_Engine_Create_Root_First(t *testing.T) {
 		if lis[0].Root.Get("test.api.io/key") != "rrr" {
 			t.Fatal("scheduling failed")
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:05Z")
+		})
 	}
 
 	{

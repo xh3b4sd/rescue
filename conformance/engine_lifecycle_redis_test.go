@@ -1788,13 +1788,25 @@ func Test_Engine_Lifecycle_Race(t *testing.T) {
 func Test_Engine_Lifecycle_Sync(t *testing.T) {
 	var err error
 
+	var tim *timer.Timer
+	{
+		tim = timer.New()
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:00Z")
+		})
+	}
+
 	var eon rescue.Interface
 	{
 		eon = engine.New(engine.Config{
 			Expiry: 500 * time.Millisecond,
 			Logger: logger.Fake(),
-			Redigo: prgAll(redigo.Default()),
 			Queue:  "one", // engines use different queues
+			Redigo: prgAll(redigo.Default()),
+			Timer:  tim,
 		})
 	}
 
@@ -1803,8 +1815,15 @@ func Test_Engine_Lifecycle_Sync(t *testing.T) {
 		etw = engine.New(engine.Config{
 			Expiry: 500 * time.Millisecond,
 			Logger: logger.Fake(),
-			Redigo: prgAll(redigo.Default()),
 			Queue:  "two", // engines use different queues
+			Redigo: prgAll(redigo.Default()),
+			Timer:  tim,
+		})
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:01Z")
 		})
 	}
 
@@ -1820,6 +1839,12 @@ func Test_Engine_Lifecycle_Sync(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:02Z")
+		})
 	}
 
 	{
@@ -1839,6 +1864,12 @@ func Test_Engine_Lifecycle_Sync(t *testing.T) {
 	}
 
 	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:03Z")
+		})
+	}
+
+	{
 		tas := &task.Task{
 			Meta: &task.Meta{
 				"test.api.io/key": "foo",
@@ -1854,6 +1885,12 @@ func Test_Engine_Lifecycle_Sync(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:04Z")
+		})
 	}
 
 	{
@@ -1972,6 +2009,12 @@ func Test_Engine_Lifecycle_Sync(t *testing.T) {
 	}
 
 	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:05Z")
+		})
+	}
+
+	{
 		err = eon.Delete(tas)
 		if err != nil {
 			t.Fatal(err)
@@ -1990,6 +2033,12 @@ func Test_Engine_Lifecycle_Sync(t *testing.T) {
 	}
 
 	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:06Z")
+		})
+	}
+
+	{
 		err = etw.Delete(tas)
 		if err != nil {
 			t.Fatal(err)
@@ -2005,6 +2054,12 @@ func Test_Engine_Lifecycle_Sync(t *testing.T) {
 		if tas.Meta.Get("test.api.io/key") != "zap" {
 			t.Fatal("scheduling failed")
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:07Z")
+		})
 	}
 
 	{

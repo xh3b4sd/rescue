@@ -5,6 +5,7 @@ package conformance
 import (
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/xh3b4sd/logger"
@@ -12,16 +13,29 @@ import (
 	"github.com/xh3b4sd/rescue"
 	"github.com/xh3b4sd/rescue/engine"
 	"github.com/xh3b4sd/rescue/task"
+	"github.com/xh3b4sd/rescue/timer"
 )
 
 func Test_Engine_Delete_Sync(t *testing.T) {
 	var err error
+
+	var tim *timer.Timer
+	{
+		tim = timer.New()
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:00Z")
+		})
+	}
 
 	var eon rescue.Interface
 	{
 		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
 			Redigo: prgAll(redigo.Default()),
+			Timer:  tim,
 		})
 	}
 
@@ -37,6 +51,12 @@ func Test_Engine_Delete_Sync(t *testing.T) {
 		if len(lis) != 0 {
 			t.Fatal("expected", 0, "got", len(lis))
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:01Z")
+		})
 	}
 
 	// Create one task with custom sync state.
@@ -57,6 +77,12 @@ func Test_Engine_Delete_Sync(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:02Z")
+		})
 	}
 
 	// Create another task with paging sync state.
@@ -93,6 +119,12 @@ func Test_Engine_Delete_Sync(t *testing.T) {
 	}
 
 	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:03Z")
+		})
+	}
+
+	{
 		tas, err = eon.Search()
 		if err != nil {
 			t.Fatal(err)
@@ -121,6 +153,12 @@ func Test_Engine_Delete_Sync(t *testing.T) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
 			}
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:04Z")
+		})
 	}
 
 	{
@@ -164,6 +202,12 @@ func Test_Engine_Delete_Sync(t *testing.T) {
 	// Set paging state to our paging task.
 	{
 		tas.Sync.Set(task.Paging, "233")
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:05Z")
+		})
 	}
 
 	// Calling Delete on our paging task should expire the task together with the
@@ -225,6 +269,12 @@ func Test_Engine_Delete_Sync(t *testing.T) {
 	// entirely.
 	{
 		tas.Sync.Set(task.Paging, "0")
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:06Z")
+		})
 	}
 
 	{

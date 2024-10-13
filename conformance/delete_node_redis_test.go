@@ -230,18 +230,6 @@ func Test_Engine_Delete_Gate_Node_All(t *testing.T) {
 func Test_Engine_Delete_Node_All_Purge(t *testing.T) {
 	var err error
 
-	var red redigo.Interface
-	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
 	var tim *timer.Timer
 	{
 		tim = timer.New()
@@ -260,7 +248,7 @@ func Test_Engine_Delete_Node_All_Purge(t *testing.T) {
 	{
 		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Timer:  tim,
 			Worker: "eon",
 		})
@@ -270,7 +258,7 @@ func Test_Engine_Delete_Node_All_Purge(t *testing.T) {
 	{
 		etw = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Timer:  tim,
 			Worker: "etw",
 		})

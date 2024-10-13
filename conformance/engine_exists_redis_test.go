@@ -12,10 +12,22 @@ import (
 	"github.com/xh3b4sd/rescue"
 	"github.com/xh3b4sd/rescue/engine"
 	"github.com/xh3b4sd/rescue/task"
+	"github.com/xh3b4sd/rescue/timer"
 )
 
 func Test_Engine_Exists(t *testing.T) {
 	var err error
+
+	var tim *timer.Timer
+	{
+		tim = timer.New()
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:00Z")
+		})
+	}
 
 	var eon rescue.Interface
 	{
@@ -23,6 +35,7 @@ func Test_Engine_Exists(t *testing.T) {
 			Expiry: 500 * time.Millisecond,
 			Logger: logger.Fake(),
 			Redigo: prgAll(redigo.Default()),
+			Timer:  tim,
 			Worker: "eon",
 		})
 	}
@@ -90,6 +103,12 @@ func Test_Engine_Exists(t *testing.T) {
 	}
 
 	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:01Z")
+		})
+	}
+
+	{
 		tas := &task.Task{
 			Meta: &task.Meta{
 				"test.api.io/key": "foo",
@@ -101,6 +120,12 @@ func Test_Engine_Exists(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:02Z")
+		})
 	}
 
 	{
@@ -118,6 +143,12 @@ func Test_Engine_Exists(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:03Z")
+		})
 	}
 
 	{
@@ -205,7 +236,9 @@ func Test_Engine_Exists(t *testing.T) {
 	}
 
 	{
-		time.Sleep(500 * time.Millisecond)
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:04Z")
+		})
 	}
 
 	{
@@ -238,6 +271,12 @@ func Test_Engine_Exists(t *testing.T) {
 	}
 
 	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:05Z")
+		})
+	}
+
+	{
 		err = eon.Delete(tas)
 		if !engine.IsTaskOutdated(err) {
 			t.Fatal("expected", "taskOutdatedError", "got", err)
@@ -256,6 +295,12 @@ func Test_Engine_Exists(t *testing.T) {
 		if tas.Root != nil {
 			t.Fatal("expected", nil, "got", tas.Root)
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:06Z")
+		})
 	}
 
 	{
@@ -318,11 +363,23 @@ func Test_Engine_Exists(t *testing.T) {
 func Test_Engine_Exists_Gate(t *testing.T) {
 	var err error
 
+	var tim *timer.Timer
+	{
+		tim = timer.New()
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:00Z")
+		})
+	}
+
 	var eon rescue.Interface
 	{
 		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
 			Redigo: prgAll(redigo.Default()),
+			Timer:  tim,
 		})
 	}
 
@@ -360,6 +417,12 @@ func Test_Engine_Exists_Gate(t *testing.T) {
 	}
 
 	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:01Z")
+		})
+	}
+
+	{
 		tas := &task.Task{
 			Meta: &task.Meta{
 				"test.api.io/key": "foo",
@@ -376,6 +439,12 @@ func Test_Engine_Exists_Gate(t *testing.T) {
 	}
 
 	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:02Z")
+		})
+	}
+
+	{
 		tas := &task.Task{
 			Meta: &task.Meta{
 				"test.api.io/key": "foo",
@@ -389,6 +458,12 @@ func Test_Engine_Exists_Gate(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:03Z")
+		})
 	}
 
 	{
@@ -535,6 +610,12 @@ func Test_Engine_Exists_Gate(t *testing.T) {
 		if tas.Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("expected", "foo", "got", tas.Meta.Get("test.api.io/key"))
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:04Z")
+		})
 	}
 
 	{
