@@ -16,6 +16,10 @@ func (c *Cron) Get() *getcrn {
 	}
 }
 
+func (g *getcrn) Adefer() string {
+	return g.labl[Adefer]
+}
+
 func (g *getcrn) Aevery() string {
 	return g.labl[Aevery]
 }

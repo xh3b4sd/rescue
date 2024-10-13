@@ -10,6 +10,10 @@ func (c *Cron) Prg() *prgcrn {
 	}
 }
 
+func (p *prgcrn) Adefer() {
+	delete(p.labl, Adefer)
+}
+
 func (p *prgcrn) Aevery() {
 	delete(p.labl, Aevery)
 }

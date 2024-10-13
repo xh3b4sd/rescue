@@ -147,7 +147,7 @@ func (e *Engine) search() (*task.Task, error) {
 		// remember the current expiry of this broadcasted task, so that we can
 		// expire it locally and retry if necessary.
 		{
-			e.cac[x.Core.Get().Object()] = &local{exp: e.tim.Search().Add(e.exp)}
+			e.cac[x.Core.Get().Object()] = &local{exp: now.Add(e.exp)}
 		}
 
 		return x, nil
@@ -199,7 +199,14 @@ func (e *Engine) search() (*task.Task, error) {
 			continue
 		}
 
-		// TODO remove all tasks without @every but with tick+1 pointing to the future
+		// Remove all deferred tasks that define their next execution to be in the
+		// future. Any task defining Task.Cron and tick+1 is meant to be executed
+		// after the specified time. So if the specified time is pointing to the
+		// future still, we ignore it here.
+		if x.Cron != nil && x.Cron.Exi().Adefer() && x.Cron.Exi().TickP1() && x.Cron.Get().TickP1().After(now) {
+			rem = append(rem, i)
+			continue
+		}
 
 		// Remove all trigger task templates for further processing. Any task
 		// template defining Task.Gate is meant to trigger event based task

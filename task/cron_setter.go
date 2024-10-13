@@ -16,6 +16,10 @@ func (c *Cron) Set() *setcrn {
 	}
 }
 
+func (s *setcrn) Adefer(x string) {
+	s.labl[Adefer] = x
+}
+
 func (s *setcrn) Aevery(x string) {
 	s.labl[Aevery] = x
 }

@@ -12,26 +12,14 @@ import (
 	"github.com/xh3b4sd/rescue/task"
 )
 
-func Test_Engine_Delete_Cron(t *testing.T) {
+func Test_Engine_Delete_Cron_Aevery(t *testing.T) {
 	var err error
-
-	var red redigo.Interface
-	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
 
 	var eon rescue.Interface
 	{
 		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 		})
 	}
 

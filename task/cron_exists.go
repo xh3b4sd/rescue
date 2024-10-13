@@ -10,6 +10,10 @@ func (c *Cron) Exi() *exicrn {
 	}
 }
 
+func (e *exicrn) Adefer() bool {
+	return e.labl[Adefer] != ""
+}
+
 func (e *exicrn) Aevery() bool {
 	return e.labl[Aevery] != ""
 }
