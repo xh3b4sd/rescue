@@ -1,6 +1,7 @@
 package engine
 
 import (
+	"github.com/xh3b4sd/objectid"
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/tracer"
 )
@@ -61,7 +62,7 @@ func (e *Engine) delete(tas *task.Task) error {
 
 	var loc *local
 	{
-		loc = e.cac[tas.Core.Map().Object()]
+		loc = e.cac[tas.Core.Get().Object()]
 	}
 
 	// Allow the local deletion of any broadcasted task that is not a task
@@ -81,7 +82,7 @@ func (e *Engine) delete(tas *task.Task) error {
 			// task that we just completed, because we are processing everything in
 			// first-in-first-out fashion.
 			{
-				e.pnt = first(unix(expiry(e.cac)))
+				e.pnt = expiry(e.cac)
 			}
 
 			// Since this worker did its part in processing the broadcasted task, we
@@ -91,7 +92,7 @@ func (e *Engine) delete(tas *task.Task) error {
 			}
 
 			{
-				e.cac[tas.Core.Map().Object()] = loc
+				e.cac[tas.Core.Get().Object()] = loc
 			}
 
 			return nil
@@ -101,7 +102,7 @@ func (e *Engine) delete(tas *task.Task) error {
 	var cur *task.Task
 	{
 		k := e.Keyfmt()
-		s := float64(tas.Core.Get().Object())
+		s := tas.Core.Get().Object().Float()
 
 		str, err := e.red.Sorted().Search().Score(k, s, s)
 		if err != nil {
@@ -142,23 +143,28 @@ func (e *Engine) delete(tas *task.Task) error {
 		}
 	}
 
+	// If the ownership of a task changed meanwhile, return an error to the
+	// outdated worker process.
 	if !equ {
-		cur.Core.Set().Cycles(cur.Core.Get().Cycles() + 1)
-	}
-
-	if !equ {
-		k := e.Keyfmt()
-		v := task.ToString(cur)
-		s := float64(cur.Core.Get().Object())
-
-		_, err := e.red.Sorted().Update().Score(k, v, s)
-		if err != nil {
-			return tracer.Mask(err)
+		{
+			cur.Core.Set().Cycles(cur.Core.Get().Cycles() + 1)
 		}
-	}
 
-	if !equ {
-		e.met.Task.Outdated.Inc()
+		{
+			k := e.Keyfmt()
+			v := task.ToString(cur)
+			s := cur.Core.Get().Object().Float()
+
+			_, err := e.red.Sorted().Update().Score(k, v, s)
+			if err != nil {
+				return tracer.Mask(err)
+			}
+		}
+
+		{
+			e.met.Task.Outdated.Inc()
+		}
+
 		return tracer.Maskf(taskOutdatedError, cur.Core.Map().Object())
 	}
 
@@ -241,13 +247,13 @@ func (e *Engine) delete(tas *task.Task) error {
 					}
 				}
 
-				var tid int64
+				var oid objectid.ID
 				{
-					tid = e.tim.Delete().UnixNano()
+					oid = objectid.Random(objectid.Time(e.tim.Delete()))
 				}
 
 				{
-					t.Core.Set().Object(tid)
+					t.Core.Set().Object(oid)
 				}
 
 				if t.Node == nil {
@@ -261,7 +267,7 @@ func (e *Engine) delete(tas *task.Task) error {
 				{
 					k := e.Keyfmt()
 					v := task.ToString(t)
-					s := float64(tid)
+					s := oid.Float()
 
 					err = e.red.Sorted().Create().Score(k, v, s)
 					if err != nil {
@@ -282,7 +288,7 @@ func (e *Engine) delete(tas *task.Task) error {
 			{
 				k := e.Keyfmt()
 				v := task.ToString(x)
-				s := float64(x.Core.Get().Object())
+				s := x.Core.Get().Object().Float()
 
 				_, err := e.red.Sorted().Update().Score(k, v, s)
 				if err != nil {
@@ -307,7 +313,7 @@ func (e *Engine) delete(tas *task.Task) error {
 			{
 				k := e.Keyfmt()
 				v := task.ToString(x)
-				s := float64(x.Core.Get().Object())
+				s := x.Core.Get().Object().Float()
 
 				_, err := e.red.Sorted().Update().Score(k, v, s)
 				if err != nil {
@@ -329,7 +335,7 @@ func (e *Engine) delete(tas *task.Task) error {
 		{
 			k := e.Keyfmt()
 			v := task.ToString(tas)
-			s := float64(tas.Core.Get().Object())
+			s := tas.Core.Get().Object().Float()
 
 			_, err := e.red.Sorted().Update().Score(k, v, s)
 			if err != nil {
@@ -342,7 +348,7 @@ func (e *Engine) delete(tas *task.Task) error {
 
 	{
 		k := e.Keyfmt()
-		s := float64(tas.Core.Get().Object())
+		s := tas.Core.Get().Object().Float()
 
 		err = e.red.Sorted().Delete().Score(k, s)
 		if err != nil {

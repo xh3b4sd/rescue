@@ -1,6 +1,6 @@
 module github.com/xh3b4sd/rescue
 
-go 1.22
+go 1.22.5
 
 require (
 	github.com/google/go-cmp v0.6.0
@@ -8,6 +8,7 @@ require (
 	github.com/prometheus/client_golang v1.20.4
 	github.com/xh3b4sd/breakr v0.1.0
 	github.com/xh3b4sd/logger v0.8.1
+	github.com/xh3b4sd/objectid v0.2.0
 	github.com/xh3b4sd/redigo v0.38.0
 	github.com/xh3b4sd/tracer v0.11.1
 )

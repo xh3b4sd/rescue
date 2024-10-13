@@ -14,10 +14,22 @@ import (
 	"github.com/xh3b4sd/rescue"
 	"github.com/xh3b4sd/rescue/engine"
 	"github.com/xh3b4sd/rescue/task"
+	"github.com/xh3b4sd/rescue/timer"
 )
 
 func Test_Engine_Lister(t *testing.T) {
 	var err error
+
+	var tim *timer.Timer
+	{
+		tim = timer.New()
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:00Z")
+		})
+	}
 
 	var eon rescue.Interface
 	{
@@ -25,6 +37,7 @@ func Test_Engine_Lister(t *testing.T) {
 			Expiry: 500 * time.Millisecond,
 			Logger: logger.Fake(),
 			Redigo: prgAll(redigo.Default()),
+			Timer:  tim,
 			Worker: "eon",
 		})
 	}
@@ -35,7 +48,14 @@ func Test_Engine_Lister(t *testing.T) {
 			Expiry: 500 * time.Millisecond,
 			Logger: logger.Fake(),
 			Redigo: prgAll(redigo.Default()),
+			Timer:  tim,
 			Worker: "etw",
+		})
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:01Z")
 		})
 	}
 
@@ -51,6 +71,12 @@ func Test_Engine_Lister(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:02Z")
+		})
 	}
 
 	{
@@ -66,6 +92,12 @@ func Test_Engine_Lister(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:03Z")
+		})
 	}
 
 	{
@@ -111,7 +143,9 @@ func Test_Engine_Lister(t *testing.T) {
 	}
 
 	{
-		time.Sleep(500 * time.Millisecond)
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:04Z")
+		})
 	}
 
 	{
@@ -175,7 +209,9 @@ func Test_Engine_Lister(t *testing.T) {
 	}
 
 	{
-		time.Sleep(500 * time.Millisecond)
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:05Z")
+		})
 	}
 
 	{
@@ -245,6 +281,12 @@ func Test_Engine_Lister(t *testing.T) {
 		if tas.Meta.Get("test.api.io/zer") != "tru" {
 			t.Fatal("expected", "tru", "got", tas.Meta.Get("test.api.io/zer"))
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:06Z")
+		})
 	}
 
 	{
@@ -546,11 +588,23 @@ func Test_Engine_Lister_Cancel(t *testing.T) {
 func Test_Engine_Lister_Gate(t *testing.T) {
 	var err error
 
+	var tim *timer.Timer
+	{
+		tim = timer.New()
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:00Z")
+		})
+	}
+
 	var eon rescue.Interface
 	{
 		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
 			Redigo: prgAll(redigo.Default()),
+			Timer:  tim,
 		})
 	}
 
@@ -566,6 +620,12 @@ func Test_Engine_Lister_Gate(t *testing.T) {
 		if len(lis) != 0 {
 			t.Fatal("expected", 0, "got", len(lis))
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:01Z")
+		})
 	}
 
 	{
@@ -588,6 +648,12 @@ func Test_Engine_Lister_Gate(t *testing.T) {
 	}
 
 	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:02Z")
+		})
+	}
+
+	{
 		tas := &task.Task{
 			Gate: &task.Gate{
 				"test.api.io/k-1": task.Trigger,
@@ -601,6 +667,12 @@ func Test_Engine_Lister_Gate(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:03Z")
+		})
 	}
 
 	{
@@ -751,6 +823,12 @@ func Test_Engine_Lister_Gate(t *testing.T) {
 	}
 
 	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:04Z")
+		})
+	}
+
+	{
 		err = eon.Delete(tas)
 		if err != nil {
 			t.Fatal(err)
@@ -849,6 +927,12 @@ func Test_Engine_Lister_Gate(t *testing.T) {
 		if tas.Meta.Get("test.api.io/key") != "foo" {
 			t.Fatal("expected", "foo", "got", tas.Meta.Get("test.api.io/key"))
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:05Z")
+		})
 	}
 
 	{
@@ -996,11 +1080,23 @@ func Test_Engine_Lister_Gate(t *testing.T) {
 func Test_Engine_Lister_Gate_Node_All(t *testing.T) {
 	var err error
 
+	var tim *timer.Timer
+	{
+		tim = timer.New()
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:00Z")
+		})
+	}
+
 	var eon rescue.Interface
 	{
 		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
 			Redigo: prgAll(redigo.Default()),
+			Timer:  tim,
 		})
 	}
 
@@ -1016,6 +1112,12 @@ func Test_Engine_Lister_Gate_Node_All(t *testing.T) {
 		if len(lis) != 0 {
 			t.Fatal("expected", 0, "got", len(lis))
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:01Z")
+		})
 	}
 
 	{
@@ -1038,6 +1140,12 @@ func Test_Engine_Lister_Gate_Node_All(t *testing.T) {
 	}
 
 	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:02Z")
+		})
+	}
+
+	{
 		tas := &task.Task{
 			Gate: &task.Gate{
 				"test.api.io/k-1": task.Trigger,
@@ -1051,6 +1159,12 @@ func Test_Engine_Lister_Gate_Node_All(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:03Z")
+		})
 	}
 
 	{
@@ -1185,6 +1299,12 @@ func Test_Engine_Lister_Gate_Node_All(t *testing.T) {
 		}
 	}
 
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:04Z")
+		})
+	}
+
 	var tas *task.Task
 	{
 		tas, err = eon.Search()
@@ -1218,6 +1338,12 @@ func Test_Engine_Lister_Gate_Node_All(t *testing.T) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
 			}
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:05Z")
+		})
 	}
 
 	{
@@ -1306,6 +1432,12 @@ func Test_Engine_Lister_Gate_Node_All(t *testing.T) {
 	}
 
 	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:06Z")
+		})
+	}
+
+	{
 		tas, err = eon.Search()
 		if err != nil {
 			t.Fatal(err)
@@ -1334,6 +1466,12 @@ func Test_Engine_Lister_Gate_Node_All(t *testing.T) {
 				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
 			}
 		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:07Z")
+		})
 	}
 
 	{

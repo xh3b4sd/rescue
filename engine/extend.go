@@ -60,7 +60,7 @@ func (e *Engine) extend(tas *task.Task) error {
 	var cur *task.Task
 	{
 		k := e.Keyfmt()
-		s := float64(tas.Core.Get().Object())
+		s := tas.Core.Get().Object().Float()
 
 		str, err := e.red.Sorted().Search().Score(k, s, s)
 		if err != nil {
@@ -94,7 +94,7 @@ func (e *Engine) extend(tas *task.Task) error {
 	{
 		k := e.Keyfmt()
 		v := task.ToString(cur)
-		s := float64(cur.Core.Get().Object())
+		s := cur.Core.Get().Object().Float()
 
 		_, err := e.red.Sorted().Update().Score(k, v, s)
 		if err != nil {

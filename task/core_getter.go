@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/xh3b4sd/objectid"
 	"github.com/xh3b4sd/rescue/ticker"
 )
 
@@ -65,13 +66,8 @@ func (g *getcor) Expiry() time.Time {
 	return exp
 }
 
-func (g *getcor) Object() int64 {
-	obj, err := strconv.ParseInt(g.labl[Object], 10, 64)
-	if err != nil {
-		panic(err)
-	}
-
-	return obj
+func (g *getcor) Object() objectid.ID {
+	return objectid.ID(g.labl[Object])
 }
 
 func (g *getcor) Worker() string {

@@ -37,7 +37,7 @@ func Test_Engine_Lister_Host(t *testing.T) {
 		})
 	}
 
-	var lis []*task.Task
+	var lis task.Slicer
 	{
 		lis, err = eon.Lister(engine.All())
 		if err != nil {
@@ -117,7 +117,7 @@ func Test_Engine_Lister_Host(t *testing.T) {
 	{
 		var tas *task.Task
 		{
-			tas = lis[0]
+			tas = lis.TaskMeta(&task.Meta{"test.api.io/key": "foo"})[0]
 		}
 
 		var exp *task.Task
@@ -143,7 +143,7 @@ func Test_Engine_Lister_Host(t *testing.T) {
 	{
 		var tas *task.Task
 		{
-			tas = lis[1]
+			tas = lis.TaskMeta(&task.Meta{"test.api.io/key": "bar"})[0]
 		}
 
 		var exp *task.Task
@@ -170,7 +170,7 @@ func Test_Engine_Lister_Host(t *testing.T) {
 	{
 		var tas *task.Task
 		{
-			tas = lis[2]
+			tas = lis.TaskMeta(&task.Meta{"test.api.io/key": "baz"})[0]
 		}
 
 		var exp *task.Task

@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/xh3b4sd/breakr"
 	"github.com/xh3b4sd/logger"
+	"github.com/xh3b4sd/objectid"
 	"github.com/xh3b4sd/redigo"
 	"github.com/xh3b4sd/redigo/locker"
 	"github.com/xh3b4sd/redigo/pool"
@@ -46,7 +47,7 @@ type Engine struct {
 	// processed without assigning direct ownership to this particular worker
 	// process. An example of necessary mappings we need to track for workers are
 	// all tasks defining the delivery method "all".
-	cac map[string]*local
+	cac map[objectid.ID]*local
 	cln time.Duration
 	ctx context.Context
 	exp time.Duration
@@ -103,7 +104,7 @@ func New(config Config) *Engine {
 
 	e := &Engine{
 		bal: config.Balancer,
-		cac: map[string]*local{},
+		cac: map[objectid.ID]*local{},
 		cln: config.Cleanup,
 		ctx: context.Background(),
 		exp: config.Expiry,
