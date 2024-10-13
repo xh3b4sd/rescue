@@ -1,8 +1,11 @@
 package engine
 
 import (
+	"time"
+
 	"github.com/xh3b4sd/objectid"
 	"github.com/xh3b4sd/rescue/task"
+	"github.com/xh3b4sd/rescue/ticker"
 	"github.com/xh3b4sd/tracer"
 )
 
@@ -180,6 +183,11 @@ func (e *Engine) delete(tas *task.Task) error {
 		e.met.Task.Inactive.Set(float64(len(lis)))
 	}
 
+	var now time.Time
+	{
+		now = e.tim.Delete()
+	}
+
 	// We want to update all the task templates that define matching keys for the
 	// given trigger task inside Task.Gate, but only if the given trigger task
 	// defines Task.Gate themselves. Any matching label key will have the
@@ -249,7 +257,7 @@ func (e *Engine) delete(tas *task.Task) error {
 
 				var oid objectid.ID
 				{
-					oid = objectid.Random(objectid.Time(e.tim.Delete()))
+					oid = objectid.Random(objectid.Time(now))
 				}
 
 				{
@@ -323,13 +331,48 @@ func (e *Engine) delete(tas *task.Task) error {
 		}
 	}
 
-	// Update any task defining Task.Sync and expire it immediatelly so that it
-	// can be picked up again with the updated synced data.
-	if tas.Cron == nil && tas.Gate == nil && tas.Root == nil && tas.Sync != nil && tas.Pag() {
+	// We need to check whether the given task that we are asked to delete
+	// contains an @defer statement in Task.Cron. If the current task has such a
+	// statement, then we need to update the task in our task queue instead of
+	// deleting it for good. Important here is that no other Task.Cron statement
+	// is present. If for instance the tick+1 label is also present, then that
+	// means that this task has already been deferred and properly executed.
+	var def bool
+	{
+		def = tas.Cron != nil && tas.Cron.Exi().Adefer() && tas.Cron.Len() == 1
+	}
+
+	// Update any task defining Task.Cron or Task.Sync and expire it immediatelly
+	// so that it can be picked up again with the updated synced data. For
+	// non-empty Task.Cron the tick+1 label is important here, for non-empty
+	// Task.Sync the paging pointer is important here.
+	if tas.Gate == nil && tas.Root == nil && (tas.Pag() || def) {
 		{
 			tas.Core.Prg().Expiry()
 			tas.Core.Prg().Worker()
 			tas.Core.Set().Cycles(tas.Core.Get().Cycles() + 1)
+		}
+
+		// Given the condition above, if Task.Cron is defined here, then we have a
+		// @defer definition to set a tick+1 for.
+		if tas.Cron != nil {
+			var tic *ticker.Ticker
+			{
+				tic = ticker.New(tas.Cron.Get().Adefer(), now)
+			}
+
+			var dur time.Duration
+			{
+				dur = tic.Duration()
+			}
+
+			if dur == 0 {
+				return tracer.Maskf(taskCronError, "Task.Cron format must be valid, got @defer = %q", tas.Cron.Get().Adefer())
+			}
+
+			{
+				tas.Cron.Set().TickP1(now.Add(dur))
+			}
 		}
 
 		{

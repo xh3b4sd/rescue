@@ -16,20 +16,292 @@ import (
 	"github.com/xh3b4sd/rescue/timer"
 )
 
-func Test_Engine_Expire_Cron_Aevery(t *testing.T) {
+func Test_Engine_Expire_Cron_Adefer(t *testing.T) {
 	var err error
 
-	var red redigo.Interface
+	var tim *timer.Timer
 	{
-		red = redigo.Default()
+		tim = timer.New()
 	}
 
 	{
-		err = red.Purge()
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:00Z")
+		})
+	}
+
+	var eon rescue.Interface
+	{
+		eon = engine.New(engine.Config{
+			Logger: logger.Fake(),
+			Redigo: prgAll(redigo.Default()),
+			Timer:  tim,
+			Worker: "eon",
+		})
+	}
+
+	var etw rescue.Interface
+	{
+		etw = engine.New(engine.Config{
+			Logger: logger.Fake(),
+			Redigo: prgAll(redigo.Default()),
+			Timer:  tim,
+			Worker: "etw",
+		})
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:01Z")
+		})
+	}
+
+	{
+		tas := &task.Task{
+			Meta: &task.Meta{
+				"test.api.io/key": "foo",
+			},
+		}
+
+		err = eon.Create(tas)
 		if err != nil {
 			t.Fatal(err)
 		}
 	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:00:02Z")
+		})
+	}
+
+	var tas *task.Task
+	{
+		tas, err = eon.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	if tas.Cron == nil {
+		tas.Cron = &task.Cron{}
+	}
+
+	{
+		tas.Cron.Set().Adefer("2 hours")
+	}
+
+	// plus 1 minute
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T00:01:00Z")
+		})
+	}
+
+	// In order to persist the @defer statement, the task must be updated inside
+	// of Engine.Delete.
+	{
+		err = etw.Delete(tas)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	var lis []*task.Task
+	{
+		lis, err = eon.Lister(engine.All())
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		if len(lis) != 1 {
+			t.Fatal("expected", 1, "got", len(lis))
+		}
+	}
+
+	{
+		var tas *task.Task
+		{
+			tas = lis[0]
+		}
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Cron: &task.Cron{
+					task.Adefer: "2 hours",
+					task.TickP1: "2023-10-20T02:01:00Z", // plus 2 hours
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+		}
+	}
+
+	{
+		_, err = eon.Search()
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
+		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T01:00:00Z")
+		})
+	}
+
+	{
+		_, err = eon.Search()
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
+		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T02:00:59Z")
+		})
+	}
+
+	{
+		lis, err = eon.Lister(engine.All())
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		if len(lis) != 1 {
+			t.Fatal("expected", 1, "got", len(lis))
+		}
+	}
+
+	{
+		var tas *task.Task
+		{
+			tas = lis[0]
+		}
+
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Cron: &task.Cron{
+					task.Adefer: "2 hours",
+					task.TickP1: "2023-10-20T02:01:00Z",
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+		}
+	}
+
+	{
+		_, err = eon.Search()
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
+		}
+	}
+
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T02:01:00Z") // at defer
+		})
+	}
+
+	{
+		tas, err = eon.Search()
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		var exp *task.Task
+		{
+			exp = &task.Task{
+				Core: tas.Core,
+				Cron: &task.Cron{
+					task.Adefer: "2 hours",
+					task.TickP1: "2023-10-20T02:01:00Z",
+				},
+				Meta: &task.Meta{
+					"test.api.io/key": "foo",
+				},
+				Node: &task.Node{
+					task.Method: task.MthdAny,
+				},
+			}
+		}
+
+		{
+			if !reflect.DeepEqual(tas, exp) {
+				t.Fatalf("\n\n%s\n", cmp.Diff(exp, tas))
+			}
+		}
+	}
+
+	// do some work
+	{
+		tim.Setter(func() time.Time {
+			return musTim("2023-10-20T02:01:07Z")
+		})
+	}
+
+	{
+		err = etw.Delete(tas)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		_, err = eon.Search()
+		if !engine.IsTaskNotFound(err) {
+			t.Fatal("expected", "taskNotFoundError", "got", err)
+		}
+	}
+
+	{
+		lis, err = eon.Lister(engine.All())
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	{
+		if len(lis) != 0 {
+			t.Fatal("expected", 0, "got", len(lis))
+		}
+	}
+}
+
+func Test_Engine_Expire_Cron_Aevery(t *testing.T) {
+	var err error
 
 	var tim *timer.Timer
 	{
@@ -49,7 +321,7 @@ func Test_Engine_Expire_Cron_Aevery(t *testing.T) {
 	{
 		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Timer:  tim,
 			Worker: "eon",
 		})
@@ -59,7 +331,7 @@ func Test_Engine_Expire_Cron_Aevery(t *testing.T) {
 	{
 		etw = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Timer:  tim,
 			Worker: "etw",
 		})
@@ -222,18 +494,6 @@ func Test_Engine_Expire_Cron_Aevery(t *testing.T) {
 func Test_Engine_Expire_Cron_Aexact(t *testing.T) {
 	var err error
 
-	var red redigo.Interface
-	{
-		red = redigo.Default()
-	}
-
-	{
-		err = red.Purge()
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
 	var tim *timer.Timer
 	{
 		tim = timer.New()
@@ -252,7 +512,7 @@ func Test_Engine_Expire_Cron_Aexact(t *testing.T) {
 	{
 		eon = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Timer:  tim,
 			Worker: "eon",
 		})
@@ -262,7 +522,7 @@ func Test_Engine_Expire_Cron_Aexact(t *testing.T) {
 	{
 		etw = engine.New(engine.Config{
 			Logger: logger.Fake(),
-			Redigo: red,
+			Redigo: prgAll(redigo.Default()),
 			Timer:  tim,
 			Worker: "etw",
 		})

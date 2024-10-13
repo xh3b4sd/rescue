@@ -256,6 +256,17 @@ func Test_Engine_Create_Cron_Error(t *testing.T) {
 				},
 			},
 		},
+		// Case 002 ensures that @defer cannot be defined at task creation.
+		{
+			tas: &task.Task{
+				Cron: &task.Cron{
+					task.Adefer: "1 minute",
+				},
+				Meta: &task.Meta{
+					"foo": "bar",
+				},
+			},
+		},
 	}
 
 	for i, tc := range testCases {

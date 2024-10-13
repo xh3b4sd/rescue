@@ -62,10 +62,21 @@ const (
 )
 
 const (
+	// Adefer is the optional scheduling information that users may provide for
+	// deferred execution based on the given time interval expression. After
+	// successful execution via @defer, the processed task is deleted.
+	//
+	//     time.rescue.io/@defer    1 minute
+	//
+	Adefer = "time.rescue.io/@defer"
+
 	// Aevery is the optional scheduling information that users may provide for
 	// repeated execution based on the given time interval expression. See
 	// Task.Cron for more information. Note that @every and @exact are mutually
 	// exclusive.
+	//
+	//     time.rescue.io/@every    6 hours
+	//
 	Aevery = "time.rescue.io/@every"
 
 	// Aexact is the optional scheduling information that users may provide for

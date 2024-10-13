@@ -10,6 +10,10 @@ func (c *Cron) Map() *mapcrn {
 	}
 }
 
+func (m *mapcrn) Adefer() string {
+	return m.labl[Adefer]
+}
+
 func (m *mapcrn) Aevery() string {
 	return m.labl[Aevery]
 }

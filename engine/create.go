@@ -160,23 +160,32 @@ func (e *Engine) verCre(tas *task.Task) (*ticker.Ticker, error) {
 		}
 	}
 
+	var now time.Time
+	{
+		now = e.tim.Create()
+	}
+
 	var tic *ticker.Ticker
 	if tas.Cron != nil {
 		if tas.Cron.Exi().Aevery() && tas.Cron.Exi().Aexact() {
 			return nil, tracer.Maskf(taskCronError, "Task.Cron must not define @every and @exact together")
 		}
 
-		if tas.Cron != nil && tas.Cron.Len() != 1 {
+		if tas.Cron.Len() != 1 {
 			return nil, tracer.Maskf(taskCronError, "Task.Cron must only be configured with one valid format")
+		}
+
+		if tas.Cron.Exi().Adefer() {
+			return nil, tracer.Maskf(taskCronError, "Task.Cron must define @defer at task creation")
 		}
 
 		if tas.Cron.Exi().Aevery() && !tas.Cron.Exi().Aexact() {
 			{
-				tic = ticker.New(tas.Cron.Get().Aevery(), e.tim.Create())
+				tic = ticker.New(tas.Cron.Get().Aevery(), now)
 			}
 
 			if tic.TickP1().IsZero() {
-				return nil, tracer.Maskf(taskCronError, "Task.Cron format must be valid")
+				return nil, tracer.Maskf(taskCronError, "Task.Cron format must be valid, got @every = %q", tas.Cron.Get().Aevery())
 			}
 		}
 
@@ -184,11 +193,6 @@ func (e *Engine) verCre(tas *task.Task) (*ticker.Ticker, error) {
 			tim, err := time.Parse(ticker.Layout, tas.Cron.Map().Aexact())
 			if err != nil {
 				return nil, tracer.Mask(err)
-			}
-
-			var now time.Time
-			{
-				now = e.tim.Create()
 			}
 
 			if !tim.After(now) {
