@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/xh3b4sd/objectid"
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/rescue/ticker"
 	"github.com/xh3b4sd/tracer"
@@ -62,9 +63,9 @@ func (e *Engine) create(tas *task.Task) error {
 		}()
 	}
 
-	var tid int64
+	var oid objectid.ID
 	{
-		tid = e.tim.Create().UnixNano()
+		oid = objectid.Random(objectid.Time(e.tim.Create()))
 	}
 
 	if tas.Core == nil {
@@ -72,7 +73,7 @@ func (e *Engine) create(tas *task.Task) error {
 	}
 
 	{
-		tas.Core.Set().Object(tid)
+		tas.Core.Set().Object(oid)
 	}
 
 	if tas.Cron != nil && tas.Cron.Exi().Aevery() {
@@ -91,7 +92,7 @@ func (e *Engine) create(tas *task.Task) error {
 	{
 		k := e.Keyfmt()
 		v := task.ToString(tas)
-		s := float64(tid)
+		s := oid.Float()
 
 		err = e.red.Sorted().Create().Score(k, v, s)
 		if err != nil {

@@ -3,6 +3,7 @@ package engine
 import (
 	"time"
 
+	"github.com/xh3b4sd/objectid"
 	"github.com/xh3b4sd/rescue/task"
 	"github.com/xh3b4sd/rescue/ticker"
 	"github.com/xh3b4sd/tracer"
@@ -145,7 +146,7 @@ func (e *Engine) ticker() error {
 		{
 			k := e.Keyfmt()
 			v := task.ToString(x)
-			s := float64(x.Core.Get().Object())
+			s := x.Core.Get().Object().Float()
 
 			_, err := e.red.Sorted().Update().Score(k, v, s)
 			if err != nil {
@@ -201,7 +202,7 @@ func (e *Engine) ticker() error {
 					// about to create below.
 					{
 						k := e.Keyfmt()
-						s := float64(y.Core.Get().Object())
+						s := y.Core.Get().Object().Float()
 
 						err = e.red.Sorted().Delete().Score(k, s)
 						if err != nil {
@@ -236,13 +237,13 @@ func (e *Engine) ticker() error {
 				}
 			}
 
-			var tid int64
+			var oid objectid.ID
 			{
-				tid = e.tim.Ticker().UnixNano()
+				oid = objectid.Random(objectid.Time(e.tim.Ticker()))
 			}
 
 			{
-				t.Core.Set().Object(tid)
+				t.Core.Set().Object(oid)
 			}
 
 			if t.Node == nil {
@@ -256,7 +257,7 @@ func (e *Engine) ticker() error {
 			{
 				k := e.Keyfmt()
 				v := task.ToString(t)
-				s := float64(tid)
+				s := oid.Float()
 
 				err = e.red.Sorted().Create().Score(k, v, s)
 				if err != nil {
@@ -301,7 +302,7 @@ func (e *Engine) ticker() error {
 		{
 			k := e.Keyfmt()
 			v := task.ToString(x)
-			s := float64(x.Core.Get().Object())
+			s := x.Core.Get().Object().Float()
 
 			_, err := e.red.Sorted().Update().Score(k, v, s)
 			if err != nil {

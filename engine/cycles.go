@@ -67,7 +67,7 @@ func (e *Engine) cycles(tas *task.Task) error {
 	var jsn []string
 	{
 		k := e.Keyfmt()
-		s := float64(tas.Core.Get().Object())
+		s := tas.Core.Get().Object().Float()
 
 		jsn, err = e.red.Sorted().Search().Score(k, s, s)
 		if err != nil {
@@ -93,7 +93,7 @@ func (e *Engine) cycles(tas *task.Task) error {
 	{
 		k := e.Keyfmt()
 		v := task.ToString(upd)
-		s := float64(upd.Core.Get().Object())
+		s := upd.Core.Get().Object().Float()
 
 		_, err := e.red.Sorted().Update().Score(k, v, s)
 		if err != nil {

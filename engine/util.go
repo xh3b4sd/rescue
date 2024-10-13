@@ -1,8 +1,9 @@
 package engine
 
 import (
-	"slices"
 	"time"
+
+	"github.com/xh3b4sd/objectid"
 )
 
 func contains(l []string, i string) bool {
@@ -15,48 +16,23 @@ func contains(l []string, i string) bool {
 	return false
 }
 
-// created receives a task ID of nanoseconds. Nanoseconds in Go are nullified,
-// which leaves us with microsecond precision. Internally, created divides by
-// 1000, to call time.UnixMicro with the result.
-func created(i int64) time.Time {
-	//
-	//     seconds    1697575809
-	//     milli      1697575809 629
-	//     micro      1697575809 629 451
-	//     nano       1697575809 629 451 000
-	//
-	return time.UnixMicro(i / 1000).UTC()
-}
-
 func ensure(l []string, s ...string) []string {
 	return append(remove(l, s...), s...)
 }
 
-func expiry(m map[string]*local) []time.Time {
-	var val []time.Time
+// expiry returns the earliest recorded expiry of the provided local cache.
+func expiry(m map[objectid.ID]*local) time.Time {
+	var fir time.Time
 
 	for _, v := range m {
 		if !v.exp.IsZero() {
-			val = append(val, v.exp)
+			if fir.IsZero() || v.exp.Before(fir) {
+				fir = v.exp
+			}
 		}
 	}
 
-	return val
-}
-
-func first(l []int64) time.Time {
-	slices.Sort(l)
-	return created(l[0])
-}
-
-func unix(l []time.Time) []int64 {
-	var uni []int64
-
-	for _, x := range l {
-		uni = append(uni, x.UnixNano())
-	}
-
-	return uni
+	return fir
 }
 
 func keys(m map[string]int) []string {

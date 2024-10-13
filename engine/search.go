@@ -104,7 +104,7 @@ func (e *Engine) search() (*task.Task, error) {
 
 		var loc *local
 		{
-			loc = e.cac[x.Core.Map().Object()]
+			loc = e.cac[x.Core.Get().Object()]
 		}
 
 		// Skip any task from our local copy that we already processed.
@@ -115,7 +115,7 @@ func (e *Engine) search() (*task.Task, error) {
 		// Derive this task's creation timestamp from its object ID.
 		var tim time.Time
 		{
-			tim = created(x.Core.Get().Object())
+			tim = x.Core.Get().Object().Time()
 		}
 
 		// Skip any task that got created before this worker started to participate
@@ -147,7 +147,7 @@ func (e *Engine) search() (*task.Task, error) {
 		// remember the current expiry of this broadcasted task, so that we can
 		// expire it locally and retry if necessary.
 		{
-			e.cac[x.Core.Map().Object()] = &local{exp: e.tim.Search().Add(e.exp)}
+			e.cac[x.Core.Get().Object()] = &local{exp: e.tim.Search().Add(e.exp)}
 		}
 
 		return x, nil
@@ -199,6 +199,8 @@ func (e *Engine) search() (*task.Task, error) {
 			continue
 		}
 
+		// TODO remove all tasks without @every but with tick+1 pointing to the future
+
 		// Remove all trigger task templates for further processing. Any task
 		// template defining Task.Gate is meant to trigger event based task
 		// scheduling for child tasks originating from that template. The template
@@ -246,7 +248,7 @@ func (e *Engine) search() (*task.Task, error) {
 			// that is represented by task y.
 			{
 				k := e.Keyfmt()
-				s := float64(x.Core.Get().Object())
+				s := x.Core.Get().Object().Float()
 
 				err = e.red.Sorted().Delete().Score(k, s)
 				if err != nil {
@@ -355,7 +357,7 @@ func (e *Engine) search() (*task.Task, error) {
 	{
 		k := e.Keyfmt()
 		v := task.ToString(tas)
-		s := float64(tas.Core.Get().Object())
+		s := tas.Core.Get().Object().Float()
 
 		_, err := e.red.Sorted().Update().Score(k, v, s)
 		if err != nil {

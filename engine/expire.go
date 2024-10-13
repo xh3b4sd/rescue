@@ -98,7 +98,7 @@ func (e *Engine) expire() error {
 		// Derive this task's creation timestamp from its object ID.
 		var tim time.Time
 		{
-			tim = created(x.Core.Get().Object())
+			tim = x.Core.Get().Object().Time()
 		}
 
 		// Any lingering task is removed from the internal state once it is older
@@ -111,13 +111,13 @@ func (e *Engine) expire() error {
 		if e.tim.Search().Sub(tim) > e.cln {
 			// Remove the irrelevant task from memory, if any.
 			{
-				delete(e.cac, x.Core.Map().Object())
+				delete(e.cac, x.Core.Get().Object())
 			}
 
 			// Remove the irrelevant task from the underlying queue.
 			{
 				k := e.Keyfmt()
-				s := float64(x.Core.Get().Object())
+				s := x.Core.Get().Object().Float()
 
 				err = e.red.Sorted().Delete().Score(k, s)
 				if err != nil {
@@ -186,7 +186,7 @@ func (e *Engine) expire() error {
 		{
 			k := e.Keyfmt()
 			v := task.ToString(x)
-			s := float64(x.Core.Get().Object())
+			s := x.Core.Get().Object().Float()
 
 			_, err := e.red.Sorted().Update().Score(k, v, s)
 			if err != nil {
@@ -249,7 +249,7 @@ func (e *Engine) expire() error {
 		{
 			k := e.Keyfmt()
 			v := task.ToString(x)
-			s := float64(x.Core.Get().Object())
+			s := x.Core.Get().Object().Float()
 
 			_, err := e.red.Sorted().Update().Score(k, v, s)
 			if err != nil {

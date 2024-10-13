@@ -57,13 +57,20 @@ type Task struct {
 	// scheduling might be affected considerably. If workers search for tasks
 	// every 5 seconds, then scheduled tasks are likely to be executed with a
 	// delay of a couple of seconds.
+	//
+	// In the presence of a standalone tick+1 label an existing task can be
+	// instructed to defer execution until the provided timestamp has passed.
+	//
+	//     time.rescue.io/tick+1    2023-09-28T14:24:00.000000Z
+	//
 	Cron *Cron `json:"cron,omitempty"`
 
 	// Gate allows to trigger tasks after a set of dependencies finished
 	// processing. Consider task template x and many tasks y, where x is waiting
 	// for all y tasks to be finished in order to be triggered. Task template x
 	// would define the following label keys in Task.Gate, all provided with the
-	// reserved value "waiting".
+	// reserved value "waiting". Task x is effectively waiting for leaf 0, 1 and 2
+	// to be processed first.
 	//
 	//     y.api.io/leaf-0    waiting
 	//     y.api.io/leaf-1    waiting
@@ -78,12 +85,11 @@ type Task struct {
 	//
 	// Inside the Task.Gate of task template x, the reserved value "waiting" will
 	// be set to the reserved value "deleted" as soon as any of the respective
-	// dependency tasks y is being deleted after successful task execution. As
-	// soon as all tracked labels inside Task.Gate flipped from "waiting" to
-	// "deleted", a new task will be emitted containing the task template's
-	// Task.Meta and Task.Sync. Consequently the reserved values inside Task.Gate
-	// of the task template will all be reset back to "waiting" for the next cycle
-	// to begin.
+	// dependency tasks y is being deleted upon successful task execution. As soon
+	// as all tracked labels inside Task.Gate flipped from "waiting" to "deleted",
+	// a new task will be emitted containing the task template's Task.Meta and
+	// Task.Sync. Consequently the reserved values inside Task.Gate of the task
+	// template will all be reset back to "waiting" for the next cycle to begin.
 	Gate *Gate `json:"gate,omitempty"`
 
 	// Meta contains task specific information defined by the user. Any worker

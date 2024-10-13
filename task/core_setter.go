@@ -4,6 +4,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/xh3b4sd/objectid"
 	"github.com/xh3b4sd/rescue/ticker"
 )
 
@@ -33,8 +34,8 @@ func (s *setcor) Expiry(x time.Time) {
 	s.labl[Expiry] = x.Format(ticker.Layout)
 }
 
-func (s *setcor) Object(x int64) {
-	s.labl[Object] = strconv.FormatInt(x, 10)
+func (s *setcor) Object(x objectid.ID) {
+	s.labl[Object] = string(x)
 }
 
 func (s *setcor) Worker(x string) {
