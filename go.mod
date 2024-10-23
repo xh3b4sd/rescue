@@ -9,7 +9,7 @@ require (
 	github.com/xh3b4sd/breakr v0.1.0
 	github.com/xh3b4sd/logger v0.8.1
 	github.com/xh3b4sd/objectid v0.2.0
-	github.com/xh3b4sd/redigo v0.39.0
+	github.com/xh3b4sd/redigo v0.40.0
 	github.com/xh3b4sd/tracer v0.11.1
 )
 
