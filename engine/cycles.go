@@ -95,7 +95,7 @@ func (e *Engine) cycles(tas *task.Task) error {
 		v := task.ToString(upd)
 		s := upd.Core.Get().Object().Float()
 
-		_, err := e.red.Sorted().Update().Score(k, v, s)
+		_, err := e.red.Sorted().Update().Value(k, v, s)
 		if err != nil {
 			return tracer.Mask(err)
 		}

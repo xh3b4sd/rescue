@@ -366,7 +366,7 @@ func (e *Engine) search() (*task.Task, error) {
 		v := task.ToString(tas)
 		s := tas.Core.Get().Object().Float()
 
-		_, err := e.red.Sorted().Update().Score(k, v, s)
+		_, err := e.red.Sorted().Update().Value(k, v, s)
 		if err != nil {
 			return nil, tracer.Mask(err)
 		}
