@@ -9,7 +9,7 @@ require (
 	github.com/xh3b4sd/breakr v0.1.0
 	github.com/xh3b4sd/logger v0.8.1
 	github.com/xh3b4sd/objectid v0.2.0
-	github.com/xh3b4sd/redigo v0.40.0
+	github.com/xh3b4sd/redigo v0.41.0
 	github.com/xh3b4sd/tracer v0.11.1
 )
 
@@ -23,7 +23,7 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/prometheus/client_model v0.6.1 // indirect
-	github.com/prometheus/common v0.60.0 // indirect
+	github.com/prometheus/common v0.60.1 // indirect
 	github.com/prometheus/procfs v0.15.1 // indirect
 	golang.org/x/sys v0.26.0 // indirect
 	google.golang.org/protobuf v1.35.1 // indirect
