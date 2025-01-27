@@ -53,8 +53,8 @@ github.com/stvp/tempredis v0.0.0-20181119212430-b82af8480203 h1:QVqDTf3h2WHt08Yu
 github.com/stvp/tempredis v0.0.0-20181119212430-b82af8480203/go.mod h1:oqN97ltKNihBbwlX8dLpwxCl3+HnXKV/R0e+sRLd9C8=
 github.com/xh3b4sd/breakr v0.1.0 h1:ZdQPaocCc2ac4ipEdc3eaq1M0zeg54s1kC7QZQn3TLI=
 github.com/xh3b4sd/breakr v0.1.0/go.mod h1:dhU5gRl07UxonMdO6KzoGKLN545cWXPd3viKzw2bPPY=
-github.com/xh3b4sd/logger v0.8.1 h1:faI/W2c6tg1ah2Mp/c4/hY8B/94SL3nnUs7jNITyUgI=
-github.com/xh3b4sd/logger v0.8.1/go.mod h1:fPOPU7+b3NX+elW7raMDCYbRHJIjKToQR3icsHNSHB0=
+github.com/xh3b4sd/logger v0.9.0 h1:RTIkKFMNN9kgqwZVSBnbP0VPqFbWsjjJ7pNEoigu/ao=
+github.com/xh3b4sd/logger v0.9.0/go.mod h1:2/vfA9StUmObtQpcEpwISUvPb12I+7adAsQAt9oMQoE=
 github.com/xh3b4sd/objectid v0.2.0 h1:MhiH120lKf1IXpG2vLjQTVs7BD8NgwkDefHplZthw8U=
 github.com/xh3b4sd/objectid v0.2.0/go.mod h1:lCc4vB/7783ARHUCnoT28benOxIJvqvBFvoBb9psNpE=
 github.com/xh3b4sd/redigo v0.41.0 h1:X2XYFBZSi+9qDSjYM83jOvZat8dkMimdrCGH1oGViJI=
