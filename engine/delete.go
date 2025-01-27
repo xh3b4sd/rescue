@@ -114,7 +114,7 @@ func (e *Engine) delete(tas *task.Task) error {
 
 		if len(str) != 1 {
 			e.met.Task.NotFound.Inc()
-			return tracer.Maskf(taskNotFoundError, tas.Core.Map().Object())
+			return tracer.Maskf(taskNotFoundError, "%s", tas.Core.Map().Object())
 		}
 
 		cur = task.FromString(str[0])
@@ -168,7 +168,7 @@ func (e *Engine) delete(tas *task.Task) error {
 			e.met.Task.Outdated.Inc()
 		}
 
-		return tracer.Maskf(taskOutdatedError, cur.Core.Map().Object())
+		return tracer.Maskf(taskOutdatedError, "%s", cur.Core.Map().Object())
 	}
 
 	var lis []*task.Task

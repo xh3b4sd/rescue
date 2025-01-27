@@ -1,7 +1,6 @@
 package engine
 
 import (
-	"context"
 	"time"
 
 	"github.com/google/uuid"
@@ -49,7 +48,6 @@ type Engine struct {
 	// all tasks defining the delivery method "all".
 	cac map[objectid.ID]*local
 	cln time.Duration
-	ctx context.Context
 	exp time.Duration
 	loc locker.Interface
 	log logger.Interface
@@ -106,7 +104,6 @@ func New(config Config) *Engine {
 		bal: config.Balancer,
 		cac: map[objectid.ID]*local{},
 		cln: config.Cleanup,
-		ctx: context.Background(),
 		exp: config.Expiry,
 		loc: config.Locker,
 		log: config.Logger,
@@ -124,7 +121,6 @@ func New(config Config) *Engine {
 
 func (e *Engine) lerror(err error) {
 	e.log.Log(
-		e.ctx,
 		"level", "error",
 		"message", err.Error(),
 		"stack", tracer.Stack(err),
