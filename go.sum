@@ -57,8 +57,8 @@ github.com/xh3b4sd/objectid v0.2.0 h1:MhiH120lKf1IXpG2vLjQTVs7BD8NgwkDefHplZthw8
 github.com/xh3b4sd/objectid v0.2.0/go.mod h1:lCc4vB/7783ARHUCnoT28benOxIJvqvBFvoBb9psNpE=
 github.com/xh3b4sd/redigo v0.41.0 h1:X2XYFBZSi+9qDSjYM83jOvZat8dkMimdrCGH1oGViJI=
 github.com/xh3b4sd/redigo v0.41.0/go.mod h1:oZ+QmnabHOKkpEev5kWW3ZkxnNVEujllGko4GYPTw5k=
-github.com/xh3b4sd/tracer v0.11.1 h1:66G8yNkUkyuTRQ586cQMKrBxrD4mQej8mpR9PYoIiGg=
-github.com/xh3b4sd/tracer v0.11.1/go.mod h1:vrAkiLN6hl3VdUeLo71mvqCgUw2TE0YyvzrORa/vHXs=
+github.com/xh3b4sd/tracer v1.0.0 h1:mr9uYCx/Ry2w1wdJz0V0Kq71/KeF+hUQjbZQJCxm3Zw=
+github.com/xh3b4sd/tracer v1.0.0/go.mod h1:nfZeNH5RRfqE6ctQroIfY75b2NRlJHl2g+HP7ddvHrM=
 golang.org/x/sync v0.7.0 h1:YsImfSBoP9QPYL0xyKJPq0gcaJdG3rInoqxTWbfQu9M=
 golang.org/x/sync v0.7.0/go.mod h1:Czt+wKu1gCyEFDUtn0jG5QVvpJ6rzVqr5aXyt9drQfk=
 golang.org/x/sys v0.30.0 h1:QjkSwP/36a20jFYWkSue1YwXzLmsV5Gfq7Eiy72C1uc=
