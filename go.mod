@@ -1,6 +1,6 @@
 module github.com/xh3b4sd/rescue
 
-go 1.22.5
+go 1.24
 
 require (
 	github.com/google/go-cmp v0.7.0
@@ -10,7 +10,7 @@ require (
 	github.com/xh3b4sd/logger v0.9.0
 	github.com/xh3b4sd/objectid v0.2.0
 	github.com/xh3b4sd/redigo v0.41.0
-	github.com/xh3b4sd/tracer v0.11.1
+	github.com/xh3b4sd/tracer v1.0.0
 )
 
 require (
